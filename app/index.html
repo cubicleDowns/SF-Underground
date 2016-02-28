@@ -1,0 +1,34 @@
+<html>
+<head>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="bower_components/angular-material/angular-material.css">
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/angular-aria/angular-aria.js"></script>
+    <script src="bower_components/angular-animate/angular-animate.js"></script>
+    <script src="bower_components/angular-material/angular-material.js"></script>
+    <script src="bower_components/three.js/build/three.js"></script>
+    <script src="bower_components/threejs-trackball-controls/TrackballControls.js"></script>
+</head>
+<body></body>
+
+<body>
+
+<div ng-controller="MainController as main">
+    {{main.test}}
+</div>
+
+<script src="js/ng/app.js"></script>
+<script src="js/ng/constants.js"></script>
+<script src="js/ng/apiService.js"></script>
+<script src="js/ng/mainController.js"></script>
+<!--<script src="js/3d/scene.js"></script>-->
+<script src="js/3d/threeScene.js"></script>
+
+<script>
+    angular.element(document).ready(function(){
+        angular.bootstrap(document, ['SFUnderground']);
+//        init();
+    });
+</script>
+</body>
+</html>

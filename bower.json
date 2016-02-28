@@ -1,0 +1,33 @@
+{
+  "name": "SF-Underground",
+  "homepage": "https://github.com/cubicleDowns/SF-Underground",
+  "authors": [
+    "Josh Staples <cbcldowns@gmail.com>"
+  ],
+  "description": "Sounds of the San Francisco Underground",
+  "main": "index.html",
+  "moduleType": [],
+  "keywords": [
+    "three.js",
+    "BART",
+    "San",
+    "Francisco",
+    "3D",
+    "Web",
+    "Fest",
+    "WebGL"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "three.js": "threejs#*",
+    "threejs-trackball-controls": "*",
+    "angular-material": "^1.0.5"
+  }
+}
