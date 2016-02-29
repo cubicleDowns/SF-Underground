@@ -7,6 +7,17 @@ angular.module('SFUnderground.3D.scene', [])
             var axis = new THREE.Vector3();
             var up = new THREE.Vector3(0, 1, 0);
 
+            var multiplier = 0.1;
+
+            /**
+             * @param {number} num
+             */
+            function setMultiplier(num) {
+                multiplier = parseInt(num, 10) || 1;
+                console.log('multiplier: ' + multiplier);
+            }
+
+
             function init() {
 
                 renderer = new THREE.WebGLRenderer();
@@ -22,6 +33,12 @@ angular.module('SFUnderground.3D.scene', [])
 
                 for (var r = 0; r < BART.routes.length; r++) {
                     var route = BART.routes[r];
+
+                    // lets create a looped route so the "train" never stops moving.
+                    var returnRouteStops = angular.copy(route.stops).reverse();
+                    returnRouteStops.shift();
+                    returnRouteStops.pop();
+                    route.stops = route.stops.concat(returnRouteStops);
                     var points = [];
                     for (var s = 0; s < route.stops.length; s++) {
                         var stop = route.stops[s];
@@ -29,22 +46,6 @@ angular.module('SFUnderground.3D.scene', [])
                     }
                     splines.push(new THREE.SplineCurve3(points));
                 }
-//
-//                splines.push(new THREE.SplineCurve3([
-//                    new THREE.Vector3(0, 0, 0),
-//                    new THREE.Vector3(0, 200, 0),
-//                    new THREE.Vector3(150, 150, 0),
-//                    new THREE.Vector3(150, 50, 0),
-//                    new THREE.Vector3(250, 100, 0),
-//                    new THREE.Vector3(250, 300, 0)]));
-//
-//                splines.push(new THREE.SplineCurve3([
-//                    new THREE.Vector3(150, 200, 100),
-//                    new THREE.Vector3(0, 200, 0),
-//                    new THREE.Vector3(50, 25, 0),
-//                    new THREE.Vector3(50, 50, 0),
-//                    new THREE.Vector3(200, 100, 0),
-//                    new THREE.Vector3(250, 100, 0)]));
 
                 var material = new THREE.LineBasicMaterial({
                     color: 0xff00f0
@@ -78,7 +79,7 @@ angular.module('SFUnderground.3D.scene', [])
             function moveBox() {
                 for (var i = 0; i < boxes.length; i++) {
                     var box = boxes[i];
-
+                    var radians;
                     if (counter <= 1) {
                         box.position.copy(splines[i].getPointAt(counter));
 
@@ -86,11 +87,12 @@ angular.module('SFUnderground.3D.scene', [])
 
                         axis.crossVectors(up, tangent).normalize();
 
-                        var radians = Math.acos(up.dot(tangent));
+                        radians = Math.acos(up.dot(tangent));
 
                         box.quaternion.setFromAxisAngle(axis, radians);
 
-                        counter += 0.005
+                        counter = counter + (multiplier * 0.005);
+
                     } else {
                         counter = 0;
                     }
@@ -109,6 +111,7 @@ angular.module('SFUnderground.3D.scene', [])
             }
 
             return {
-                init: init
+                init: init,
+                setMultiplier: setMultiplier
             };
         }]);

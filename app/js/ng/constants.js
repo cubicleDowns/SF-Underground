@@ -13,6 +13,7 @@ angular.module('SFUnderground.constants', [])
             {
                 to: "Pittsburg/Bay Point",
                 from: "Millbrae",
+                distance: 25,
                 stops: [
                     [852, 962, 0],
                     [796, 928, 0],
@@ -45,6 +46,7 @@ angular.module('SFUnderground.constants', [])
             {
                 to: "Richmond",
                 from: "Millbrae",
+                distance: 100,
                 stops: [
                     [232, 838, 0],
                     [250, 815, 0],
@@ -74,6 +76,7 @@ angular.module('SFUnderground.constants', [])
             {
                 to: "Richmond",
                 from: "Freemont",
+                distance: 100,
                 stops: [
                     [245, 846, 0],
                     [260, 823, 0],
@@ -98,6 +101,7 @@ angular.module('SFUnderground.constants', [])
             {
                 to: "Freemont",
                 from: "Daly City",
+                distance: 75,
                 stops: [
                     [784, 56, 0],
                     [730, 110, 0],
@@ -123,6 +127,7 @@ angular.module('SFUnderground.constants', [])
             {
                 to: "Dublin",
                 from: "Daly City",
+                distance: 50,
                 stops: [
                     [910, 343, 0],
                     [849, 338, 0],
