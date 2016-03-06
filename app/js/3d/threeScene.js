@@ -20,6 +20,7 @@ angular.module('SFUnderground.3D.scene', [])
 
                 var numPoints = 50;
 
+                // parse each route and create a spline from the cartesian coordinates.
                 for (var r = 0; r < BART.routes.length; r++) {
                     var route = BART.routes[r];
                     var points = [];
@@ -29,35 +30,24 @@ angular.module('SFUnderground.3D.scene', [])
                     }
                     splines.push(new THREE.SplineCurve3(points));
                 }
-//
-//                splines.push(new THREE.SplineCurve3([
-//                    new THREE.Vector3(0, 0, 0),
-//                    new THREE.Vector3(0, 200, 0),
-//                    new THREE.Vector3(150, 150, 0),
-//                    new THREE.Vector3(150, 50, 0),
-//                    new THREE.Vector3(250, 100, 0),
-//                    new THREE.Vector3(250, 300, 0)]));
-//
-//                splines.push(new THREE.SplineCurve3([
-//                    new THREE.Vector3(150, 200, 100),
-//                    new THREE.Vector3(0, 200, 0),
-//                    new THREE.Vector3(50, 25, 0),
-//                    new THREE.Vector3(50, 50, 0),
-//                    new THREE.Vector3(200, 100, 0),
-//                    new THREE.Vector3(250, 100, 0)]));
 
-                var material = new THREE.LineBasicMaterial({
-                    color: 0xff00f0
-                });
 
+
+                // 1 spline for each route.
+                // create a geometry and material for each route
                 for (var j = 0; j < splines.length; j++) {
                     var geometry = new THREE.Geometry();
                     var splinePoints = splines[j].getPoints(numPoints);
                     for (var i = 0; i < splinePoints.length; i++) {
                         geometry.vertices.push(splinePoints[i]);
                     }
+                    var material = new THREE.LineBasicMaterial({
+                        color:  BART.routes[j].color
+                    });
+
                     var line = new THREE.Line(geometry, material);
                     scene.add(line);
+                    
                     geometry = new THREE.BoxGeometry(5, 40, 4);
                     material = new THREE.MeshBasicMaterial({
                         color: 0xff0000
