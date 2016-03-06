@@ -26,7 +26,7 @@
     "tests"
   ],
   "dependencies": {
-    "three.js": "threejs#*",
+    "threejs": "https://raw.githubusercontent.com/mrdoob/three.js/master/build/three.min.js",
     "threejs-trackball-controls": "*",
     "angular-material": "^1.0.5"
   }
