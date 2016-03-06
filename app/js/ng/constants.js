@@ -13,6 +13,7 @@ angular.module('SFUnderground.constants', [])
             {
                 to: "Pittsburg/Bay Point",
                 from: "Millbrae",
+                length: 100,
                 color: 0x00FF00,
                 stops: [
                     [852, 962, 0],
@@ -46,6 +47,7 @@ angular.module('SFUnderground.constants', [])
             {
                 to: "Richmond",
                 from: "Millbrae",
+                length: 80,
                 color: 0x0000FF,
                 stops: [
                     [232, 838, 0],
@@ -76,6 +78,7 @@ angular.module('SFUnderground.constants', [])
             {
                 to: "Richmond",
                 from: "Freemont",
+                length: 50,
                 color: 0xFFFF00,
                 stops: [
                     [245, 846, 0],
@@ -101,6 +104,7 @@ angular.module('SFUnderground.constants', [])
             {
                 to: "Freemont",
                 from: "Daly City",
+                length: 120,
                 color: 0x00FFFF,
                 stops: [
                     [784, 56, 0],
@@ -127,6 +131,7 @@ angular.module('SFUnderground.constants', [])
             {
                 to: "Dublin",
                 from: "Daly City",
+                length: 100,
                 color: 0xFF00FF,
                 stops: [
                     [910, 343, 0],

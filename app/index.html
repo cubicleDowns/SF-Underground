@@ -1,6 +1,6 @@
 <html>
 <head>
-    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no"/>
     <link rel="stylesheet" href="bower_components/angular-material/angular-material.css">
     <script src="bower_components/angular/angular.js"></script>
     <script src="bower_components/angular-aria/angular-aria.js"></script>
@@ -10,27 +10,39 @@
     <script src="bower_components/threejs-trackball-controls/TrackballControls.js"></script>
 
     <base href="/">
+    <style>
+        canvas {
+            position: absolute;
+            top: 50px;
+            z-index: 1;
+            left: 0;
+        }
+    </style>
 
 </head>
 <body></body>
 
 <body>
 
-<div ng-controller="MainController as main">
-    {{main.test}}
+<div ng-controller="MainController as main" ng-init="main.init()">
+        <p ng-click="main.prevent($event)" ng-mousemove="main.prevent($event)">
+            <label>Number:
+                <input type="range" name="input" ng-model="main.time"
+                       min="0" max="10" step="1"
+                       ng-change="main.changeTime(main.time)">
+            </label>
+        </p>
 </div>
 
 <script src="js/ng/app.js"></script>
 <script src="js/ng/constants.js"></script>
 <script src="js/ng/apiService.js"></script>
 <script src="js/ng/mainController.js"></script>
-<!--<script src="js/3d/scene.js"></script>-->
 <script src="js/3d/threeScene.js"></script>
 
 <script>
-    angular.element(document).ready(function(){
+    angular.element(document).ready(function () {
         angular.bootstrap(document, ['SFUnderground']);
-//        init();
     });
 </script>
 </body>
