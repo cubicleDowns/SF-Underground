@@ -143,7 +143,7 @@ angular.module('SFUnderground.constants', [])
                 routeLengths: [2,11,4,4,4,4,4,6,8,1,2,1,2,2,3,2,4],
                 routeLength: 64,
                 color: 0xFF00FF,
-                subwayColor: 0x000000,
+                subwayColor: 0xFFFFFF,
                 stops: [
                     [910, 343, 0],
                     [849, 338, 0],
