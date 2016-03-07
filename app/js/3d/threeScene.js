@@ -1,27 +1,23 @@
 angular.module('SFUnderground.3D.scene', [])
     .factory('ThreeScene', ['BART',
         function (BART) {
-            var controls, renderer, scene, camera, boxes = [], splines = [],
-                counter0 = 0,
-                counter1 = 0,
-                counter2 = 0,
-                counter3 = 0,
-                counter4 = 0;
+            var controls, renderer, scene, camera, subways = [], splines = [];
 
             var tangent = new THREE.Vector3();
             var axis = new THREE.Vector3();
             var up = new THREE.Vector3(0, 1, 0);
 
+            var delta = 0.005;
             var multiplier = 0.1;
 
             /**
              * @param {number} num
+             * TODO: WTF isn't this working.
              */
             function setMultiplier(num) {
                 multiplier = parseInt(num, 10) || 1;
                 console.log('multiplier: ' + multiplier);
             }
-
 
             /**
              * Initialize the 3D scene.
@@ -41,9 +37,16 @@ angular.module('SFUnderground.3D.scene', [])
 
                 // parse each route and create a spline from the cartesian coordinates.
                 for (var r = 0; r < BART.routes.length; r++) {
+
+                    /**
+                     * @type {Object}
+                     */
                     var route = BART.routes[r];
 
-                    // lets create a looped route so the "train" never stops moving.
+                    // lets create a looped route so the "subway" never stops moving.
+                    /**
+                     * @type {Array.<T>}
+                     */
                     var returnRouteStops = angular.copy(route.stops).reverse();
                     returnRouteStops.shift();
                     returnRouteStops.pop();
@@ -74,126 +77,50 @@ angular.module('SFUnderground.3D.scene', [])
 
                     geometry = new THREE.BoxGeometry(5, 40, 4);
                     material = new THREE.MeshBasicMaterial({
-                        color: 0xff0000
+                        color: route.subwayColor
                     });
-                    // these are the 'trains'
-                    var box = new THREE.Mesh(geometry, material);
-                    box.userData.length = route.length;
-                    boxes.push(box);
-                    scene.add(box);
+                    // these are the 'subways'
+                    // Yay!  Subway group.  This is a simple container to add sprites/fx to.
+                    var subwayGroup = new THREE.Object3D();
+                    var subway = new THREE.Mesh(geometry, material);
+                    subwayGroup.add(subway);
+                    subwayGroup.userData.normalizer =  BART.longestRoute / route.routeLength;
+                    subwayGroup.counter = 0;
+                    subways.push(subwayGroup);
+                    scene.add(subwayGroup);
                 }
 
                 animate();
 
-                setInterval(moveBox0, boxes[0].userData.length * 2);
-                setInterval(moveBox1, boxes[1].userData.length * 2);
-                setInterval(moveBox2, boxes[2].userData.length * 2);
-                setInterval(moveBox3, boxes[3].userData.length * 2);
-                setInterval(moveBox4, boxes[4].userData.length * 2);
+                setInterval(moveSubway, 100);
             }
 
-            function moveBox0() {
-                var box = boxes[0];
-                var radians;
-                if (counter0 <= 1) {
-                    box.position.copy(splines[0].getPointAt(counter0));
 
-                    tangent = splines[0].getTangentAt(counter0).normalize();
+            function moveSubway() {
+                for (var i = 0; i < subways.length; i++) {
+                    var subway= subways[i];
+                    var radians;
+                    if (subway.counter <= 1) {
+                        subway.position.copy(splines[i].getPointAt(subway.counter));
 
-                    axis.crossVectors(up, tangent).normalize();
+                        tangent = splines[i].getTangentAt(subway.counter).normalize();
 
-                    radians = Math.acos(up.dot(tangent));
+                        axis.crossVectors(up, tangent).normalize();
 
-                    box.quaternion.setFromAxisAngle(axis, radians);
+                        radians = Math.acos(up.dot(tangent));
 
-                    counter0 = counter0 + (multiplier * 0.005);
+                        subway.quaternion.setFromAxisAngle(axis, radians);
 
-                } else {
-                    counter0 = 0;
-                }
-            }
-
-            function moveBox1() {
-                var box = boxes[1];
-                var radians;
-                if (counter1 <= 1) {
-                    box.position.copy(splines[1].getPointAt(counter1));
-
-                    tangent = splines[1].getTangentAt(counter1).normalize();
-
-                    axis.crossVectors(up, tangent).normalize();
-
-                    radians = Math.acos(up.dot(tangent));
-
-                    box.quaternion.setFromAxisAngle(axis, radians);
-
-                    counter1 = counter1 + (multiplier * 0.005);
-
-                } else {
-                    counter1 = 0;
-                }
-            }
-
-            function moveBox2() {
-                var box = boxes[2];
-                var radians;
-                if (counter2 <= 1) {
-                    box.position.copy(splines[2].getPointAt(counter2));
-
-                    tangent = splines[2].getTangentAt(counter2).normalize();
-
-                    axis.crossVectors(up, tangent).normalize();
-
-                    radians = Math.acos(up.dot(tangent));
-
-                    box.quaternion.setFromAxisAngle(axis, radians);
-
-                    counter2 = counter2 + (multiplier * 0.005);
-
-                } else {
-                    counter2 = 0;
-                }
-            }
-
-            function moveBox3() {
-                var box = boxes[3];
-                var radians;
-                if (counter3 <= 1) {
-                    box.position.copy(splines[3].getPointAt(counter3));
-
-                    tangent = splines[3].getTangentAt(counter3).normalize();
-
-                    axis.crossVectors(up, tangent).normalize();
-
-                    radians = Math.acos(up.dot(tangent));
-
-                    box.quaternion.setFromAxisAngle(axis, radians);
-
-                    counter3 = counter3 + (multiplier * 0.005);
-
-                } else {
-                    counter3 = 0;
-                }
-            }
-
-            function moveBox4() {
-                var box = boxes[4];
-                var radians;
-                if (counter4 <= 1) {
-                    box.position.copy(splines[4].getPointAt(counter4));
-
-                    tangent = splines[4].getTangentAt(counter4).normalize();
-
-                    axis.crossVectors(up, tangent).normalize();
-
-                    radians = Math.acos(up.dot(tangent));
-
-                    box.quaternion.setFromAxisAngle(axis, radians);
-
-                    counter4 = counter4 + (multiplier * 0.005);
-
-                } else {
-                    counter4 = 0;
+                        /**
+                         * `normalizer` is the current track / longest track.
+                         * the spline length is normalized so we need to modify the
+                         * length of arc movement.
+                         * @type {number}
+                         */
+                        subway.counter = subway.counter + (delta * multiplier * subway.userData.normalizer);
+                    } else {
+                        subway.counter = 0;
+                    }
                 }
             }
 

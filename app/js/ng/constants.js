@@ -9,12 +9,15 @@ angular.module('SFUnderground.constants', [])
     .constant("BART", {
         map_width: 1000,
         map_height: 1000,
+        longestRoute: 89,
         routes: [
             {
                 to: "Pittsburg/Bay Point",
                 from: "Millbrae",
-                length: 100,
+                routeLengths: [6,3,5,2,5,5,5,2,4,2,5,8,1,2,1,2,2,3,2,4,4,3,4,5,4],
+                routeLength: 89,
                 color: 0x00FF00,
+                subwayColor: 0xFFF000,
                 stops: [
                     [852, 962, 0],
                     [796, 928, 0],
@@ -47,8 +50,10 @@ angular.module('SFUnderground.constants', [])
             {
                 to: "Richmond",
                 from: "Millbrae",
-                length: 80,
+                routeLengths: [4,3,4,2,2,3,4,2,5,8,1,2,1,2,2,3,2,4,4,3,4,6],
+                routeLength: 71,
                 color: 0x0000FF,
+                subwayColor: 0x000FFF,
                 stops: [
                     [232, 838, 0],
                     [250, 815, 0],
@@ -78,8 +83,10 @@ angular.module('SFUnderground.constants', [])
             {
                 to: "Richmond",
                 from: "Freemont",
-                length: 50,
+                routeLengths: [4,3,4,2,2,3,4,2,3,4,4,4,4,4,4,5,5],
+                routeLength: 61,
                 color: 0xFFFF00,
+                subwayColor: 0xFFF00F,
                 stops: [
                     [245, 846, 0],
                     [260, 823, 0],
@@ -104,8 +111,10 @@ angular.module('SFUnderground.constants', [])
             {
                 to: "Freemont",
                 from: "Daly City",
-                length: 120,
+                routeLengths: [5,5,4,4,4,4,4,4,3,8,1,2,1,2,2,3,2,4],
+                routeLength: 62,
                 color: 0x00FFFF,
+                subwayColor: 0xF00FFF,
                 stops: [
                     [784, 56, 0],
                     [730, 110, 0],
@@ -129,10 +138,12 @@ angular.module('SFUnderground.constants', [])
                 ]
             },
             {
-                to: "Dublin",
+                to: "Dublin/Pleasanton",
                 from: "Daly City",
-                length: 100,
+                routeLengths: [2,11,4,4,4,4,4,6,8,1,2,1,2,2,3,2,4],
+                routeLength: 64,
                 color: 0xFF00FF,
+                subwayColor: 0x000000,
                 stops: [
                     [910, 343, 0],
                     [849, 338, 0],
