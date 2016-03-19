@@ -16,5 +16,6 @@ angular.module( 'SFUnderground', [
     'SFUnderground.constants',
     'SFUnderground.controllers',
     'SFUnderground.services',
-    'SFUnderground.3D'
+    'SFUnderground.3D',
+    'firebase'
 ] );

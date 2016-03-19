@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="bower_components/angular-material/angular-material.css">
 
     <script src="bower_components/angular/angular.js"></script>
-    <script src="bower_components/angularfire/dist/angularfire.js"></script>
     <script src="bower_components/angular-aria/angular-aria.js"></script>
     <script src="bower_components/angular-animate/angular-animate.js"></script>
     <script src="bower_components/angular-material/angular-material.js"></script>
@@ -19,25 +18,20 @@
     <style>
         canvas {
             position: absolute;
-            top: 50px;
+            top: 150px;
             z-index: 1;
             left: 0;
         }
     </style>
 
 </head>
-<body></body>
-
 <body>
 
-<div ng-controller="MainController as main" ng-init="main.init()">
-        <p ng-click="main.prevent($event)" ng-mousemove="main.prevent($event)">
-            <label>Number:
-                <input type="range" name="input" ng-model="main.time"
-                       min="0" max="10" step="1"
-                       ng-change="main.changeTime(main.time)">
-            </label>
-        </p>
+<div ng-controller="MainController as main" ng-init="main.init()" style="float: left">
+    <label>Number:
+        <input type="number" ng-model="main.time" ng-change="main.changeTime()">
+    </label>
+    <pre>{{main.data | json}}</pre>
 </div>
 
 <script src="js/ng/app.js"></script>
