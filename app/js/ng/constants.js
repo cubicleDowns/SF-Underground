@@ -1,8 +1,11 @@
 /**
- * BART routes initially.
+ * BART routes in cartesian coordinates.
  *
- * To calculate the 'stops', I grabbed a BART map from the web, opened it in an image editing program and pixel-picked
- * the X/Y locations for all routes and stops.  - 30 mins.   The map I used is cropped to 1000/1000 pixels.
+ * To calculate the 'stops', I snagged a BART map from the web, opened it in an image editing program and pixel-picked
+ * the X/Y locations for all routes and stops.  - 30 mins.   The map I used is cropped to 1000/1000 pixels allowing
+ * for easy normalization.
+ *
+ * TODO:  Add z values?
  *
  */
 angular.module('SFUnderground.constants', [])
@@ -143,7 +146,7 @@ angular.module('SFUnderground.constants', [])
                 routeLengths: [2,11,4,4,4,4,4,6,8,1,2,1,2,2,3,2,4],
                 routeLength: 64,
                 color: 0xFF00FF,
-                subwayColor: 0x000000,
+                subwayColor: 0xFFFFFF,
                 stops: [
                     [910, 343, 0],
                     [849, 338, 0],

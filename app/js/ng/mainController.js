@@ -1,24 +1,35 @@
 angular.module('SFUnderground.controller.main', ['SFUnderground.3D'])
     .controller('MainController', [
+        '$scope',
         '$location',
+        '$firebaseObject',
         'ThreeScene',
-        function ($location, ThreeScene) {
+        function ($scope, $location, $firebaseObject, ThreeScene) {
 
             var main = this;
 
-            main.time = 2;
+            var fb = new Firebase("https://sf-noise.firebaseio.com");
+            var syncObject = $firebaseObject(fb);
+            syncObject.$bindTo($scope, "main.data");
 
-            main.changeTime = function (number) {
-                ThreeScene.setMultiplier(number);
-            };
 
+            main.time = 1;
+
+            main.changeTime = changeTime;
+
+            /**
+             * Change the train speed scaler.
+             */
+            function changeTime() {
+                ThreeScene.setMultiplier(main.time);
+            }
+
+
+            /**
+             * Initialize the 3D scene
+             */
             main.init = function () {
                 ThreeScene.init();
-                main.changeTime();
             };
-
-            main.prevent = function(e){
-                e.preventDefault();
-            }
         }
     ]);

@@ -28,6 +28,10 @@
   "dependencies": {
     "threejs": "https://raw.githubusercontent.com/mrdoob/three.js/master/build/three.min.js",
     "threejs-trackball-controls": "*",
-    "angular-material": "^1.0.5"
-  }
+    "angular-material": "^1.0.5",
+    "angularfire": "^1.1.4",
+    "firebase": "^2.4.1",
+    "angular": "^1.5.0"
+  },
+  "devDependencies": {}
 }

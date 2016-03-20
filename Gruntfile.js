@@ -5,7 +5,6 @@ module.exports = function(grunt) {
     'use strict';
 
     var SERVER_PORT = 9000;
-    var pipeline;
     var config = {
         browserSync: {
             'dev': {
