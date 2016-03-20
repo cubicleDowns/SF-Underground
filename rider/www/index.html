@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+  <title></title>
+  <link href="lib/ionic/css/ionic.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <link href="css/cardboard.css" rel="stylesheet">
+  <script src="lib/ionic/js/ionic.bundle.js"></script>
+  <script src="lib/ng-cordova/ng-cordova.min.js"></script>
+  <script src="cordova.js"></script>
+  <script src="/node_modules/es6-promise/dist/es6-promise.js"></script>
+  <script src="/node_modules/three/three.min.js"></script>
+  <script src="/node_modules/three/examples/js/controls/VRControls.js"></script>
+  <script src="/node_modules/three/examples/js/effects/VREffect.js"></script>
+  <script src="/node_modules/webvr-polyfill/build/webvr-polyfill.js"></script>
+  <script src="lib/vr/webvr-manager.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/controllers.js"></script>
+  <script src="js/directives.js"></script>
+  <script src="js/services.js"></script>
+</head>
+<body ng-app="starter" ng-controller="MainCtrl">
+  <ion-content scroll="false" padding="false">
+    <cardboard-gl stereo-effect="Data.stereoEffect" landscape-mode="Data.landscapeMode" move-star-fighter="Data.moveStarFighter" planets-speed="Data.planetsSpeed"></cardboard-gl>
+    <div ng-switch="Data.stereoEffect">
+      <div class="shadow" ng-switch-when="true"></div>
+    </div>
+    <div ng-switch="Data.landscapeMode">
+      <div class="topControls" ng-click="Move()" ng-switch-when="true"></div>
+      <div class="bottomControls" ng-switch-when="true">
+        <button class="button button-clear" ng-click="openSettingsModal()">
+          <img src="img/cardboard_logo.png" style="height: 30px;">
+        </button>
+      </div>
+      <div class="modal" ng-switch-when="false">
+        <ion-slide-box>
+          <ion-slide>
+            <div class="centered">
+              <h1>Bart-Cardboard</h1>
+            </div>
+          </ion-slide>
+          <ion-slide>
+            <div class="centered">
+              <img src="img/cardboard_logo.png" style="max-height: 80%; max-width: 80%;">
+              <br>
+              Is a Google Cardboard compatible app
+            </div>
+          </ion-slide>
+          <ion-slide>
+            <div class="centered">
+              Created by using some amazing technologies such as
+            </div>
+          </ion-slide>
+          <ion-slide>
+            <div class="centered">
+              <img src="img/angularjs_logo.png" style="max-height: 80%; max-width: 80%;">
+            </div>
+          </ion-slide>
+          <ion-slide>
+            <div class="centered">
+              <img src="img/ionic_logo.png" style="max-height: 80%; max-width: 80%;">
+            </div>
+          </ion-slide>
+          <ion-slide>
+            <div class="centered">
+              <img src="img/threejs_logo.png" style="max-height: 80%; max-width: 80%;">
+            </div>
+          </ion-slide>
+          <ion-slide>
+            <div class="centered">
+              Rotate your device to get started.
+              <br>
+              <i class="icon ion-loop" style="font-size:50px;"></i>
+            </div>
+          </ion-slide>
+        </ion-slide-box>
+      </div>
+    </div>
+  </ion-content>
+</body>
+</html>
