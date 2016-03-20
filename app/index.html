@@ -1,37 +1,37 @@
 <html>
 <head>
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no"/>
+
+    <base href="/">
+
     <link rel="stylesheet" href="bower_components/angular-material/angular-material.css">
+
     <script src="bower_components/angular/angular.js"></script>
     <script src="bower_components/angular-aria/angular-aria.js"></script>
     <script src="bower_components/angular-animate/angular-animate.js"></script>
     <script src="bower_components/angular-material/angular-material.js"></script>
     <script src="bower_components/threejs/index.js"></script>
     <script src="bower_components/threejs-trackball-controls/TrackballControls.js"></script>
+    <script src="bower_components/firebase/firebase-debug.js"></script><!-- Firebase -->
+    <script src="bower_components/angularfire/dist/angularfire.min.js"></script><!-- Firebase -->
 
-    <base href="/">
     <style>
         canvas {
             position: absolute;
-            top: 50px;
+            top: 150px;
             z-index: 1;
             left: 0;
         }
     </style>
 
 </head>
-<body></body>
-
 <body>
 
-<div ng-controller="MainController as main" ng-init="main.init()">
-        <p ng-click="main.prevent($event)" ng-mousemove="main.prevent($event)">
-            <label>Number:
-                <input type="range" name="input" ng-model="main.time"
-                       min="0" max="10" step="1"
-                       ng-change="main.changeTime(main.time)">
-            </label>
-        </p>
+<div ng-controller="MainController as main" ng-init="main.init()" style="float: left">
+    <label>Number:
+        <input type="number" ng-model="main.time" ng-change="main.changeTime()">
+    </label>
+    <pre>{{main.data | json}}</pre>
 </div>
 
 <script src="js/ng/app.js"></script>
@@ -39,6 +39,7 @@
 <script src="js/ng/apiService.js"></script>
 <script src="js/ng/mainController.js"></script>
 <script src="js/3d/threeScene.js"></script>
+<script src="js/util.js"></script>
 
 <script>
     angular.element(document).ready(function () {
