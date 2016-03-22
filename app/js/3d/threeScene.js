@@ -1,21 +1,28 @@
 angular.module('SFUnderground.3D.scene', [])
-    .factory('ThreeScene', ['BART',
-        function (BART) {
-            var controls, renderer, scene, camera, subways = [], splines = [];
+    .factory('ThreeScene', [
+        'BART',
+        'SETUP',
+        function (BART, SETUP) {
+            var controls,
+                renderer,
+                scene,
+                camera,
+                subways = [],
+                splines = [];
 
             var tangent = new THREE.Vector3();
             var axis = new THREE.Vector3();
             var up = new THREE.Vector3(0, 1, 0);
 
             var delta = 0.005;
-            var multiplier = 0.1;
+            var multiplier = 1;
 
             /**
              * @param {number} num
              * TODO: WTF isn't this working.
              */
             function setMultiplier(num) {
-                multiplier = parseInt(num, 10) || 1;
+                multiplier = parseInt(num, 10) || SETUP.MULTIPLIER || 1;
                 console.log('multiplier: ' + multiplier);
             }
 
@@ -27,13 +34,15 @@ angular.module('SFUnderground.3D.scene', [])
                 renderer = new THREE.WebGLRenderer();
                 renderer.setSize(window.innerWidth, window.innerHeight);
                 document.body.appendChild(renderer.domElement);
-                camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 5000);
-                camera.position.set(500, 500, 3000);
-                camera.lookAt(new THREE.Vector3(500, 500, 0));
+                camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 5000);
+                //TODO:  Why is camera looking at origin?
+                camera.position.set(500, 500, 1500);
                 scene = new THREE.Scene();
-                controls = new THREE.TrackballControls(camera, render.domElement);
+//                controls = new THREE.TrackballControls(camera, renderer.domElement);
+                var axisHelper = new THREE.AxisHelper( 50 );
+                scene.add( axisHelper );
 
-                var numPoints = 50;
+                var numPoints = 100;
 
                 // parse each route and create a spline from the cartesian coordinates.
                 for (var r = 0; r < BART.routes.length; r++) {
@@ -87,14 +96,20 @@ angular.module('SFUnderground.3D.scene', [])
                     subwayGroup.userData.normalizer = BART.longestRoute / route.routeLength;
                     subwayGroup.counter = 0;
                     subways.push(subwayGroup);
-                    var spritey = makeTextSprite(j.toString(), {
-                        fontsize: 32,
-                        fontface: "Georgia",
-                        borderColor: {r: 0, g: 0, b: 255, a: 1.0}
-                    });
-                    subwayGroup.add(spritey);
+
+                    var testGeo = new THREE.BoxGeometry(40,5,5);
+                    var testMesh = new THREE.Mesh(testGeo, material);
+
+                    subwayGroup.add(testMesh);
                     scene.add(subwayGroup);
                 }
+
+                var midmarker = new THREE.BoxGeometry(25,25,25);
+                var tm = new THREE.Mesh(midmarker, material);
+
+                camera.lookAt(midmarker);
+                tm.position.set(250, 250, 0);
+                scene.add(tm);
 
                 animate();
 
@@ -202,7 +217,7 @@ angular.module('SFUnderground.3D.scene', [])
             }
 
             function render() {
-                controls.update();
+//                controls.update();
                 renderer.render(scene, camera);
             }
 

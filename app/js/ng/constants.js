@@ -9,6 +9,9 @@
  *
  */
 angular.module('SFUnderground.constants', [])
+    .constant('SETUP', {
+        MULTIPLIER: 1
+    })
     .constant("BART", {
         map_width: 1000,
         map_height: 1000,

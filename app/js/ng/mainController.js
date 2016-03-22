@@ -4,7 +4,8 @@ angular.module('SFUnderground.controller.main', ['SFUnderground.3D'])
         '$location',
         '$firebaseObject',
         'ThreeScene',
-        function ($scope, $location, $firebaseObject, ThreeScene) {
+        'SETUP',
+        function ($scope, $location, $firebaseObject, ThreeScene, SETUP) {
 
             var main = this;
 
@@ -12,9 +13,11 @@ angular.module('SFUnderground.controller.main', ['SFUnderground.3D'])
             var syncObject = $firebaseObject(fb);
             syncObject.$bindTo($scope, "main.data");
 
-
-            main.time = 1;
-
+            /**
+             * @type {number}
+             */
+            main.time = SETUP.MULTIPLIER || 1;
+            main.constants = SETUP;
             main.changeTime = changeTime;
 
             /**
@@ -24,12 +27,16 @@ angular.module('SFUnderground.controller.main', ['SFUnderground.3D'])
                 ThreeScene.setMultiplier(main.time);
             }
 
+            /**
+             * Bound DOM functions.  I forget why I do this.
+             */
+            main.init = init;
 
             /**
              * Initialize the 3D scene
              */
-            main.init = function () {
+            function init() {
                 ThreeScene.init();
-            };
+            }
         }
     ]);
