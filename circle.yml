@@ -48,3 +48,8 @@ deployment:
     commands:
       - npm install -g surge
       - surge ./app raspy-ocean.surge.sh
+  staging:
+    branch: twilio
+    commands:
+      - npm install -g surge
+      - surge ./app legal-stocking.surge.sh
