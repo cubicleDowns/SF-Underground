@@ -1,0 +1,5 @@
+{
+    "require": {
+        "authy/php": "2.*"
+    }
+}
