@@ -12,7 +12,7 @@ exports.config = {
     getPageTimeout: 10000,
     params: {
         delay: 5000,
-        url: 'http://localhost:' + process.env.STATIC_SERVER_PORT + '/',
+        url: 'http://localhost:' + process.env.MAP_SERVER_PORT + '/',
         title: 'Sounds of the SF Underground'
     },
     restartBrowserBetweenTests: false,

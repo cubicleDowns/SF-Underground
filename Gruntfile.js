@@ -11,12 +11,12 @@ module.exports = function(grunt) {
         browserSync: {
             default: {
                 bsFiles: {
-                    src: ['./app/**/*']
+                    src: ['./map/**/*']
                 },
                 options: {
                     port: port,
                     server: {
-                        baseDir: distributable ? './dist' : './app',
+                        baseDir: distributable ? './dist' : './map',
                         middleware: rewrite(['^[^\\.]*$ /index.html [L]'])
                     },
                     ui: {

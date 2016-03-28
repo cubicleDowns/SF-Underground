@@ -2,7 +2,9 @@
 # Setup dependencies
 machine:
   environment:
-    STATIC_SERVER_PORT: 9000
+    MAP_SERVER_PORT: 9000
+    RIDER_SERVER_PORT: 9100
+    REPORT_SERVER_PORT: 9200
 
 dependencies:
   override:
@@ -47,9 +49,12 @@ deployment:
     branch: master
     commands:
       - npm install -g surge
-      - surge ./app raspy-ocean.surge.sh
+      - surge ./map raspy-ocean.surge.sh
   staging:
     branch: twilio
     commands:
       - npm install -g surge
-      - surge ./app legal-stocking.surge.sh
+      - surge ./map raspy-ocean.surge.sh
+      - surge ./rider/www legal-stocking.surge.sh
+      - surge ./reporter/ odd-honey.surge.sh
+
