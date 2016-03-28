@@ -33,5 +33,8 @@
     "firebase": "^2.4.1",
     "angular": "^1.5.0"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "resolutions": {
+    "angular": "^1.4.8"
+  }
 }
