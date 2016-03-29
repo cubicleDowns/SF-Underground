@@ -1,5 +1,17 @@
-<label>Number:
-    <input type="number" ng-model="main.time" ng-change="main.changeTime()">
-</label>
-<h3>Firebase Data</h3>
-<pre>{{main | json}}</pre>
+<div class="sidebar" ng-show="main.showSidebar">
+    <div class="close" ng-click="main.showSidebar = false;">CLOSE</div>
+    <label>Speed Multiplier:</label><br/>
+    <input type="range" ng-model="main.time" ng-change="main.changeTime()" step=0.1 max=5 min=0.1 value=1>{{main.time}}
+    <h3 ng-click="main.showFirebaseData = !main.showFirebaseData">Firebase Data</h3>
+    <pre ng-show="main.showFirebaseData">{{main.data | json}}</pre>
+    <hr/>
+    <div class="route" ng-repeat="line in main.lines track by $index">
+        <h4 style="background-color: {{line.color}}"
+            ng-click="main.showLine($index)">{{line.to}} to {{line.from}}</h4>
+
+        <div ng-show="main.active === $index">
+            Stops: {{line.routeLengths.length}}<br />
+            Route Length: {{line.routeLength}}
+        </div>
+    </div>
+</div>

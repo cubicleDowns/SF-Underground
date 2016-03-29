@@ -39,8 +39,8 @@ angular.module('SFUnderground.3D.scene', [])
                 camera.position.set(500, 500, 1500);
                 scene = new THREE.Scene();
 //                controls = new THREE.TrackballControls(camera, renderer.domElement);
-                var axisHelper = new THREE.AxisHelper( 50 );
-                scene.add( axisHelper );
+                var axisHelper = new THREE.AxisHelper(50);
+                scene.add(axisHelper);
 
                 var numPoints = 100;
 
@@ -97,18 +97,21 @@ angular.module('SFUnderground.3D.scene', [])
                     subwayGroup.counter = 0;
                     subways.push(subwayGroup);
 
-                    var testGeo = new THREE.BoxGeometry(40,5,5);
+                    var testGeo = new THREE.BoxGeometry(40, 5, 5);
                     var testMesh = new THREE.Mesh(testGeo, material);
 
                     subwayGroup.add(testMesh);
                     scene.add(subwayGroup);
                 }
 
-                var midmarker = new THREE.BoxGeometry(25,25,25);
-                var tm = new THREE.Mesh(midmarker, material);
 
-                camera.lookAt(midmarker);
+                var midmarker = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+                var tm = new THREE.Mesh(midmarker, new THREE.MeshBasicMaterial({
+                    color: 0x000000
+                }));
+
                 tm.position.set(250, 250, 0);
+                camera.lookAt(midmarker);
                 scene.add(tm);
 
                 animate();
@@ -142,6 +145,18 @@ angular.module('SFUnderground.3D.scene', [])
                     } else {
                         subway.counter = 0;
                     }
+                }
+            }
+
+            function addReports(reports) {
+                for (var i = 0; i < reports.length; i++) {
+
+                    var midmarker = new THREE.BoxGeometry(reports[i].size, reports[i].size, size);
+                    var tm = new THREE.Mesh(midmarker, new THREE.MeshBasicMaterial({
+                        color: 0xFFFFFF
+                    }));
+                    tm.position.set(reports[i].x, reports[i].y, 0);
+                    scene.add(tm);
                 }
             }
 
@@ -191,7 +206,7 @@ angular.module('SFUnderground.3D.scene', [])
                 var spriteMaterial = new THREE.SpriteMaterial({map: texture, useScreenCoordinates: false});
                 var sprite = new THREE.Sprite(spriteMaterial);
                 sprite.scale.set(0.5 * fontsize, 0.25 * fontsize, 0.75 * fontsize);
-                
+
                 return sprite;
             }
 
@@ -223,7 +238,8 @@ angular.module('SFUnderground.3D.scene', [])
 
             return {
                 init: init,
-                setMultiplier: setMultiplier
+                setMultiplier: setMultiplier,
+                addReports: addReports
             };
         }])
 ;

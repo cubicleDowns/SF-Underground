@@ -56,5 +56,5 @@ deployment:
       - npm install -g surge
       - surge ./map raspy-ocean.surge.sh
       - surge ./rider/www legal-stocking.surge.sh
-      - surge ./reporter/ odd-honey.surge.sh
+#      - surge ./reporter/ odd-honey.surge.sh
 

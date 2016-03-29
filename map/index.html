@@ -23,26 +23,25 @@
     <script src="js/lib/firebase.js"></script>
     <script src="js/lib/angularfire.js"></script>
     <!-- endbuild -->
-
 </head>
-<body>
-    <div class="sidebar" ng-controller="MainController as main" ng-init="main.init()">
-        <ng-include src="'views/sidebar.html'" />
-    </div>
+<body ng-controller="MainController as main" ng-init="main.init()">
+<div class="opensidebar" ng-hide="main.showSidebar" ng-click="main.showSidebar = true;">Open Sidebar</div>
+<ng-include src="'views/sidebar.html'"/>
 
-    <!-- build:js js/main.js -->
-    <script src="js/ng/app.js"></script>
-    <script src="js/ng/constants.js"></script>
-    <script src="js/ng/apiService.js"></script>
-    <script src="js/ng/mainController.js"></script>
-    <script src="js/3d/threeScene.js"></script>
-    <script src="js/util.js"></script>
-    <!-- endbuild -->
 
-    <script>
-        angular.element(document).ready(function () {
-            angular.bootstrap(document, ['SFUnderground']);
-        });
-    </script>
+<!-- build:js js/main.js -->
+<script src="js/ng/app.js"></script>
+<script src="js/ng/constants.js"></script>
+<script src="js/ng/apiService.js"></script>
+<script src="js/ng/mainController.js"></script>
+<script src="js/3d/threeScene.js"></script>
+<script src="js/util.js"></script>
+<!-- endbuild -->
+
+<script>
+    angular.element(document).ready(function () {
+        angular.bootstrap(document, ['SFUnderground']);
+    });
+</script>
 </body>
 </html>

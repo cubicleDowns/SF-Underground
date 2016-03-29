@@ -19,7 +19,43 @@ canvas {
     position: absolute;
     left: 0;
     top: 0;
-    width: 300px;
+    width: 280px;
+    height: 100%;
+    background-color: #CCCCCC;
+    color: #990000;
+    padding: 20px;
+}
+
+.sidebar pre {
     height: 200px;
-    color: red;
+    overflow-x: scroll;
+    overflow-y: scroll;
+    background: #666666;
+    border: 1px solid #000000;
+}
+
+.route h4 {
+    padding: 2px;
+}
+
+.route div {
+    padding: 10px;
+    background-color: #666666;
+}
+
+.opensidebar {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: #990000;
+    z-index: 4;
+    text-transform: uppercase;
+}
+
+.sidebar .close {
+    color: #990000;
+    position: absolute;
+    top: 10px;
+    left: 265px;
+    text-transform: uppercase;
 }
