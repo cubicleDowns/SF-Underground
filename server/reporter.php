@@ -2,43 +2,36 @@
 require __DIR__ . '/vendor/autoload.php';
 
 session_start();
-if(isset($_SESSION['user'])!="")
-{
- header("Location: home.php");
-}
 include_once 'dbconnect.php';
 
 if(isset($_POST['btn-signup']))
 {
  $authy_api = new Authy\AuthyApi('5CFdXbGgg9Cjqotyy4FEYmT3ET5V0pzf');
- $uname = mysql_real_escape_string($_POST['uname']);
- $email = mysql_real_escape_string($_POST['email']);
- $upass = md5(mysql_real_escape_string($_POST['pass']));
- $country = $_POST['country-code'];
- $cell = $_POST['authy-cellphone'];
+ $db = mysql_real_escape_string($_POST['sound-level']);
+ $token = mysql_real_escape_string($_POST['authy-token']);
+ $lat = md5(mysql_real_escape_string($_POST['latitude']));
+ $lng = md5(mysql_real_escape_string($_POST['longitude']));
 
- $user = $authy_api->registerUser($email, $cell, $country); //email, cellphone, country_code
+ $auth_id = '19272666';
 
-$user_id = 0;
- if($user->ok()){
- 	$user_id = $user->id();
- } else  {
-    foreach($user->errors() as $field => $message) {
+$verification = $authy_api->verifyToken($auth_id, $token);
+
+ if(!$verification->ok()){
+    foreach($verification->errors() as $field => $message) {
+      printf("Invalid Token Yo!");
       printf("$field = $message");
-    } 	
+    } 
  }
 
-printf("user: $user_id");
-
-if ($user->ok() && mysql_query("INSERT INTO users(username,email,password,auth_id) VALUES('$uname','$email','$upass',$user_id)")){
+if ($verification->ok() && mysql_query("INSERT INTO reports(authy,lat,lng,db) VALUES('$auth_id','$lat','$lng',$db)")){
   ?>
-        <script>alert('successfully registered ');</script>
+        <script>alert('successfully register your dB values');</script>
         <?php
  }
  else
  {
 	    ?>
-        <script>alert('error while registering you...');</script>
+        <script>alert('error while submitting dB value.  Invalid');</script>
         <?php
  }
 }
@@ -47,7 +40,7 @@ if ($user->ok() && mysql_query("INSERT INTO users(username,email,password,auth_i
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Login and Registration System</title>
+<title>Sound Reporting System</title>
 <link rel="stylesheet" href="style.css" type="text/css" />
 <link href="sample.css" media="screen" rel="stylesheet" type="text/css">
 <link href="//cdnjs.cloudflare.com/ajax/libs/authy-form-helpers/2.3/form.authy.min.css" media="screen" rel="stylesheet" type="text/css">
@@ -65,8 +58,6 @@ function showPosition(position) {
     var lng = document.getElementById("longitude");
     lat.value = position.coords.latitude;
     lng.value = position.coords.longitude;
-    // x.innerHTML = "Latitude: " + position.coords.latitude + 
-    // "<br>Longitude: " + position.coords.longitude; 
 }
 </script>
 </head>
@@ -94,6 +85,9 @@ function showPosition(position) {
 </tr>
 <tr>
 <td><a href="index.php">Sign In Here</a></td>
+</tr>
+<tr>
+<td><a href="register.php">Register Here</a></td>
 </tr>
 </table>
 </form>

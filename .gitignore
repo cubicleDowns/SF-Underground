@@ -1,5 +1,5 @@
 .tmp/
-map/bower_components/*
+map/bower_components/
 .idea/**/*
 dist/
 node_modules/
