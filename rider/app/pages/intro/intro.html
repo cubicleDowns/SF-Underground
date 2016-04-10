@@ -1,0 +1,30 @@
+ <ion-content [ngSwitch]="Data.landscapeMode">
+ <cardboardgl [hidden]="!Data.landscapeMode"  stereo-effect="Data.stereoEffect" landscape-mode="Data.landscapeMode"></cardboardgl>
+    <div [ngSwitch]="Data.stereoEffect"><div class="shadow" *ngSwitchWhen="true"></div></div>
+      <div class="bottomControls" *ngSwitchWhen="true">
+        <button class="button button-clear" (click)="openSettingsModal()">
+          <img class="cardBoardLogo" src="build/img/cardboard_logo.png">
+        </button>
+      </div>
+	<ion-slides pager *ngSwitchWhen="false">
+	  <ion-slide >
+	    <img src="build/img/ionic_logo.png">
+	  </ion-slide>
+	  <ion-slide >
+	    <img src="build/img/angularjs_logo.png">
+	  </ion-slide>
+	  <ion-slide >
+	   <img src="build/img/cardboard_logo.png">
+	  </ion-slide>
+	  <ion-slide >
+	   <img src="build/img/logo-babylonjs.svg">
+	  </ion-slide>
+	  <ion-slide>
+            <div class="centered">
+              Rotate your device to get started.
+              <br>
+              <i class="icon ion-loop"></i>
+            </div>
+          </ion-slide>
+	</ion-slides>
+ </ion-content>

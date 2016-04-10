@@ -3,3 +3,4 @@ app/bower_components/
 dist/
 node_modules/
 *.log
+rider/node_modules/
