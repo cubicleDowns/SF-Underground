@@ -1,25 +1,35 @@
-/*global module:false*/
-/*global require:false*/
-
 module.exports = function(grunt) {
-    'use strict';
-
-    var SERVER_PORT = 9000;
+    var port = process.env.STATIC_SERVER_PORT;
+    var distributable = !!grunt.option('dist');
+    var rewrite = require('connect-modrewrite');
     var config = {
+        pkg: grunt.file.readJSON('package.json'),
+        clean: {
+            prebuild: ['/dist'],
+            postbuild: ['/tmp']
+        },
         browserSync: {
-            'dev': {
-                bsFiles: { src: ['./app/**/*'] },
+            default: {
+                bsFiles: {
+                    src: ['./app/**/*']
+                },
                 options: {
-                    port: SERVER_PORT,
-                    server: './app',
-                    ui: { port: SERVER_PORT + 1 },
+                    port: port,
+                    server: {
+                        baseDir: distributable ? './dist' : './app',
+                        middleware: rewrite(['^[^\\.]*$ /index.html [L]'])
+                    },
+                    ui: {
+                        port: port + 1
+                    },
                     open: false
                 }
             }
         }
     };
 
-    grunt.loadNpmTasks('grunt-browser-sync');
     grunt.initConfig(config);
+
+    grunt.loadNpmTasks('grunt-browser-sync');
     grunt.registerTask('serve', ['browserSync']);
 };
