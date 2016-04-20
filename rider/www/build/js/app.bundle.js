@@ -3232,6 +3232,34 @@
 	    });
 	  }
 
+	  _createClass(BoilerVR, [{
+	    key: 'launchIntoFullscreen',
+	    value: function launchIntoFullscreen() {
+	      var element = arguments.length <= 0 || arguments[0] === undefined ? document.documentElement : arguments[0];
+
+	      if (typeof element.requestFullscreen != 'undefined') {
+	        element.requestFullscreen();
+	      } else if (typeof element.mozRequestFullScreen != 'undefined') {
+	        element.mozRequestFullScreen();
+	      } else if (typeof element.webkitRequestFullscreen != 'undefined') {
+	        element.webkitRequestFullscreen();
+	      } else if (typeof element.msRequestFullscreen != 'undefined') {
+	        element.msRequestFullscreen();
+	      }
+	    }
+	  }, {
+	    key: 'exitFullscreen',
+	    value: function exitFullscreen() {
+	      if (typeof document.exitFullscreen != 'undefined') {
+	        document.exitFullscreen();
+	      } else if (typeof document.mozCancelFullScreen != 'undefined') {
+	        document.mozCancelFullScreen();
+	      } else if (typeof document.webkitExitFullscreen != 'undefined') {
+	        document.webkitExitFullscreen();
+	      }
+	    }
+	  }]);
+
 	  return BoilerVR;
 	}()) || _class);
 
@@ -63676,7 +63704,7 @@
 	    key: 'init',
 	    value: function init() {
 
-	      /*
+	      /* debugging
 	      this.sfunderground.on('value', function(info){
 	          console.log(info.val());
 	      });
@@ -63782,12 +63810,12 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	var babylonMod = exports.babylonMod = function () {
-	    function babylonMod(_element, data) {
+	    function babylonMod(_element, _data, _app) {
 	        _classCallCheck(this, babylonMod);
 
 	        this.canvas = document.getElementById('renderCanvas');
-	        //this.camera = null;
-	        this.Data = data;
+	        this.Data = _data;
+	        this.app = _app;
 	        setTimeout(this.init.bind(this), 500);
 	        this.vrCamera = null;
 	        this.nonVRCamera = null;
@@ -63826,32 +63854,18 @@
 	            player.playAnimation(0, 20, true, 100);
 	            player.parent = this.vrCamera;
 	            this.sprites.push(player);
-
-	            this.createSkyBox();
-
+	            this.skyBox('s');
 	            //Creation of a plane
 	            var plane = BABYLON.Mesh.CreatePlane("plane", 20, scene);
 	            plane.position.y = -5;
 	            plane.rotation.x = Math.PI / 2;
-
 	            //Creation of a repeated textured material
 	            var materialPlane = new BABYLON.StandardMaterial("texturePlane", scene);
 	            materialPlane.diffuseTexture = new BABYLON.Texture("build/img/textures/grass.jpg", scene);
 	            materialPlane.diffuseTexture.uScale = 5.0; //Repeat 5 times on the Vertical Axes
 	            materialPlane.diffuseTexture.vScale = 5.0; //Repeat 5 times on the Horizontal Axes
 	            materialPlane.backFaceCulling = false; //Always show the front and the back of an element
-
 	            plane.material = materialPlane;
-
-	            var skybox = BABYLON.Mesh.CreateBox("skyBox", 500.0, scene);
-	            var skyboxMaterial = new BABYLON.StandardMaterial("skyBox", scene);
-	            skyboxMaterial.backFaceCulling = false;
-	            skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("build/img/textures/TropicalSunnyDay", scene);
-	            skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
-	            skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
-	            skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
-	            skyboxMaterial.disableLighting = true;
-	            skybox.material = skyboxMaterial;
 
 	            for (var i = 0; i < this.Data.users.length; i++) {
 	                this.generateUserSprites(this.Data.users[i], i);
@@ -63882,62 +63896,27 @@
 	            player.playAnimation(0, 20, true, 100);
 	        }
 	    }, {
-	        key: 'createSkyBox',
-	        value: function createSkyBox() {
-	            //Material generated using raananw's babylon material editor, https://github.com/raananw/BabylonJS-Material-Editor ;
-	            var _holoDeck = new BABYLON.StandardMaterial('holo deck', this.scene);
-	            _holoDeck.alpha = 1;
-	            _holoDeck.backFaceCulling = false;
-	            _holoDeck.specularPower = 1;
-	            _holoDeck.useSpecularOverAlpha = true;
-	            _holoDeck.useAlphaFromDiffuseTexture = false;
+	        key: 'skyBox',
+	        value: function skyBox(_type) {
+	            var _size = arguments.length <= 1 || arguments[1] === undefined ? 5000.0 : arguments[1];
 
-	            // diffuse definitions;
+	            try {
+	                this.skybox.dispose();
+	            } catch (e) {}
 
-	            _holoDeck.diffuseColor = new BABYLON.Color3(1.00, 1.00, 1.00);
-	            //Texture Parameters ;
-	            //TODO change the filename to fit your needs!;
-	            var _holoDeck_diffuseTexture = new BABYLON.Texture('build/img/textures/_holoDeck_diffuse.png', this.scene);
-	            _holoDeck_diffuseTexture.uScale = 5;
-	            _holoDeck_diffuseTexture.vScale = 5;
-	            _holoDeck_diffuseTexture.coordinatesMode = 0;
-	            _holoDeck_diffuseTexture.uOffset = 0;
-	            _holoDeck_diffuseTexture.vOffset = 0;
-	            _holoDeck_diffuseTexture.uAng = 0;
-	            _holoDeck_diffuseTexture.vAng = 0;
-	            _holoDeck_diffuseTexture.level = 1;
-	            _holoDeck_diffuseTexture.coordinatesIndex = 0;
-	            _holoDeck_diffuseTexture.hasAlpha = true;
-	            _holoDeck_diffuseTexture.getAlphaFromRGB = false;
-
-	            _holoDeck.diffuseTexture = _holoDeck_diffuseTexture;
-
-	            // emissive definitions;
-
-	            _holoDeck.emissiveColor = new BABYLON.Color3(0.00, 0.75, 0.00);
-
-	            // ambient definitions;
-
-	            _holoDeck.ambientColor = new BABYLON.Color3(0.00, 0.03, 0.04);
-
-	            // specular definitions;
-
-	            _holoDeck.specularColor = new BABYLON.Color3(0.00, 0.75, 0.00);
-
-	            // reflection definitions;
-
-	            //Fresnel Parameters ;
-
-	            var _holoDeck_reflectionFresnel = new BABYLON.FresnelParameters();
-	            _holoDeck_reflectionFresnel.isEnabled = true;
-	            _holoDeck_reflectionFresnel.bias = 0.8;
-	            _holoDeck_reflectionFresnel.power = 1;
-	            _holoDeck_reflectionFresnel.leftColor = new BABYLON.Color3(1, 1, 1);
-	            _holoDeck_reflectionFresnel.rightColor = new BABYLON.Color3(0, 0, 0);
-	            _holoDeck.reflectionFresnelParameters = _holoDeck_reflectionFresnel;
-
-	            var box = BABYLON.Mesh.CreateBox("box", 17.0, this.scene);
-	            box.material = _holoDeck;
+	            this.skybox = null;
+	            this.currentSkyBoxName = "build/img/textures/" + _type;
+	            var skybox = BABYLON.Mesh.CreateBox("skybox", _size, this.scene);
+	            skybox.layerMask = 2;
+	            var skyboxMaterial = new BABYLON.StandardMaterial("skyBox", this.scene);
+	            skyboxMaterial.backFaceCulling = false;
+	            skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(this.currentSkyBoxName, this.scene);
+	            skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+	            skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
+	            skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+	            skyboxMaterial.disableLighting = true;
+	            skybox.material = skyboxMaterial;
+	            this.skybox = skybox;
 	        }
 	    }, {
 	        key: 'gameLoop',
@@ -64069,6 +64048,7 @@
 	    this._element = _element;
 	    this._babylon = null;
 	    this.Data = _boilerVR.Data;
+	    this.app = _boilerVR;
 	    this.init();
 	    this.isStereoEffect = false;
 	    this.inLandScape = false;
@@ -64098,7 +64078,7 @@
 	          this.Data.stereoEffect = true;
 
 	          if (this._engine == null) {
-	            this._babylon = new _babylonmod.babylonMod(this._element.nativeElement, this.Data);
+	            this._babylon = new _babylonmod.babylonMod(this._element.nativeElement, this.Data, this.app);
 	            this.boilerVR.babylonMod = this._babylon;
 	          }
 	        } else {

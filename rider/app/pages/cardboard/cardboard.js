@@ -1,6 +1,5 @@
 import {App, IonicApp, Page, Template} from 'ionic-angular';
 import {Directive, Component, ElementRef} from 'angular2/core';
-
 import {babylonMod} from '../../modules/babylonmod'; 
 import {BoilerVR} from '../../app';
 
@@ -20,6 +19,7 @@ export class CardboardGl{
   	this._element = _element;
   	this._babylon = null;
     this.Data = _boilerVR.Data;
+    this.app = _boilerVR;
     this.init();
     this.isStereoEffect = false;
     this.inLandScape = false;
@@ -46,7 +46,7 @@ export class CardboardGl{
         this.Data.stereoEffect = true;
 
         if(this._engine  == null){
-         this._babylon = new babylonMod(this._element.nativeElement, this.Data);
+         this._babylon = new babylonMod(this._element.nativeElement, this.Data, this.app);
          this.boilerVR.babylonMod = this._babylon;
         }
       } else {

@@ -8,15 +8,11 @@ export class HUDSystem {
             this._scene.activeCameras.push(mainCam);
         }
         this.dpr = window.devicePixelRatio;
-        if (typeof guiWidth === "undefined") {
-            guiWidth = scene.getEngine().getRenderWidth();
-        }
-        if (typeof guiHeight === "undefined") {
-            guiHeight = scene.getEngine().getRenderHeight();
-        }
+        this.guiWidth = scene.getEngine().getRenderWidth();
+        this.guiHeight = scene.getEngine().getRenderHeight();
+       
         this.zoom = Math.max(guiWidth, guiHeight) / Math.max(scene.getEngine().getRenderingCanvas().width, scene.getEngine().getRenderingCanvas().height);
         this._camera = null;
-        this._initCamera();
         this._scene.activeCamera = mainCam;
         this._scene.cameraToUseForPointers = mainCam;
         this.objects = [];
@@ -24,7 +20,8 @@ export class HUDSystem {
         this.visible = true;
         this._objectUnderPointer = null;
         this.LAYER_MASK = 8;
-        this.GAME_LAYER_MASK = 1;
+        this.GAME_LAYER_MASK = 2;
+        this._initCamera();
     }
 
     getScene() {
@@ -42,6 +39,7 @@ export class HUDSystem {
         this._camera.layerMask = this.LAYER_MASK;
         this.resize();
         this._scene.activeCameras.push(this._camera);
+
     }
 
     resize() {
@@ -104,7 +102,6 @@ export class HUDSystem {
     }
 
     updateCamera(cam) {
-        console.log(cam);
         var myCam = cam || this._scene.activeCamera;
         myCam.layerMask = this.GAME_LAYER_MASK;
         for (var m = 0; m < this._scene.meshes.length; m++) {

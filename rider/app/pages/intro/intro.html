@@ -1,4 +1,4 @@
- <ion-content [ngSwitch]="Data.landscapeMode">
+ <ion-content [ngSwitch]="Data.landscapeMode" (click)="fullScreenLaunch();">
  <cardboardgl [hidden]="!Data.landscapeMode"  stereo-effect="Data.stereoEffect" landscape-mode="Data.landscapeMode"></cardboardgl>
     <div [ngSwitch]="Data.stereoEffect"><div class="shadow" *ngSwitchWhen="true"></div></div>
       <div class="bottomControls" *ngSwitchWhen="true">

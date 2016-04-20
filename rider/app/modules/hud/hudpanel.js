@@ -8,7 +8,7 @@ export class HUDPanel extends HUDObject{
         if (textSize.width === 0) {
             textSize = this.texture.getSize();
         }
-        this.texture.hasAlpha = true;
+        this.texture.hasAlpha = false;
         var mat = new BABYLON.StandardMaterial(name + "_material", hudsystem.getScene());
         mat.emissiveColor = BABYLON.Color3.White();
         mat.diffuseTexture = texture;

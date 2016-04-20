@@ -10,6 +10,7 @@ import {SettingsModal} from './pages/settings/settings';
   template: '<ion-nav [root]="rootPage"></ion-nav>',
   config: {} // http://ionicframework.com/docs/v2/api/config/Config/
 })
+
 export class BoilerVR {
 
   static get parameters() {
@@ -38,4 +39,28 @@ export class BoilerVR {
       }
     });
   }
+
+  launchIntoFullscreen(element = document.documentElement) {
+    if(typeof element.requestFullscreen != 'undefined') {
+      element.requestFullscreen();
+    } else if(typeof element.mozRequestFullScreen != 'undefined') {
+      element.mozRequestFullScreen();
+    } else if(typeof element.webkitRequestFullscreen != 'undefined') {
+      element.webkitRequestFullscreen();
+    } else if(typeof element.msRequestFullscreen != 'undefined') {
+      element.msRequestFullscreen();
+    }
+  }
+
+  exitFullscreen() {
+    if(typeof document.exitFullscreen != 'undefined') {
+      document.exitFullscreen();
+    } else if(typeof document.mozCancelFullScreen != 'undefined') {
+      document.mozCancelFullScreen();
+    } else if(typeof document.webkitExitFullscreen != 'undefined') {
+      document.webkitExitFullscreen();
+    }
+  }
+
+
 }

@@ -1,15 +1,16 @@
 export class CardBoardData{
+  
   constructor(fbURL =  "https://sf-noise.firebaseio.com/"){
-    this.stereoEffect = false;
-    this.landscapeMode = false;
-    this.firebaseRef = fbURL;
-    this.sfunderground = new Firebase(this.firebaseRef);
-    this.users = new Firebase(this.firebaseRef + 'riders');
-    this.user = {name:null, position:{x:0, y:0, z:0}, rotation:{x:0, y:0, z:0}, sprite:null};
-    this.init();
-    this.fakeUser = ['Tom','Richard','Jane','John','Dan','Josh','Brendon','Emma','Peter'];
-    this.sprites = ['build/sprites/person/barvr_rider_idle.png'];
-  }
+      this.stereoEffect = false;
+      this.landscapeMode = false;
+      this.firebaseRef = fbURL;
+      this.sfunderground = new Firebase(this.firebaseRef);
+      this.users = new Firebase(this.firebaseRef + 'riders');
+      this.user = {name:null, position:{x:0, y:0, z:0}, rotation:{x:0, y:0, z:0}, sprite:null};
+      this.init();
+      this.fakeUser = ['Tom','Richard','Jane','John','Dan','Josh','Brendon','Emma','Peter'];
+      this.sprites = ['build/sprites/person/barvr_rider_idle.png'];
+    }
 
   randomArr(arr){
         return arr[Math.floor(Math.random()*arr.length)];
@@ -17,7 +18,7 @@ export class CardBoardData{
 
   init(){
 
-    /*
+    /* debugging
   	this.sfunderground.on('value', function(info){
         console.log(info.val());
   	});

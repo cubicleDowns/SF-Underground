@@ -29,7 +29,7 @@ export class HUDObject {
         this.mesh.actionManager.registerAction(updateOnHoverOn);
         this.mesh.actionManager.registerAction(updateOnHoverOut);
         this.mesh.layerMask = hudsystem.LAYER_MASK;
-        this.hudsystem.push(this);
+        this.hudsystem.objects.push(this);
         this.guiposition(BABYLON.Vector3.Zero());
     }
 

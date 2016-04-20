@@ -1,10 +1,10 @@
 export class babylonMod {
 
 
-    constructor(_element, data) {
+    constructor(_element, _data, _app) {
         this.canvas = document.getElementById('renderCanvas');
-        //this.camera = null;
-        this.Data = data;
+        this.Data = _data;
+        this.app = _app;
         setTimeout(this.init.bind(this), 500);
         this.vrCamera = null;
         this.nonVRCamera = null;
@@ -41,36 +41,19 @@ export class babylonMod {
         player.playAnimation(0, 20, true, 100);
         player.parent = this.vrCamera;
         this.sprites.push(player);
-
-        this.createSkyBox();
-
-        
+        this.skyBox('s');
         //Creation of a plane
         var plane = BABYLON.Mesh.CreatePlane("plane", 20, scene);
         plane.position.y = -5;
         plane.rotation.x = Math.PI / 2;
-
-
-
         //Creation of a repeated textured material
         var materialPlane = new BABYLON.StandardMaterial("texturePlane", scene);
         materialPlane.diffuseTexture = new BABYLON.Texture("build/img/textures/grass.jpg", scene);
         materialPlane.diffuseTexture.uScale = 5.0; //Repeat 5 times on the Vertical Axes
         materialPlane.diffuseTexture.vScale = 5.0; //Repeat 5 times on the Horizontal Axes
         materialPlane.backFaceCulling = false; //Always show the front and the back of an element
-
-
         plane.material = materialPlane;
 
-        var skybox = BABYLON.Mesh.CreateBox("skyBox", 500.0, scene);
-        var skyboxMaterial = new BABYLON.StandardMaterial("skyBox", scene);
-        skyboxMaterial.backFaceCulling = false;
-        skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("build/img/textures/TropicalSunnyDay", scene);
-        skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
-        skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
-        skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
-        skyboxMaterial.disableLighting = true;
-        skybox.material = skyboxMaterial;
 
         for(let i=0; i < this.Data.users.length; i++){
             this.generateUserSprites(this.Data.users[i], i);
@@ -101,64 +84,26 @@ export class babylonMod {
         player.playAnimation(0, 20, true, 100);
     }
 
-
-    createSkyBox(){
-        //Material generated using raananw's babylon material editor, https://github.com/raananw/BabylonJS-Material-Editor ;
-        var _holoDeck = new BABYLON.StandardMaterial('holo deck', this.scene);
-        _holoDeck.alpha = 1;
-        _holoDeck.backFaceCulling = false;
-        _holoDeck.specularPower = 1;
-        _holoDeck.useSpecularOverAlpha = true;
-        _holoDeck.useAlphaFromDiffuseTexture = false;
-
-        // diffuse definitions;
-
-        _holoDeck.diffuseColor = new BABYLON.Color3(1.00, 1.00, 1.00);
-        //Texture Parameters ;
-        //TODO change the filename to fit your needs!;
-        var _holoDeck_diffuseTexture = new BABYLON.Texture('build/img/textures/_holoDeck_diffuse.png', this.scene);
-        _holoDeck_diffuseTexture.uScale = 5;
-        _holoDeck_diffuseTexture.vScale = 5;
-        _holoDeck_diffuseTexture.coordinatesMode = 0;
-        _holoDeck_diffuseTexture.uOffset = 0;
-        _holoDeck_diffuseTexture.vOffset = 0;
-        _holoDeck_diffuseTexture.uAng = 0;
-        _holoDeck_diffuseTexture.vAng = 0;
-        _holoDeck_diffuseTexture.level = 1;
-        _holoDeck_diffuseTexture.coordinatesIndex = 0;
-        _holoDeck_diffuseTexture.hasAlpha = true;
-        _holoDeck_diffuseTexture.getAlphaFromRGB = false;
-
-        _holoDeck.diffuseTexture = _holoDeck_diffuseTexture;
-
-        // emissive definitions;
-
-        _holoDeck.emissiveColor = new BABYLON.Color3(0.00, 0.75, 0.00);
-
-        // ambient definitions;
-
-        _holoDeck.ambientColor = new BABYLON.Color3(0.00, 0.03, 0.04);
-
-        // specular definitions;
-
-        _holoDeck.specularColor = new BABYLON.Color3(0.00, 0.75, 0.00);
-
-        // reflection definitions;
-
-        //Fresnel Parameters ;
-
-        var _holoDeck_reflectionFresnel = new BABYLON.FresnelParameters();
-        _holoDeck_reflectionFresnel.isEnabled = true;
-        _holoDeck_reflectionFresnel.bias = 0.8;
-        _holoDeck_reflectionFresnel.power = 1;
-        _holoDeck_reflectionFresnel.leftColor = new BABYLON.Color3(1, 1, 1);
-        _holoDeck_reflectionFresnel.rightColor = new BABYLON.Color3(0, 0, 0);
-        _holoDeck.reflectionFresnelParameters = _holoDeck_reflectionFresnel;
-
-        var box = BABYLON.Mesh.CreateBox("box", 17.0, this.scene);
-        box.material = _holoDeck;
-
+    skyBox(_type, _size = 5000.0) {
+        try{
+            this.skybox.dispose();
+        }catch(e){}
+        
+        this.skybox = null;
+        this.currentSkyBoxName = "build/img/textures/" + _type;
+        var skybox = BABYLON.Mesh.CreateBox("skybox", _size, this.scene);
+        skybox.layerMask = 2;
+        var skyboxMaterial = new BABYLON.StandardMaterial("skyBox", this.scene);
+        skyboxMaterial.backFaceCulling = false;
+        skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture(this.currentSkyBoxName, this.scene);
+        skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
+        skyboxMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);
+        skyboxMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
+        skyboxMaterial.disableLighting = true;
+        skybox.material = skyboxMaterial;
+        this.skybox = skybox;
     }
+
 
     gameLoop(){
          this.scene.executeWhenReady(function() {
@@ -186,6 +131,4 @@ export class babylonMod {
             }
         }
     }
-
-
 }
