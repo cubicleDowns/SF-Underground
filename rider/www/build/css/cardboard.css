@@ -223,6 +223,15 @@ body {
   animation-delay: -3s;
 }
 
+#fps{
+  position: absolute;
+  z-index: 999999;
+  color: #fff;
+  right: 20px;
+  top: 20px;
+  color: #fff;
+}
+
 @keyframes lf {0% {left: 200%;} 100% {left: -200%;opacity: 0;}}
 @keyframes lf2 {0% {left: 200%;} 100% {left: -200%;opacity: 0;}}
 @keyframes lf3 {0% {left: 200%;} 100% {left: -100%;opacity: 0;}}

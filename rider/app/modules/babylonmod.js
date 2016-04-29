@@ -1,6 +1,5 @@
 export class babylonMod {
 
-
     constructor(_element, _data, _app) {
         this.canvas = document.getElementById('renderCanvas');
         this.Data = _data;
@@ -18,54 +17,61 @@ export class babylonMod {
     init() {
         window._babylon = this;
         this.engine = new BABYLON.Engine(this.canvas , true);
-        var scene = new BABYLON.Scene(this.engine);
-        this.scene = scene;
         //Create a light
-        var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(100, 100, 0), scene);
+        
         //Create an Arc Rotate Camera - aimed negative z this time
-        document.getElementById('loadCover').style.display = "none";
-        this.vrCamera = new BABYLON.VRDeviceOrientationFreeCamera("Camera", new BABYLON.Vector3(0, 2, 0), scene, true);
-        this.vrCamera.attachControl(this.canvas, true);
-        this.activeCamera = this.vrCamera;
-        this.nonVRCamera = new BABYLON.VirtualJoysticksCamera("VJC", BABYLON.Vector3.Zero(), scene);
-        this.nonVRCamera.attachControl(this.canvas, true);
-        this.nonVRCamera.checkCollisions = scene.activeCamera.checkCollisions;
-        this.nonVRCamera.applyGravity = scene.activeCamera.applyGravity;
-        this.nonVRCamera.parent = this.vrCamera;  
-        scene.activeCamera = this.vrCamera;
-        this.Data.setUser(null, this.vrCamera.position);
+        
 
-        var spriteManagerPlayer = new BABYLON.SpriteManager("riderManager", this.Data.user.sprite, 1, 128, scene);
-        var player = new BABYLON.Sprite("player", spriteManagerPlayer);
-        player.isPickable = true;
-        player.playAnimation(0, 20, true, 100);
-        player.parent = this.vrCamera;
-        this.sprites.push(player);
-        this.skyBox('s');
-        //Creation of a plane
-        var plane = BABYLON.Mesh.CreatePlane("plane", 20, scene);
-        plane.position.y = -5;
-        plane.rotation.x = Math.PI / 2;
-        //Creation of a repeated textured material
-        var materialPlane = new BABYLON.StandardMaterial("texturePlane", scene);
-        materialPlane.diffuseTexture = new BABYLON.Texture("build/img/textures/grass.jpg", scene);
-        materialPlane.diffuseTexture.uScale = 5.0; //Repeat 5 times on the Vertical Axes
-        materialPlane.diffuseTexture.vScale = 5.0; //Repeat 5 times on the Horizontal Axes
-        materialPlane.backFaceCulling = false; //Always show the front and the back of an element
-        plane.material = materialPlane;
+        BABYLON.SceneLoader.Load('', 'build/scenes/subway/subway.babylon?once=366509210', this.engine, function(newScene) {
+            this.scene = newScene;
+            var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(100, 100, 0), this.scene );
+            if(_babylon.app.isNative){
+                BABYLON.SceneOptimizer.OptimizeAsync(this.scene, BABYLON.SceneOptimizerOptions.HighDegradationAllowed(),
+                function() {
+                  console.log(this.engine.getFps());
+                }.bind(this), function() {
+                   console.log(this.engine.getFps());
+                }.bind(this));
+            }
+
+            document.getElementById('loadCover').style.display = "none";
+            this.vrCamera = new BABYLON.VRDeviceOrientationFreeCamera("Camera", new BABYLON.Vector3(newScene.cameras[0].position.x, newScene.cameras[0].position.y, newScene.cameras[0].position.z), this.scene, true);
+            this.vrCamera.rotation = new BABYLON.Vector3(newScene.cameras[0].rotation.x, newScene.cameras[0].rotation.y, newScene.cameras[0].rotation.z)
+            this.vrCamera.attachControl(this.canvas, true);
+            this.activeCamera = this.vrCamera;
+            this.nonVRCamera = new BABYLON.VirtualJoysticksCamera("VJC", BABYLON.Vector3.Zero(), this.scene);
+            this.nonVRCamera.attachControl(this.canvas, true);
+            this.nonVRCamera.checkCollisions = this.scene.activeCamera.checkCollisions;
+            this.nonVRCamera.applyGravity = this.scene.activeCamera.applyGravity;
+            this.nonVRCamera.parent = this.vrCamera;  
+            this.scene.activeCamera = this.vrCamera;
+            this.Data.setUser(null, this.vrCamera.position);
+
+            var spriteManagerPlayer = new BABYLON.SpriteManager("riderManager", this.Data.user.sprite, 1, 128, this.scene);
+            var player = new BABYLON.Sprite("player", spriteManagerPlayer);
+            player.isPickable = true;
+            player.playAnimation(0, 20, true, 100);
+            player.parent = this.vrCamera;
+            this.sprites.push(player);
+            this.skyBox('s');
+          
 
 
-        for(let i=0; i < this.Data.users.length; i++){
-            this.generateUserSprites(this.Data.users[i], i);
-        }
+            for(let i=0; i < this.Data.users.length; i++){
+                this.generateUserSprites(this.Data.users[i], i);
+            }
 
-        this.updateFunctionsInLoop.push((function(){
-            this.Data.updateUser(this.activeCamera.position, this.activeCamera.rotation);
-        }.bind(this)));
+            this.updateFunctionsInLoop.push((function(){
+                this.Data.updateUser(this.activeCamera.position, this.activeCamera.rotation);
+            }.bind(this)));
 
-        this.gameLoop();
+            this.gameLoop();
 
-        return scene;
+        
+         }.bind(this), function(progress) {
+            // To do: give progress feedback to user
+        }.bind(this));
+        
 
         /*
         window.addEventListener("resize", function() {
@@ -76,7 +82,7 @@ export class babylonMod {
     }
 
     generateUserSprites(_data, _id){
-        var spriteManagerRider = new BABYLON.SpriteManager("riderManager", _data.sprite, 1, 128, scene);
+        var spriteManagerRider = new BABYLON.SpriteManager("riderManager", _data.sprite, 1, 128, this.scene);
         var player = new BABYLON.Sprite(_data.name + _id, spriteManagerRider);
         player.isPickable = true;
         player.position = _data.position;
