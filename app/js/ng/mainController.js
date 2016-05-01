@@ -3,17 +3,27 @@ angular.module('SFUnderground.controller.main', ['SFUnderground.3D'])
         '$scope',
         '$location',
         '$firebaseObject',
+        '$firebaseArray',
         'ThreeScene',
         'SETUP',
         'ALERTS',
         'BART',
-        function ($scope, $location, $firebaseObject, ThreeScene, SETUP, ALERTS, BART) {
+        function ($scope, $location, $firebaseObject, $firebaseArray, ThreeScene, SETUP, ALERTS, BART) {
 
             var main = this;
 
             var fb = new Firebase("https://sf-noise.firebaseio.com");
             var syncObject = $firebaseObject(fb);
             syncObject.$bindTo($scope, "main.data");
+
+            // read only firebase
+            var ro_fb = new Firebase("https://sf-noise.firebaseio.com/riders");
+
+//            ro_fb.$watch(function(event){
+//                console.log('riders event: ', event);
+//            });
+
+            main.riders = $firebaseArray(ro_fb);
 
             /**
              * @type {number}
@@ -26,6 +36,8 @@ angular.module('SFUnderground.controller.main', ['SFUnderground.3D'])
                 'event': '',
                 'route': -1
             };
+
+
 
 
             /**
