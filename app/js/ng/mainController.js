@@ -19,6 +19,17 @@ angular.module('SFUnderground.controller.main', ['SFUnderground.3D'])
             main.time = SETUP.MULTIPLIER || 1;
             main.constants = SETUP;
             main.changeTime = changeTime;
+            main.init = init;
+
+            main.testFB = testFB;
+
+            function testFB(str) {
+                if (this.data.alerts) {
+                    this.data.alerts.push(str);
+                } else {
+                    this.data.alerts = [];
+                }
+            }
 
             /**
              * Change the train speed scaler.
@@ -26,11 +37,6 @@ angular.module('SFUnderground.controller.main', ['SFUnderground.3D'])
             function changeTime() {
                 ThreeScene.setMultiplier(main.time);
             }
-
-            /**
-             * Bound DOM functions.  I forget why I do this.
-             */
-            main.init = init;
 
             /**
              * Initialize the 3D scene

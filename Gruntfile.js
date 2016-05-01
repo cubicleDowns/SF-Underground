@@ -1,5 +1,5 @@
 module.exports = function(grunt) {
-    var port = process.env.STATIC_SERVER_PORT;
+    var port = parseInt(process.env.STATIC_SERVER_PORT, 10) || 9000;
     var distributable = !!grunt.option('dist');
     var rewrite = require('connect-modrewrite');
     var config = {

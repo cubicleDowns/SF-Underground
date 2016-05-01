@@ -2,4 +2,11 @@
     <input type="number" ng-model="main.time" ng-change="main.changeTime()">
 </label>
 <h3>Firebase Data</h3>
+<div>
+    <button value="Test1" ng-click="main.testFB('test1')">Test 1</button>
+    <button value="Test2" ng-click="main.testFB('test2')">Test 2</button>
+    <button value="Test3" ng-click="main.testFB('test3')">Test 3</button>
+    <button value="Test4" ng-click="main.testFB('test4')">Test 4</button>
+</div>
+
 <pre>{{main | json}}</pre>
