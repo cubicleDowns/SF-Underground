@@ -12,6 +12,7 @@ export class babylonMod {
         this.scene = null;
         this.updateFunctionsInLoop = [];
         this.sprites = [];
+        this.Data.babylonMod = this;
     }
 
     init() {
@@ -22,7 +23,7 @@ export class babylonMod {
         //Create an Arc Rotate Camera - aimed negative z this time
         
 
-        BABYLON.SceneLoader.Load('', 'build/scenes/subway/subway.babylon?once=366509210', this.engine, function(newScene) {
+        BABYLON.SceneLoader.Load('', 'build/scenes/subway3/subway.babylon?once=366509210', this.engine, function(newScene) {
             this.scene = newScene;
             var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(100, 100, 0), this.scene );
             if(_babylon.app.isNative){
@@ -45,6 +46,7 @@ export class babylonMod {
             this.nonVRCamera.applyGravity = this.scene.activeCamera.applyGravity;
             this.nonVRCamera.parent = this.vrCamera;  
             this.scene.activeCamera = this.vrCamera;
+            this.vrCamera.position.x = 6;
             this.Data.setUser(null, this.vrCamera.position);
 
             var spriteManagerPlayer = new BABYLON.SpriteManager("riderManager", this.Data.user.sprite, 1, 128, this.scene);
@@ -55,11 +57,10 @@ export class babylonMod {
             this.sprites.push(player);
             this.skyBox('s');
           
-
-
-            for(let i=0; i < this.Data.users.length; i++){
-                this.generateUserSprites(this.Data.users[i], i);
+            for(let i = 0; i < this.Data.currentRiders.length; i++){
+                this.generateUserSprites(this.Data.currentRiders[i], i);
             }
+            
 
             this.updateFunctionsInLoop.push((function(){
                 this.Data.updateUser(this.activeCamera.position, this.activeCamera.rotation);
@@ -80,11 +81,18 @@ export class babylonMod {
         */
 
     }
+    /*
+    randomPos(min, max){
+        return Math.random() * (max - min) + min;
+    }
+    */
 
     generateUserSprites(_data, _id){
+        console.log(_data);
         var spriteManagerRider = new BABYLON.SpriteManager("riderManager", _data.sprite, 1, 128, this.scene);
         var player = new BABYLON.Sprite(_data.name + _id, spriteManagerRider);
         player.isPickable = true;
+        console.log(_data.position);
         player.position = _data.position;
         player.rotation = _data.rotation;
         player.playAnimation(0, 20, true, 100);

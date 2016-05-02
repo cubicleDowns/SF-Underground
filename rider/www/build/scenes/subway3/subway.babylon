@@ -1,9 +1,9 @@
 {"producer":{"name":"Blender","version":"2.75 (sub 0)","exporter_version":"4.4.2","file":"subway.babylon"},
 "autoClear":true,"clearColor":[0.0509,0.0509,0.0509],"ambientColor":[0,0,0],"gravity":[0,-9.81,0],
-"materials":[{"name":"subway.Subway Car R62","id":"subway.Subway Car R62","ambient":[0.5882,0.5882,0.5882],"diffuse":[0.4706,0.4706,0.4706],"specular":[0.9,0.9,0.9],"emissive":[0,0,0],"specularPower":164,"alpha":1,"backFaceCulling":true,"checkReadyOnlyOnce":false, 
-"diffuseTexture":{"name":"R62_diffuse.jpg","level":1,"hasAlpha":1,"coordinatesMode":0,"uOffset":0,"vOffset":0,"uScale":1,"vScale":1,"uAng":0,"vAng":0,"wAng":0,"wrapU":1,"wrapV":1,"coordinatesIndex":0}, 
-"bumpTexture":{"name":"R62_bump.jpg","level":59.5167,"hasAlpha":1,"coordinatesMode":0,"uOffset":0,"vOffset":0,"uScale":1,"vScale":1,"uAng":0,"vAng":0,"wAng":0,"wrapU":1,"wrapV":1,"coordinatesIndex":0}, 
-"specularTexture":{"name":"R62_Spec.jpg","level":1,"hasAlpha":1,"coordinatesMode":0,"uOffset":0,"vOffset":0,"uScale":1,"vScale":1,"uAng":0,"vAng":0,"wAng":0,"wrapU":1,"wrapV":1,"coordinatesIndex":0}}],
+"materials":[{"name":"subway.Subway Car R62","id":"subway.Subway Car R62","ambient":[0.5882,0.5882,0.5882],"diffuse":[0.4706,0.4706,0.4706],"specular":[0.9,0.9,0.9],"emissive":[0,0,0],"specularPower":164,"alpha":1,"backFaceCulling":false,"checkReadyOnlyOnce":false, 
+"diffuseTexture":{"name":"build/scenes/subway3/R62_diffuse.jpg","level":1,"hasAlpha":1,"coordinatesMode":0,"uOffset":0,"vOffset":0,"uScale":1,"vScale":1,"uAng":0,"vAng":0,"wAng":0,"wrapU":1,"wrapV":1,"coordinatesIndex":0}, 
+"bumpTexture":{"name":"build/scenes/subway3/R62_bump.jpg","level":59.5167,"hasAlpha":1,"coordinatesMode":0,"uOffset":0,"vOffset":0,"uScale":1,"vScale":1,"uAng":0,"vAng":0,"wAng":0,"wrapU":1,"wrapV":1,"coordinatesIndex":0}, 
+"specularTexture":{"name":"build/scenes/subway3/R62_Spec.jpg","level":1,"hasAlpha":1,"coordinatesMode":0,"uOffset":0,"vOffset":0,"uScale":1,"vScale":1,"uAng":0,"vAng":0,"wAng":0,"wrapU":1,"wrapV":1,"coordinatesIndex":0}}],
 "multiMaterials":[],
 "skeletons":[],
 "meshes":[{"name":"SubwayCar_R62","id":"SubwayCar_R62","materialId":"subway.Subway Car R62","billboardMode":0,"position":[-8.6688,2.5115,0.7824],"rotation":[-1.5708,1.5708,0],"scaling":[0.0254,0.0254,0.0254],"isVisible":true,"freezeWorldMatrix":false,"isEnabled":true,"checkCollisions":false,"receiveShadows":false
