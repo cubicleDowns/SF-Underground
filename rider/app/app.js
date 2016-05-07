@@ -18,6 +18,7 @@ export class BoilerVR {
   }
 
   constructor(app, platform) {
+    window._bartVR = this;
     this.Data = new CardBoardData();
     this.app = app;
     this.babylonMod = null;

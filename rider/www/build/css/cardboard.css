@@ -236,3 +236,11 @@ body {
 @keyframes lf2 {0% {left: 200%;} 100% {left: -200%;opacity: 0;}}
 @keyframes lf3 {0% {left: 200%;} 100% {left: -100%;opacity: 0;}}
 @keyframes lf4 {0% {left: 200%;} 100% {left: -100%;opacity: 0;}}
+#currentUser{display: none}
+#userReg{
+  float:left; width:100%
+}
+scroll-content {
+    padding: 0px !important;
+}
+

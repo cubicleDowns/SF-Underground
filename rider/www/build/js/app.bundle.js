@@ -3212,6 +3212,7 @@
 	  function BoilerVR(app, platform) {
 	    _classCallCheck(this, BoilerVR);
 
+	    window._bartVR = this;
 	    this.Data = new _cardboarddata.CardBoardData();
 	    this.app = app;
 	    this.babylonMod = null;
@@ -63694,9 +63695,13 @@
 	    this.fakeUser = ['Tom', 'Richard', 'Jane', 'John', 'Dan', 'Josh', 'Brendon', 'Emma', 'Peter'];
 	    this.sprites = ['build/sprites/person/barvr_rider_idle.png'];
 	    this.bartAlerts = new Firebase(this.firebaseRef + 'alerts');
-	    this.currentAlerts = null;
+	    this.currentAlerts = [];
 	    this.currentRouteID = 0;
 	    this.babylonMod = null;
+	    this.currentUserKey = null;
+	    this.isCurrentlyUsingBart = false;
+	    this.userToUpdate = 'https://sf-noise.firebaseio.com/riders/';
+	    this.brartRoutes = ['Pittsburg / Bay Point', 'Richmond / Millbrae', 'Richmond / Fremont', 'Fremont / Daily City', 'Dublin Pleasanton / Daily City'];
 	    this.init();
 	  }
 
@@ -63711,34 +63716,28 @@
 	      return Math.random() * (max - min) + min;
 	    }
 	  }, {
-	    key: 'generateUserSprites',
-	    value: function generateUserSprites() {
-	      this.users.once('value', function (userData) {
-	        console.log(userData);
-	        userData.forEach(function (data) {
-	          console.log(data);
-	          this.babylonMod.generateUserSprites(data);
-	        }.bind(this));
-	      }.bind(this));
-	    }
-	  }, {
 	    key: 'init',
 	    value: function init() {
-
 	      this.bartAlerts.on("child_added", function (alertData) {
-	        console.log("added", alertData.key());
-	      });
+	        this.currentAlerts.push(alertData.val());
+	      }.bind(this));
 
 	      this.bartAlerts.once("value", function (alertData) {
 	        alertData.forEach(function (data) {
-	          console.log(data.val());
-	        });
-	      });
+	          this.currentAlerts.push(data.val());
+	        }.bind(this));
+	      }.bind(this));
 
 	      this.users.once("value", function (userData) {
 	        userData.forEach(function (data) {
+	          if (window.localStorage.getItem("bart_vr_user_key") != null && data.key() == window.localStorage.getItem("bart_vr_user_key")) {
+	            this.user = data.val();
+	            this.currentUserKey = data.key();
+	            this.userToUpdate += data.key();
+	            this.userToUpdate = new Firebase(this.userToUpdate);
+	            this.isCurrentlyUsingBart = true;
+	          }
 	          this.currentRiders.push(data.val());
-	          console.log(data.val());
 	        }.bind(this));
 	      }.bind(this));
 
@@ -63759,17 +63758,37 @@
 
 	      var _pos = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
-	      console.log(_pos);
-	      _pos.x = this.randomPos(-6, 6);
-	      _pos.z = this.randomPos(-1, 1);
-	      this.currentRouteID = this.randomPos(0, 5).toFixed();
-	      this.user = { name: this.randomArr(this.fakeUser), position: _pos, rotation: _pos, sprite: this.randomArr(this.sprites), routeID: this.currentRouteID };
-	      this.users = this.users.push(this.user);
+	      if (window.localStorage.getItem("bart_vr_user") == null) {
+	        _pos.x = this.randomPos(-6, 6);
+	        _pos.z = this.randomPos(-0.5, 0.5);
+	        var _username = null;
+	        if (this.user.name == null) {
+	          _username = this.randomArr(this.fakeUser);
+	        } else {
+	          _username = this.user.name;
+	        }
+	        try {
+	          window.localStorage.setItem("bart_vr_user", _username);
+	        } catch (e) {
+	          alert('please allow local storage please disable private mode');
+	        }
+	        this.user = { name: _username, position: _pos, rotation: _pos, sprite: this.randomArr(this.sprites), routeID: this.currentRouteID };
+	        this.users = this.users.push(this.user);
+	        this.currentUserKey = this.users.key();
+	        try {
+	          window.localStorage.setItem("bart_vr_user_key", this.currentUserKey);
+	        } catch (e) {}
+	      }
 	    }
 	  }, {
 	    key: 'updateUser',
 	    value: function updateUser(position, rotation) {
-	      this.users.set({ name: this.user.name, position: position, rotation: rotation, sprite: this.user.sprite, routeID: this.currentRouteID });
+
+	      if (this.isCurrentlyUsingBart) {
+	        this.userToUpdate.set({ name: this.user.name, position: position, rotation: rotation, sprite: this.user.sprite, routeID: this.currentRouteID });
+	      } else {
+	        this.users.set({ name: this.user.name, position: position, rotation: rotation, sprite: this.user.sprite, routeID: this.currentRouteID });
+	      }
 	    }
 	  }]);
 
@@ -63815,18 +63834,40 @@
 	  }]);
 
 	  function IntroPage(app, nav, navParams, _BoilerVR) {
+	    var _this = this;
+
 	    _classCallCheck(this, IntroPage);
 
 	    this.nav = nav;
 	    this.app = app;
+	    this.bartVR = _BoilerVR;
 	    this.Data = _BoilerVR.Data;
+
+	    var infoReady = Promise.resolve(document.getElementById('userReg'));
+	    infoReady.then(function () {
+	      setTimeout(_this.init.bind(_this), 500);
+	    });
 	  }
 
 	  _createClass(IntroPage, [{
+	    key: 'init',
+	    value: function init() {
+	      if (window.localStorage.getItem("bart_vr_user") != null) {
+	        document.getElementById('userReg').style.display = "none";
+	        document.getElementById('currentUser').style.display = "block";
+	        document.getElementById('userName').innerHTML = "Welcome back " + window.localStorage.getItem("bart_vr_user");
+	      }
+	    }
+	  }, {
 	    key: 'openSettingsModal',
 	    value: function openSettingsModal() {
 	      var modal = _ionicAngular.Modal.create(_settings.SettingsModal);
 	      this.nav.present(modal);
+	    }
+	  }, {
+	    key: 'fullScreenLaunch',
+	    value: function fullScreenLaunch() {
+	      this.bartVR.launchIntoFullscreen();
 	    }
 	  }]);
 

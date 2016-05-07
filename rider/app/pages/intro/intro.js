@@ -18,12 +18,32 @@ export class IntroPage {
   constructor(app, nav, navParams, _BoilerVR) {
   	this.nav = nav;
     this.app = app;
+    this.bartVR = _BoilerVR;
     this.Data = _BoilerVR.Data;
+
+    var infoReady = Promise.resolve(document.getElementById('userReg'));
+        infoReady.then(() => {
+           setTimeout(this.init.bind(this), 500);
+        });
+
+  }
+
+  init(){
+    if(window.localStorage.getItem("bart_vr_user") != null){
+        document.getElementById('userReg').style.display = "none";
+        document.getElementById('currentUser').style.display = "block";
+        document.getElementById('userName').innerHTML  =  "Welcome back " + window.localStorage.getItem("bart_vr_user");
+    }
+
   }
 
   openSettingsModal() {
     var modal = Modal.create(SettingsModal);
     this.nav.present(modal);
+  }
+
+   fullScreenLaunch(){
+    this.bartVR.launchIntoFullscreen();
   }
 
 }
