@@ -10,7 +10,30 @@
  */
 angular.module('SFUnderground.constants', [])
     .constant('SETUP', {
-        MULTIPLIER: 1
+        MULTIPLIER: 1,
+        AXIS_HELPER: true,
+        DB: {
+            color: 0xFFFFFF
+        },
+        CAMERA: {
+            CONTROLS: true,
+            POSITION: {
+                x: 444.06123338824165,
+                y: -447.4310307648058,
+                z: 533.4634729998194
+            },
+            ROTATION: {
+                x: 0.9201325724102727,
+                y: -0.0066064876515145084,
+                z: -0.0327089770515521,
+                order: "XYZ"},
+
+            LOOK_AT: {
+                x: 500,
+                y: 500,
+                z: 0
+            }
+        }
     })
     .constant('ALERTS', [
         "home",
@@ -32,7 +55,7 @@ angular.module('SFUnderground.constants', [])
                 name: "Pittsburg/Bay Point <-> Millbrae",
                 to: "Pittsburg/Bay Point",
                 from: "Millbrae",
-                routeLengths: [6,3,5,2,5,5,5,2,4,2,5,8,1,2,1,2,2,3,2,4,4,3,4,5,4],
+                routeLengths: [6, 3, 5, 2, 5, 5, 5, 2, 4, 2, 5, 8, 1, 2, 1, 2, 2, 3, 2, 4, 4, 3, 4, 5, 4],
                 routeLength: 89,
                 color: 0x00FF00,
                 subwayColor: 0xFFF000,
@@ -70,7 +93,7 @@ angular.module('SFUnderground.constants', [])
                 name: "Richmond <-> Millbrae",
                 to: "Richmond",
                 from: "Millbrae",
-                routeLengths: [4,3,4,2,2,3,4,2,5,8,1,2,1,2,2,3,2,4,4,3,4,6],
+                routeLengths: [4, 3, 4, 2, 2, 3, 4, 2, 5, 8, 1, 2, 1, 2, 2, 3, 2, 4, 4, 3, 4, 6],
                 routeLength: 71,
                 color: 0x0000FF,
                 subwayColor: 0x000FFF,
@@ -105,7 +128,7 @@ angular.module('SFUnderground.constants', [])
                 name: "Richmond <-> Freemont",
                 to: "Richmond",
                 from: "Freemont",
-                routeLengths: [4,3,4,2,2,3,4,2,3,4,4,4,4,4,4,5,5],
+                routeLengths: [4, 3, 4, 2, 2, 3, 4, 2, 3, 4, 4, 4, 4, 4, 4, 5, 5],
                 routeLength: 61,
                 color: 0xFFFF00,
                 subwayColor: 0xFFF00F,
@@ -135,7 +158,7 @@ angular.module('SFUnderground.constants', [])
                 name: "Freemont <-> Daly City",
                 to: "Freemont",
                 from: "Daly City",
-                routeLengths: [5,5,4,4,4,4,4,4,3,8,1,2,1,2,2,3,2,4],
+                routeLengths: [5, 5, 4, 4, 4, 4, 4, 4, 3, 8, 1, 2, 1, 2, 2, 3, 2, 4],
                 routeLength: 62,
                 color: 0x00FFFF,
                 subwayColor: 0xF00FFF,
@@ -166,7 +189,7 @@ angular.module('SFUnderground.constants', [])
                 name: "Dublin/Pleasanton <-> Daly City",
                 to: "Dublin/Pleasanton",
                 from: "Daly City",
-                routeLengths: [2,11,4,4,4,4,4,6,8,1,2,1,2,2,3,2,4],
+                routeLengths: [2, 11, 4, 4, 4, 4, 4, 6, 8, 1, 2, 1, 2, 2, 3, 2, 4],
                 routeLength: 64,
                 color: 0xFF00FF,
                 subwayColor: 0xFFFFFF,

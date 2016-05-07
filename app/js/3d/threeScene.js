@@ -8,6 +8,7 @@ angular.module('SFUnderground.3D.scene', [])
                 scene,
                 camera,
                 subways = [],
+                dbSplines = [],
                 splines = [];
 
             var tangent = new THREE.Vector3();
@@ -16,34 +17,89 @@ angular.module('SFUnderground.3D.scene', [])
 
             var delta = 0.005;
             var multiplier = 1;
+            var clock = new THREE.Clock();
 
             /**
              * @param {number} num
-             * TODO: WTF isn't this working.
              */
             function setMultiplier(num) {
                 multiplier = parseInt(num, 10) || SETUP.MULTIPLIER || 1;
-                console.log('multiplier: ' + multiplier);
             }
 
-            /**
-             * Initialize the 3D scene.
-             */
-            function init() {
-
+            function setupScene() {
                 renderer = new THREE.WebGLRenderer();
                 renderer.setSize(window.innerWidth, window.innerHeight);
                 document.body.appendChild(renderer.domElement);
                 camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 5000);
                 //TODO:  Why is camera looking at origin?
-                camera.position.set(500, 500, 1500);
+                camera.position.set(SETUP.CAMERA.POSITION.x, SETUP.CAMERA.POSITION.y, SETUP.CAMERA.POSITION.z);
+                camera.rotation.set(SETUP.CAMERA.ROTATION.x, SETUP.CAMERA.ROTATION.y, SETUP.CAMERA.ROTATION.z, SETUP.CAMERA.ROTATION.order);
+                camera.up.set(0, 1, 0);
+//                camera.lookAt(SETUP.CAMERA.LOOK_AT.x, SETUP.CAMERA.LOOK_AT.y, SETUP.CAMERA.LOOK_AT.z);
                 scene = new THREE.Scene();
-//                controls = new THREE.TrackballControls(camera, renderer.domElement);
-                var axisHelper = new THREE.AxisHelper( 50 );
-                scene.add( axisHelper );
+                if (SETUP.CAMERA.CONTROLS) {
+                    controls = new THREE.FlyControls(camera);
+                    controls.movementSpeed = 1000;
+                    controls.domElement = renderer.domElement;
+                    controls.rollSpeed = Math.PI / 24;
+                    controls.autoForward = false;
+                    controls.dragToLook = false;
+                }
+                if (SETUP.AXIS_HELPER) {
+                    var axisHelper = new THREE.AxisHelper(50);
+                    scene.add(axisHelper);
+                }
+            }
 
-                var numPoints = 100;
+            function createSplines(theSplines, numPoints, isSubway) {
+                // 1 spline for each route.
+                // create a geometry and material for each route
 
+
+                for (var j = 0; j < theSplines.length; j++) {
+                    var route = BART.routes[j];
+                    var material = new THREE.LineBasicMaterial({
+                        color: isSubway ? route.color : SETUP.DB.color
+                    });
+                    var geometry = new THREE.Geometry();
+                    var splinePoints = theSplines[j].getPoints(numPoints);
+                    for (var i = 0; i < splinePoints.length; i++) {
+                        geometry.vertices.push(splinePoints[i]);
+                        if (!isSubway) {
+                            if (i != 0 || i != splinePoints.length - 1) {
+                                var lineGeometry = new THREE.Geometry();
+                                lineGeometry.vertices.push(splinePoints[i]);
+                                lineGeometry.vertices.push(new THREE.Vector3(splinePoints[i].x, splinePoints[i].y, 0));
+                                var vertLine = new THREE.Line(lineGeometry, material);
+                                scene.add(vertLine);
+                            }
+                        }
+                    }
+
+                    var line = new THREE.Line(geometry, material);
+                    scene.add(line);
+
+                    geometry = new THREE.BoxGeometry(5, 40, 4);
+                    material = new THREE.MeshBasicMaterial({
+                        color: route.subwayColor
+                    });
+
+                    var group = new THREE.Object3D();
+                    var mesh = new THREE.Mesh(geometry, material);
+                    group.add(mesh);
+
+                    if (isSubway) {
+                        group.userData.normalizer = BART.longestRoute / route.routeLength;
+                        group.counter = 0;
+                        subways.push(group);
+                    } else {
+
+                    }
+                    scene.add(group);
+                }
+            }
+
+            function setupRoutes() {
                 // parse each route and create a spline from the cartesian coordinates.
                 for (var r = 0; r < BART.routes.length; r++) {
 
@@ -59,57 +115,50 @@ angular.module('SFUnderground.3D.scene', [])
                     var returnRouteStops = angular.copy(route.stops).reverse();
                     returnRouteStops.shift();
                     returnRouteStops.pop();
-                    route.stops = route.stops.concat(returnRouteStops);
+                    var twoWay = route.stops.concat(returnRouteStops);
                     var points = [];
-                    for (var s = 0; s < route.stops.length; s++) {
-                        var stop = route.stops[s];
-                        points.push(new THREE.Vector3(stop[0], stop[1], stop[3]));
+                    var elevatedPoints = [];
+                    var stop;
+                    var factor = 10;
+                    var halfLength = route.stops.length / 2;
+                    for (var q = 0; q < route.stops.length; q++) {
+
+                        // janky as fuck
+                        // TODO: Fix this.
+                        var z = q;
+                        if (q > halfLength) {
+                            z = route.stops.length - q;
+                        }
+                        stop = route.stops[q];
+                        if (q === 0 || q === route.stops.length - 1) {
+                            z = 0;
+                        }
+                        elevatedPoints.push(new THREE.Vector3(stop[0], stop[1], z * factor));
+                    }
+                    dbSplines.push(new THREE.SplineCurve3(elevatedPoints));
+
+                    // create the twoway splines.
+                    for (var s = 0; s < twoWay.length; s++) {
+                        stop = twoWay[s];
+                        points.push(new THREE.Vector3(stop[0], stop[1], stop[2]));
                     }
                     splines.push(new THREE.SplineCurve3(points));
                 }
 
-                // 1 spline for each route.
-                // create a geometry and material for each route
-                for (var j = 0; j < splines.length; j++) {
-                    route = BART.routes[j];
-                    var geometry = new THREE.Geometry();
-                    var splinePoints = splines[j].getPoints(numPoints);
-                    for (var i = 0; i < splinePoints.length; i++) {
-                        geometry.vertices.push(splinePoints[i]);
-                    }
-                    var material = new THREE.LineBasicMaterial({
-                        color: route.color
-                    });
+                createSplines(splines, 100, true);
+                createSplines(dbSplines, 20, false);
 
-                    var line = new THREE.Line(geometry, material);
-                    scene.add(line);
+            }
 
-                    geometry = new THREE.BoxGeometry(5, 40, 4);
-                    material = new THREE.MeshBasicMaterial({
-                        color: route.subwayColor
-                    });
-                    // these are the 'subways'
-                    // Yay!  Subway group.  This is a simple container to add sprites/fx to.
-                    var subwayGroup = new THREE.Object3D();
-                    var subway = new THREE.Mesh(geometry, material);
-                    subwayGroup.add(subway);
-                    subwayGroup.userData.normalizer = BART.longestRoute / route.routeLength;
-                    subwayGroup.counter = 0;
-                    subways.push(subwayGroup);
 
-                    var testGeo = new THREE.BoxGeometry(40,5,5);
-                    var testMesh = new THREE.Mesh(testGeo, material);
+            /**
+             * Initialize the 3D scene.
+             */
+            function init() {
 
-                    subwayGroup.add(testMesh);
-                    scene.add(subwayGroup);
-                }
+                setupScene();
+                setupRoutes();
 
-                var midmarker = new THREE.BoxGeometry(25,25,25);
-                var tm = new THREE.Mesh(midmarker, material);
-
-                camera.lookAt(midmarker);
-                tm.position.set(250, 250, 0);
-                scene.add(tm);
 
                 animate();
 
@@ -191,7 +240,7 @@ angular.module('SFUnderground.3D.scene', [])
                 var spriteMaterial = new THREE.SpriteMaterial({map: texture, useScreenCoordinates: false});
                 var sprite = new THREE.Sprite(spriteMaterial);
                 sprite.scale.set(0.5 * fontsize, 0.25 * fontsize, 0.75 * fontsize);
-                
+
                 return sprite;
             }
 
@@ -217,7 +266,11 @@ angular.module('SFUnderground.3D.scene', [])
             }
 
             function render() {
-//                controls.update();
+
+                if (SETUP.CAMERA.CONTROLS) {
+                    var delta = clock.getDelta();
+                    controls.update(delta);
+                }
                 renderer.render(scene, camera);
             }
 
