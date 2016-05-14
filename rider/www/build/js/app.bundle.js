@@ -63783,7 +63783,6 @@
 	  }, {
 	    key: 'updateUser',
 	    value: function updateUser(position, rotation) {
-
 	      if (this.isCurrentlyUsingBart) {
 	        this.userToUpdate.set({ name: this.user.name, position: position, rotation: rotation, sprite: this.user.sprite, routeID: this.currentRouteID });
 	      } else {
@@ -63949,7 +63948,9 @@
 	                this.skyBox('s');
 
 	                for (var i = 0; i < this.Data.currentRiders.length; i++) {
-	                    this.generateUserSprites(this.Data.currentRiders[i], i);
+	                    if (this.Data.currentRouteID == this.Data.currentRiders[i].currentRiders) {
+	                        this.generateUserSprites(this.Data.currentRiders[i], i);
+	                    }
 	                }
 
 	                this.updateFunctionsInLoop.push(function () {

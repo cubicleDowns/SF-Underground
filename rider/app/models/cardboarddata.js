@@ -105,7 +105,6 @@ export class CardBoardData{
  
 
   updateUser(position, rotation){
-
     if(this.isCurrentlyUsingBart){
       this.userToUpdate.set({name: this.user.name, position: position, rotation: rotation, sprite: this.user.sprite,  routeID:this.currentRouteID });
     }else{

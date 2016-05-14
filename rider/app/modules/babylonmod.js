@@ -58,7 +58,9 @@ export class babylonMod {
             this.skyBox('s');
           
             for(let i = 0; i < this.Data.currentRiders.length; i++){
-                this.generateUserSprites(this.Data.currentRiders[i], i);
+                if(this.Data.currentRouteID == this.Data.currentRiders[i].currentRiders){
+                    this.generateUserSprites(this.Data.currentRiders[i], i);
+                }
             }
             
 
