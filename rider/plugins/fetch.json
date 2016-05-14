@@ -1,0 +1,26 @@
+{
+    "cordova-plugin-canvas-gamepad": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-canvas-gamepad"
+        },
+        "is_top_level": true,
+        "variables": {}
+    },
+    "cordova-plugin-ios-longpress-fix": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-ios-longpress-fix"
+        },
+        "is_top_level": true,
+        "variables": {}
+    },
+    "cordova-plugin-canvas-gamepad": {
+        "source": {
+            "type": "git",
+            "id": "cordova-plugin-canvas-gamepad"
+        },
+        "is_top_level": true,
+        "variables": {}
+    }
+}

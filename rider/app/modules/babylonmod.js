@@ -55,7 +55,7 @@ export class babylonMod {
             player.playAnimation(0, 20, true, 100);
             player.parent = this.vrCamera;
             this.sprites.push(player);
-            this.skyBox('s');
+            this.skyBox('oakland');
           
             for(let i = 0; i < this.Data.currentRiders.length; i++){
                 if(this.Data.currentRouteID == this.Data.currentRiders[i].currentRiders){
