@@ -19,7 +19,7 @@ export class babylonMod {
     init() {
         window._babylon = this;
         this.engine = new BABYLON.Engine(this.canvas , true);
-        BABYLON.SceneLoader.Load('', 'build/scenes/subway3/subway.babylon?once=366509210', this.engine, function(newScene) {
+        BABYLON.SceneLoader.Load('', 'build/scenes/subway3/bart_15.babylon?once=3665092109', this.engine, function(newScene) {
             this.scene = newScene;
             var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(100, 100, 0), this.scene );
             if(_babylon.app.isNative){
@@ -95,6 +95,7 @@ export class babylonMod {
         console.log(_data.position);
         player.position = _data.position;
         player.rotation = _data.rotation;
+        player.size = 14.0;
         player.playAnimation(0, 20, true, 100);
     }
 

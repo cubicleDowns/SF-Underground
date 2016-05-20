@@ -78,8 +78,9 @@ export class CardBoardData{
 
   setUser(_user = {name: 'userName', position: {x:0, y:0, z:0}}, _pos = {} ){
       if(window.localStorage.getItem("bart_vr_user") == null){
-        _pos.x = this.randomPos(-6, 6);
-        _pos.z = this.randomPos(-0.5, 0.5);
+        _pos.x = this.randomPos(-85, 6);
+        _pos.y = this.randomPos(-4, 15);
+        _pos.z = 6;
         var _username = null;
         if(this.user.name == null){
           _username =  this.randomArr(this.fakeUser);

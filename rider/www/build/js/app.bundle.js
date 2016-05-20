@@ -63759,8 +63759,9 @@
 	      var _pos = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
 	      if (window.localStorage.getItem("bart_vr_user") == null) {
-	        _pos.x = this.randomPos(-6, 6);
-	        _pos.z = this.randomPos(-0.5, 0.5);
+	        _pos.x = this.randomPos(-85, 6);
+	        _pos.y = this.randomPos(-4, 15);
+	        _pos.z = 6;
 	        var _username = null;
 	        if (this.user.name == null) {
 	          _username = this.randomArr(this.fakeUser);
@@ -63911,7 +63912,7 @@
 	        value: function init() {
 	            window._babylon = this;
 	            this.engine = new BABYLON.Engine(this.canvas, true);
-	            BABYLON.SceneLoader.Load('', 'build/scenes/subway3/subway.babylon?once=366509210', this.engine, function (newScene) {
+	            BABYLON.SceneLoader.Load('', 'build/scenes/subway3/bart_15.babylon?once=3665092109', this.engine, function (newScene) {
 	                this.scene = newScene;
 	                var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(100, 100, 0), this.scene);
 	                if (_babylon.app.isNative) {
@@ -63983,6 +63984,7 @@
 	            console.log(_data.position);
 	            player.position = _data.position;
 	            player.rotation = _data.rotation;
+	            player.size = 14.0;
 	            player.playAnimation(0, 20, true, 100);
 	        }
 	    }, {
