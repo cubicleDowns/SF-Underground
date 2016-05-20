@@ -12,6 +12,7 @@ export class babylonMod {
         this.mode = 'vr';
         this.scene = null;
         this.updateFunctionsInLoop = [];
+        this.updateFunctionBeforeLoop = [];
         this.sprites = [];
         this.Data.babylonMod = this;
     }
@@ -19,7 +20,7 @@ export class babylonMod {
     init() {
         window._babylon = this;
         this.engine = new BABYLON.Engine(this.canvas , true);
-        BABYLON.SceneLoader.Load('', 'build/scenes/subway3/bart_15.babylon?once=3665092109', this.engine, function(newScene) {
+        BABYLON.SceneLoader.Load('', 'build/scenes/subway3/bart_16.babylon?once=3665092109', this.engine, function(newScene) {
             this.scene = newScene;
             var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(100, 100, 0), this.scene );
             if(_babylon.app.isNative){
@@ -54,18 +55,25 @@ export class babylonMod {
             this.skyBox('oakland');
           
             for(let i = 0; i < this.Data.currentRiders.length; i++){
-                if(this.Data.currentRouteID == parseInt(this.Data.currentRiders[i].routeID)){
+                if(this.Data.currentRouteID == parseInt(this.Data.currentRiders[i].data.routeID)){
                     this.generateUserSprites(this.Data.currentRiders[i], i);
                 }
             }
             
 
+            if(this.Data.executeUserRemoval != null){
+                this.Data.deleteUser(this.Data.executeUserRemoval);
+            }
             this.updateFunctionsInLoop.push((function(){
                 this.vrCamera.position = new BABYLON.Vector3(this.Data.user.position.x, this.Data.user.position.y, this.Data.user.position.z);
                 this.playerSprite.position = new BABYLON.Vector3(this.Data.user.position.x, this.Data.user.position.y, this.Data.user.position.z);
                 this.Data.updateUser(this.activeCamera.position, this.activeCamera.rotation);
             }.bind(this)));
 
+
+            for(let i = 0; i < this.updateFunctionBeforeLoop.length; i++){
+                this.updateFunctionBeforeLoop[i]();
+            }
             this.gameLoop();
 
         
@@ -81,20 +89,24 @@ export class babylonMod {
         */
 
     }
+
+
     /*
     randomPos(min, max){
         return Math.random() * (max - min) + min;
     }
     */
 
+
+
     generateUserSprites(_data, _id){
         console.log(_data);
-        var spriteManagerRider = new BABYLON.SpriteManager("riderManager", _data.sprite, 1, 128, this.scene);
-        let player = new BABYLON.Sprite(_data.name + _id, spriteManagerRider);
+        var spriteManagerRider = new BABYLON.SpriteManager(_data.key, _data.data.sprite, 1, 128, this.scene);
+        let player = new BABYLON.Sprite(_data.key, spriteManagerRider);
         player.isPickable = true;
-        console.log(_data.position);
-        player.position = _data.position;
-        player.rotation = _data.rotation;
+        console.log(_data.data.position);
+        player.position = _data.data.position;
+        player.rotation = _data.data.rotation;
         player.size = 14.0;
         player.playAnimation(0, 20, true, 100);
     }

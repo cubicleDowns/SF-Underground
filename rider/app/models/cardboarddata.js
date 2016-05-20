@@ -52,8 +52,8 @@ export class CardBoardData{
           this.userToUpdate +=  data.key();
           this.userToUpdate = new Firebase(this.userToUpdate);
           this.isCurrentlyUsingBart = true;
-        }
-         this.currentRiders.push(data.val());
+        }    
+         this.currentRiders.push({data:data.val(), key: data.key()});
       }.bind(this));
     }.bind(this));
 
@@ -76,11 +76,55 @@ export class CardBoardData{
 
   }
 
+  deleteUser(_dkey){
+      var userRef = new Firebase('https://sf-noise.firebaseio.com/riders/'  + _dkey);
+      userRef.once("value", function(_data) {
+        console.log(_data.val());
+        console.log('pass');
+        var fountain = BABYLON.Mesh.CreateBox("foutain", 1.0, this.babylonMod.scene);
+        fountain.isVisible = false;
+        fountain.position = new BABYLON.Vector3(_data.val().position.x, _data.val().position.y, _data.val().position.z)
+        var particleSystem = new BABYLON.ParticleSystem("particles", 1000, this.babylonMod.scene);
+        particleSystem.particleTexture = new BABYLON.Texture("build/img/textures/flare.png", this.babylonMod.scene);
+        particleSystem.emitter = fountain; // the starting object, the emitter
+        particleSystem.minEmitBox = new BABYLON.Vector3(-1, 0, 0); // Starting all from
+        particleSystem.maxEmitBox = new BABYLON.Vector3(1, 0, 0); // To...
+        particleSystem.color1 = new BABYLON.Color4(0.7, 0.8, 1.0, 1.0);
+        particleSystem.color2 = new BABYLON.Color4(0.2, 0.5, 1.0, 1.0);
+        particleSystem.colorDead = new BABYLON.Color4(0, 0, 0.2, 0.0);
+        particleSystem.minSize = 0.1;
+        particleSystem.maxSize = 0.5;
+        particleSystem.minLifeTime = 0.1;
+        particleSystem.maxLifeTime = 0.3;
+        particleSystem.emitRate = 1000;
+        particleSystem.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
+        particleSystem.gravity = new BABYLON.Vector3(0, -9.81, 0);
+        particleSystem.direction1 = new BABYLON.Vector3(-4, 6, 4);
+        particleSystem.direction2 = new BABYLON.Vector3(4, 6, -4);
+        particleSystem.minEmitPower = 1;
+        particleSystem.maxEmitPower = 3;
+        particleSystem.updateSpeed = 0.005;
+        particleSystem.start();
+        setTimeout(function(){
+          particleSystem.stop();
+          particleSystem.dispose();
+          for(let i = 0; i < this.babylonMod.scene.spriteManagers.length; i++){
+              if(  this.babylonMod.scene.spriteManagers[i].name == _dkey){
+                  this.babylonMod.scene.spriteManagers[i].dispose();
+              }
+          }
+          userRef.remove();
+        }.bind(this), 5000);       
+        }.bind(this), function (errorObject) {
+         // console.log(errorObject);
+      });
+  }
+
   setUser(_user = {name: 'userName', position: {x:0, y:0, z:0}}, _pos = {} ){
       if(window.localStorage.getItem("bart_vr_user") == null){
-        _pos.x = this.randomPos(-85, 6);
-        _pos.y = this.randomPos(-4, 15);
-        _pos.z = 6;
+        _pos.x = this.randomPos(-85, 2);
+        _pos.y = 6;
+        _pos.z = this.randomPos(5, 15);
         var _username = null;
         if(this.user.name == null){
           _username =  this.randomArr(this.fakeUser);

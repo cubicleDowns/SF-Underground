@@ -42,6 +42,16 @@ export class IntroPage {
     this.nav.present(modal);
   }
 
+  reset(){
+   console.log(this.bartVR);
+
+   this.Data.executeUserRemoval = "bart_vr_user_key";
+    window.localStorage.removeItem("bart_vr_user");
+    window.localStorage.removeItem("bart_vr_user_key");
+    document.getElementById('userReg').style.display = "block";
+    document.getElementById('currentUser').style.display = "none";
+  }
+
    fullScreenLaunch(){
     this.bartVR.launchIntoFullscreen();
   }

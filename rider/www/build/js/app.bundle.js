@@ -63737,7 +63737,7 @@
 	            this.userToUpdate = new Firebase(this.userToUpdate);
 	            this.isCurrentlyUsingBart = true;
 	          }
-	          this.currentRiders.push(data.val());
+	          this.currentRiders.push({ data: data.val(), key: data.key() });
 	        }.bind(this));
 	      }.bind(this));
 
@@ -63752,6 +63752,51 @@
 	      */
 	    }
 	  }, {
+	    key: 'deleteUser',
+	    value: function deleteUser(_dkey) {
+	      var userRef = new Firebase('https://sf-noise.firebaseio.com/riders/' + _dkey);
+	      userRef.once("value", function (_data) {
+	        console.log(_data.val());
+	        console.log('pass');
+	        var fountain = BABYLON.Mesh.CreateBox("foutain", 1.0, this.babylonMod.scene);
+	        fountain.isVisible = false;
+	        fountain.position = new BABYLON.Vector3(_data.val().position.x, _data.val().position.y, _data.val().position.z);
+	        var particleSystem = new BABYLON.ParticleSystem("particles", 1000, this.babylonMod.scene);
+	        particleSystem.particleTexture = new BABYLON.Texture("build/img/textures/flare.png", this.babylonMod.scene);
+	        particleSystem.emitter = fountain; // the starting object, the emitter
+	        particleSystem.minEmitBox = new BABYLON.Vector3(-1, 0, 0); // Starting all from
+	        particleSystem.maxEmitBox = new BABYLON.Vector3(1, 0, 0); // To...
+	        particleSystem.color1 = new BABYLON.Color4(0.7, 0.8, 1.0, 1.0);
+	        particleSystem.color2 = new BABYLON.Color4(0.2, 0.5, 1.0, 1.0);
+	        particleSystem.colorDead = new BABYLON.Color4(0, 0, 0.2, 0.0);
+	        particleSystem.minSize = 0.1;
+	        particleSystem.maxSize = 0.5;
+	        particleSystem.minLifeTime = 0.1;
+	        particleSystem.maxLifeTime = 0.3;
+	        particleSystem.emitRate = 1000;
+	        particleSystem.blendMode = BABYLON.ParticleSystem.BLENDMODE_ONEONE;
+	        particleSystem.gravity = new BABYLON.Vector3(0, -9.81, 0);
+	        particleSystem.direction1 = new BABYLON.Vector3(-4, 6, 4);
+	        particleSystem.direction2 = new BABYLON.Vector3(4, 6, -4);
+	        particleSystem.minEmitPower = 1;
+	        particleSystem.maxEmitPower = 3;
+	        particleSystem.updateSpeed = 0.005;
+	        particleSystem.start();
+	        setTimeout(function () {
+	          particleSystem.stop();
+	          particleSystem.dispose();
+	          for (var i = 0; i < this.babylonMod.scene.spriteManagers.length; i++) {
+	            if (this.babylonMod.scene.spriteManagers[i].name == _dkey) {
+	              this.babylonMod.scene.spriteManagers[i].dispose();
+	            }
+	          }
+	          userRef.remove();
+	        }.bind(this), 5000);
+	      }.bind(this), function (errorObject) {
+	        // console.log(errorObject);
+	      });
+	    }
+	  }, {
 	    key: 'setUser',
 	    value: function setUser() {
 	      var _user = arguments.length <= 0 || arguments[0] === undefined ? { name: 'userName', position: { x: 0, y: 0, z: 0 } } : arguments[0];
@@ -63759,9 +63804,9 @@
 	      var _pos = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
 	      if (window.localStorage.getItem("bart_vr_user") == null) {
-	        _pos.x = this.randomPos(-85, 6);
-	        _pos.y = this.randomPos(-4, 15);
-	        _pos.z = 6;
+	        _pos.x = this.randomPos(-85, 2);
+	        _pos.y = 6;
+	        _pos.z = this.randomPos(5, 15);
 	        var _username = null;
 	        if (this.user.name == null) {
 	          _username = this.randomArr(this.fakeUser);
@@ -63865,6 +63910,17 @@
 	      this.nav.present(modal);
 	    }
 	  }, {
+	    key: 'reset',
+	    value: function reset() {
+	      console.log(this.bartVR);
+
+	      this.Data.executeUserRemoval = "bart_vr_user_key";
+	      window.localStorage.removeItem("bart_vr_user");
+	      window.localStorage.removeItem("bart_vr_user_key");
+	      document.getElementById('userReg').style.display = "block";
+	      document.getElementById('currentUser').style.display = "none";
+	    }
+	  }, {
 	    key: 'fullScreenLaunch',
 	    value: function fullScreenLaunch() {
 	      this.bartVR.launchIntoFullscreen();
@@ -63903,6 +63959,7 @@
 	        this.mode = 'vr';
 	        this.scene = null;
 	        this.updateFunctionsInLoop = [];
+	        this.updateFunctionBeforeLoop = [];
 	        this.sprites = [];
 	        this.Data.babylonMod = this;
 	    }
@@ -63912,7 +63969,7 @@
 	        value: function init() {
 	            window._babylon = this;
 	            this.engine = new BABYLON.Engine(this.canvas, true);
-	            BABYLON.SceneLoader.Load('', 'build/scenes/subway3/bart_15.babylon?once=3665092109', this.engine, function (newScene) {
+	            BABYLON.SceneLoader.Load('', 'build/scenes/subway3/bart_16.babylon?once=3665092109', this.engine, function (newScene) {
 	                this.scene = newScene;
 	                var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(100, 100, 0), this.scene);
 	                if (_babylon.app.isNative) {
@@ -63946,17 +64003,23 @@
 	                this.skyBox('oakland');
 
 	                for (var i = 0; i < this.Data.currentRiders.length; i++) {
-	                    if (this.Data.currentRouteID == parseInt(this.Data.currentRiders[i].routeID)) {
+	                    if (this.Data.currentRouteID == parseInt(this.Data.currentRiders[i].data.routeID)) {
 	                        this.generateUserSprites(this.Data.currentRiders[i], i);
 	                    }
 	                }
 
+	                if (this.Data.executeUserRemoval != null) {
+	                    this.Data.deleteUser(this.Data.executeUserRemoval);
+	                }
 	                this.updateFunctionsInLoop.push(function () {
 	                    this.vrCamera.position = new BABYLON.Vector3(this.Data.user.position.x, this.Data.user.position.y, this.Data.user.position.z);
 	                    this.playerSprite.position = new BABYLON.Vector3(this.Data.user.position.x, this.Data.user.position.y, this.Data.user.position.z);
 	                    this.Data.updateUser(this.activeCamera.position, this.activeCamera.rotation);
 	                }.bind(this));
 
+	                for (var _i = 0; _i < this.updateFunctionBeforeLoop.length; _i++) {
+	                    this.updateFunctionBeforeLoop[_i]();
+	                }
 	                this.gameLoop();
 	            }.bind(this), function (progress) {
 	                // To do: give progress feedback to user
@@ -63968,6 +64031,7 @@
 	            });
 	            */
 	        }
+
 	        /*
 	        randomPos(min, max){
 	            return Math.random() * (max - min) + min;
@@ -63978,12 +64042,12 @@
 	        key: 'generateUserSprites',
 	        value: function generateUserSprites(_data, _id) {
 	            console.log(_data);
-	            var spriteManagerRider = new BABYLON.SpriteManager("riderManager", _data.sprite, 1, 128, this.scene);
-	            var player = new BABYLON.Sprite(_data.name + _id, spriteManagerRider);
+	            var spriteManagerRider = new BABYLON.SpriteManager(_data.key, _data.data.sprite, 1, 128, this.scene);
+	            var player = new BABYLON.Sprite(_data.key, spriteManagerRider);
 	            player.isPickable = true;
-	            console.log(_data.position);
-	            player.position = _data.position;
-	            player.rotation = _data.rotation;
+	            console.log(_data.data.position);
+	            player.position = _data.data.position;
+	            player.rotation = _data.data.rotation;
 	            player.size = 14.0;
 	            player.playAnimation(0, 20, true, 100);
 	        }
