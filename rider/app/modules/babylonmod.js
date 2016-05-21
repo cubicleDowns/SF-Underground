@@ -1,3 +1,6 @@
+import {BartVR_HeadsUpDisplay} from './hud/BartVR_HeadsUpDisplay';
+import {GazeEvent} from './events/gazeevent';
+
 export class babylonMod {
 
     constructor(_element, _data, _app) {
@@ -10,6 +13,7 @@ export class babylonMod {
         this.nonVRCamera = null;
         this.activeCamera = null;
         this.mode = 'vr';
+        this.hud = null;
         this.scene = null;
         this.updateFunctionsInLoop = [];
         this.updateFunctionBeforeLoop = [];
@@ -45,8 +49,10 @@ export class babylonMod {
             this.scene.activeCamera = this.vrCamera;
             this.vrCamera.position.x = 6;
             this.Data.setUser(null, this.vrCamera.position);
+            this.hud = new BartVR_HeadsUpDisplay(this.scene, this);
 
             var spriteManagerPlayer = new BABYLON.SpriteManager("riderManager", this.Data.user.sprite, 1, 128, this.scene);
+            spriteManagerPlayer.layerMask = 3;
             this.playerSprite = new BABYLON.Sprite("player", spriteManagerPlayer);
             this.playerSprite.isPickable = true;
             this.playerSprite.playAnimation(0, 20, true, 100);
@@ -102,6 +108,7 @@ export class babylonMod {
     generateUserSprites(_data, _id){
         console.log(_data);
         var spriteManagerRider = new BABYLON.SpriteManager(_data.key, _data.data.sprite, 1, 128, this.scene);
+        spriteManagerRider.layerMask = 3;
         let player = new BABYLON.Sprite(_data.key, spriteManagerRider);
         player.isPickable = true;
         console.log(_data.data.position);

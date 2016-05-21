@@ -63700,6 +63700,7 @@
 	    this.babylonMod = null;
 	    this.currentUserKey = null;
 	    this.isCurrentlyUsingBart = false;
+	    this.executeUserRemoval = null;
 	    this.userToUpdate = 'https://sf-noise.firebaseio.com/riders/';
 	    this.brartRoutes = ['Pittsburg / Bay Point', 'Richmond / Millbrae', 'Richmond / Fremont', 'Fremont / Daily City', 'Dublin Pleasanton / Daily City'];
 	    this.init();
@@ -63740,16 +63741,6 @@
 	          this.currentRiders.push({ data: data.val(), key: data.key() });
 	        }.bind(this));
 	      }.bind(this));
-
-	      /* debugging
-	      this.sfunderground.on('value', function(info){
-	          console.log(info.val());
-	      });
-	         this.users.on("child_added", function(snapshot, key) {
-	        console.log(snapshot);
-	        console.log(key);
-	      });
-	      */
 	    }
 	  }, {
 	    key: 'deleteUser',
@@ -63932,15 +63923,20 @@
 
 /***/ },
 /* 364 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
+	exports.babylonMod = undefined;
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _BartVR_HeadsUpDisplay = __webpack_require__(367);
+
+	var _gazeevent = __webpack_require__(371);
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -63957,6 +63953,7 @@
 	        this.nonVRCamera = null;
 	        this.activeCamera = null;
 	        this.mode = 'vr';
+	        this.hud = null;
 	        this.scene = null;
 	        this.updateFunctionsInLoop = [];
 	        this.updateFunctionBeforeLoop = [];
@@ -63993,8 +63990,10 @@
 	                this.scene.activeCamera = this.vrCamera;
 	                this.vrCamera.position.x = 6;
 	                this.Data.setUser(null, this.vrCamera.position);
+	                this.hud = new _BartVR_HeadsUpDisplay.BartVR_HeadsUpDisplay(this.scene, this);
 
 	                var spriteManagerPlayer = new BABYLON.SpriteManager("riderManager", this.Data.user.sprite, 1, 128, this.scene);
+	                spriteManagerPlayer.layerMask = 3;
 	                this.playerSprite = new BABYLON.Sprite("player", spriteManagerPlayer);
 	                this.playerSprite.isPickable = true;
 	                this.playerSprite.playAnimation(0, 20, true, 100);
@@ -64043,6 +64042,7 @@
 	        value: function generateUserSprites(_data, _id) {
 	            console.log(_data);
 	            var spriteManagerRider = new BABYLON.SpriteManager(_data.key, _data.data.sprite, 1, 128, this.scene);
+	            spriteManagerRider.layerMask = 3;
 	            var player = new BABYLON.Sprite(_data.key, spriteManagerRider);
 	            player.isPickable = true;
 	            console.log(_data.data.position);
@@ -64253,6 +64253,495 @@
 
 	  return CardboardGl;
 	}()) || _class);
+
+/***/ },
+/* 367 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.BartVR_HeadsUpDisplay = undefined;
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _hudsystem = __webpack_require__(368);
+
+	var _hudpanel = __webpack_require__(370);
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var BartVR_HeadsUpDisplay = exports.BartVR_HeadsUpDisplay = function () {
+	    function BartVR_HeadsUpDisplay(scene, babylonMod) {
+	        _classCallCheck(this, BartVR_HeadsUpDisplay);
+
+	        this.assets = [];
+	        this._scene = scene;
+	        this.babylonMod = babylonMod;
+	        this.engine = this._scene.getEngine();
+	        this.loader = new BABYLON.AssetsManager(scene);
+	        this.hudsystem = null;
+	        this.pWidth = this.engine.getRenderWidth() / 2;
+	        this.pHeight = this.engine.getRenderHeight() / 2;
+	        this.pW50 = this.pWidth / 2;
+	        this.logo;
+	        this.camTargetObjLeft;
+	        this.camTargetObjRight;
+
+	        this.toLoad = [{ name: "logo", src: "build/img/bartVRLogo_b.png" }, { name: "targetCam", src: "build/img/target_sm.png" }];
+	        this.toLoad.forEach(function (obj) {
+	            var img = this.loader.addTextureTask(obj.name, obj.src);
+	            img.onSuccess = function (t) {
+	                this.assets[t.name] = t.texture;
+	            }.bind(this);
+	        }.bind(this));
+	        this.loader.onFinish = this.onFinish.bind(this);
+	        this.init();
+	    }
+
+	    _createClass(BartVR_HeadsUpDisplay, [{
+	        key: 'init',
+	        value: function init() {
+	            this.loader.load();
+	        }
+	    }, {
+	        key: 'scaleCamTarget',
+	        value: function scaleCamTarget() {
+	            var amount = arguments.length <= 0 || arguments[0] === undefined ? 200 : arguments[0];
+
+	            this.camTargetObjLeft.mesh.scaling.x = amount;
+	            this.camTargetObjLeft.mesh.scaling.y = amount;
+	            this.camTargetObjRight.mesh.scaling.x = amount;
+	            this.camTargetObjRight.mesh.scaling.y = amount;
+	        }
+	    }, {
+	        key: 'onFinish',
+	        value: function onFinish() {
+	            setTimeout(function () {
+	                var gui = new _hudsystem.HUDSystem(this._scene, this.engine.getRenderWidth(), this.engine.getRenderHeight());
+	                this.logo = new _hudpanel.HUDPanel("logo", this.assets["logo"], this.assets["logo"], gui);
+	                this.logo.guiposition(new BABYLON.Vector3(250, 100, 0));
+
+	                this.camTargetObjLeft = new _hudpanel.HUDPanel("camTargetObjLeft", this.assets["targetCam"], this.assets["targetCam"], gui);
+	                this.camTargetObjLeft.guiposition(new BABYLON.Vector3(this.pW50 - 32, this.pHeight - 32, 0));
+
+	                this.camTargetObjRight = new _hudpanel.HUDPanel("camTargetObjRight", this.assets["targetCam"], this.assets["targetCam"], gui);
+	                this.camTargetObjRight.guiposition(new BABYLON.Vector3(this.pWidth + this.pW50 - 32, this.pHeight - 32, 0));
+	                gui.updateCamera();
+	                this.hudsystem = gui;
+	            }.bind(this), 200);
+	        }
+	    }]);
+
+	    return BartVR_HeadsUpDisplay;
+	}();
+
+/***/ },
+/* 368 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.HUDSystem = undefined;
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _hudobject = __webpack_require__(369);
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var HUDSystem = exports.HUDSystem = function () {
+	    function HUDSystem(scene, guiWidth, guiHeight) {
+	        _classCallCheck(this, HUDSystem);
+
+	        this._scene = scene;
+	        var mainCam = scene.activeCamera;
+	        if (this._scene.activeCameras.indexOf(mainCam) == -1) {
+	            this._scene.activeCameras.push(mainCam);
+	        }
+	        this.dpr = window.devicePixelRatio;
+	        this.guiWidth = scene.getEngine().getRenderWidth();
+	        this.guiHeight = scene.getEngine().getRenderHeight();
+
+	        this.zoom = Math.max(guiWidth, guiHeight) / Math.max(scene.getEngine().getRenderingCanvas().width, scene.getEngine().getRenderingCanvas().height);
+	        this._camera = null;
+	        this._scene.activeCamera = mainCam;
+	        this._scene.cameraToUseForPointers = mainCam;
+	        this.objects = [];
+	        this.groups = [];
+	        this.visible = true;
+	        this._objectUnderPointer = null;
+	        this.LAYER_MASK = 8;
+	        this.GAME_LAYER_MASK = 2;
+	        this._initCamera();
+	    }
+
+	    _createClass(HUDSystem, [{
+	        key: "getScene",
+	        value: function getScene() {
+	            return this._scene;
+	        }
+	    }, {
+	        key: "getCamera",
+	        value: function getCamera() {
+	            return this._camera;
+	        }
+	    }, {
+	        key: "_initCamera",
+	        value: function _initCamera() {
+	            this._camera = new BABYLON.FreeCamera("GUICAMERA", new BABYLON.Vector3(0, 0, -30), this._scene);
+	            this._camera.mode = BABYLON.Camera.ORTHOGRAPHIC_CAMERA;
+	            this._camera.setTarget(BABYLON.Vector3.Zero());
+	            this._camera.layerMask = this.LAYER_MASK;
+	            this.resize();
+	            this._scene.activeCameras.push(this._camera);
+	        }
+	    }, {
+	        key: "resize",
+	        value: function resize() {
+	            var width = this.dpr * this._scene.getEngine().getRenderingCanvas().width;
+	            var height = this.dpr * this._scene.getEngine().getRenderingCanvas().height;
+	            var right = width / this.dpr;
+	            var top = height / this.dpr;
+	            this._camera.orthoTop = top / 2;
+	            this._camera.orthoRight = right / 2;
+	            this._camera.orthoBottom = -top / 2;
+	            this._camera.orthoLeft = -right / 2;
+	            this.guiWidth = right;
+	            this.guiHeight = top;
+	        }
+	    }, {
+	        key: "dispose",
+	        value: function dispose() {
+	            this.objects.forEach(function (p) {
+	                p.dispose();
+	            });
+	            this.objects = [];
+	            this.groups.forEach(function (g) {
+	                g.dispose();
+	            });
+
+	            this.groups = [];
+	            this._camera.dispose();
+	        }
+	    }, {
+	        key: "add",
+	        value: function add(mesh) {
+	            var p = new _hudobject.HUDObject(mesh, this);
+	            this.objects.push(p);
+	            return p;
+	        }
+	    }, {
+	        key: "setVisible",
+	        value: function setVisible(bool) {
+	            this.visible = bool;
+	            this.objects.forEach(function (p) {
+	                p.setVisible(bool);
+	            });
+	        }
+	    }, {
+	        key: "isVisible",
+	        value: function isVisible() {
+	            return this.visible;
+	        }
+	    }, {
+	        key: "getObjectByName",
+	        value: function getObjectByName(name) {
+	            for (var o = 0; o < this.objects.length; o++) {
+	                if (this.objects[o].mesh.name === name) {
+	                    return this.objects[o];
+	                }
+	            }
+	            return null;
+	        }
+	    }, {
+	        key: "getGroupByName",
+	        value: function getGroupByName(name) {
+	            for (var o = 0; o < this.groups.length; o++) {
+	                if (this.groups[o].name === name) {
+	                    return this.groups[o];
+	                }
+	            }
+	            return null;
+	        }
+	    }, {
+	        key: "updateCamera",
+	        value: function updateCamera(cam) {
+	            var myCam = cam || this._scene.activeCamera;
+	            myCam.layerMask = this.GAME_LAYER_MASK;
+	            for (var m = 0; m < this._scene.meshes.length; m++) {
+	                var mesh = this._scene.meshes[m];
+	                if (!mesh.__gui) {
+	                    if (mesh.layerMask) {
+	                        mesh.layerMask = this.GAME_LAYER_MASK;
+	                    }
+	                }
+	            }
+	        }
+	    }]);
+
+	    return HUDSystem;
+	}();
+
+/***/ },
+/* 369 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var HUDObject = exports.HUDObject = function () {
+	    function HUDObject(mesh, hudsystem) {
+	        _classCallCheck(this, HUDObject);
+
+	        this.mesh = mesh;
+	        this.mesh.__gui = true;
+	        this.hudsystem = hudsystem;
+	        this.onClick = null;
+	        this.onHoverOn = null;
+	        this.onHoverOut = null;
+
+	        this.mesh.actionManager = new BABYLON.ActionManager(mesh._scene);
+
+	        var updateOnPointerUp = new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickUpTrigger, function (e) {
+	            if (this.onClick) {
+	                this.onClick(e);
+	            }
+	        }.bind(this));
+	        var updateOnHoverOn = new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOverTrigger, function (e) {
+	            if (this.onHoverOn) {
+	                this.onHoverOn(e);
+	            }
+	        }.bind(this));
+	        var updateOnHoverOut = new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOutTrigger, function (e) {
+	            if (this.onHoverOut) {
+	                this.onHoverOut(e);
+	            }
+	        }.bind(this));
+	        this.mesh.actionManager.registerAction(updateOnPointerUp);
+	        this.mesh.actionManager.registerAction(updateOnHoverOn);
+	        this.mesh.actionManager.registerAction(updateOnHoverOut);
+	        this.mesh.layerMask = hudsystem.LAYER_MASK;
+	        this.hudsystem.objects.push(this);
+	        this.guiposition(BABYLON.Vector3.Zero());
+	    }
+
+	    _createClass(HUDObject, [{
+	        key: "guiposition",
+	        value: function guiposition(gp) {
+	            this.guiPosition = gp;
+	            this.mesh.position = new BABYLON.Vector3(gp.x / this.hudsystem.zoom - this.hudsystem.guiWidth / 2, this.hudsystem.guiHeight / 2 - gp.y / this.hudsystem.zoom, gp.z);
+	        }
+	    }, {
+	        key: "relativePosition",
+	        value: function relativePosition(pos) {
+	            if (pos) {
+	                this.mesh.position.x = this.hudsystem.guiWidth * pos.x - this.hudsystem.guiWidth / 2;
+	                this.mesh.position.y = this.hudsystem.guiHeight * (1 - pos.y) - this.hudsystem.guiHeight / 2;
+	                this.mesh.position.z = pos.z;
+	            } else {
+	                return new BABYLON.Vector3((this.mesh.position.x + this.hudsystem.guiWidth / 2) / this.hudsystem.guiWidth, (this.hudsystem.guiHeight / 2 - this.mesh.position.y) / this.hudsystem.guiHeight, this.mesh.position.z);
+	            }
+	        }
+	    }, {
+	        key: "position",
+	        value: function position(pos) {
+	            if (pos) {
+	                this.mesh.position = pos;
+	                this.guiPosition = new BABYLON.Vector3(this.hudsystem.guiWidth / 2 + pos.x, this.hudsystem.guiHeight / 2 + pos.y, pos.z);
+	            } else {
+	                return this.mesh.position;
+	            }
+	        }
+	    }, {
+	        key: "scaling",
+	        value: function scaling(scale) {
+	            if (scale) {
+	                this.mesh.scaling = scale;
+	            } else {
+	                return this.mesh.scaling;
+	            }
+	        }
+	    }, {
+	        key: "dispose",
+	        value: function dispose() {
+	            this.mesh.dispose();
+	        }
+	    }, {
+	        key: "setVisible",
+	        value: function setVisible(bool) {
+	            this.mesh.isVisible = bool;
+	        }
+	    }, {
+	        key: "flip",
+	        value: function flip(duration) {
+	            var end = this.mesh.rotation.y + Math.PI * 2;
+	            if (typeof duration === "undefined") {
+	                duration = 1e3;
+	            }
+	            BABYLON.Animation.CreateAndStartAnimation("flip", this.mesh, "rotation.y", 30, 30 * duration * .001, this.mesh.rotation.y, end, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+	        }
+	    }, {
+	        key: "fadeout",
+	        value: function fadeout(duration) {
+	            if (typeof duration === "undefined") {
+	                duration = 1e3;
+	            }
+	            BABYLON.Animation.CreateAndStartAnimation("fadeout", this.mesh, "visibility", 30, 30 * duration * .001, 1, 0, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+	        }
+	    }, {
+	        key: "fadein",
+	        value: function fadein(duration) {
+	            if (typeof duration === "undefined") {
+	                duration = 1e3;
+	            }
+	            BABYLON.Animation.CreateAndStartAnimation("fadein", this.mesh, "visibility", 30, 30 * duration * .001, 0, 1, BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT);
+	        }
+	    }]);
+
+	    return HUDObject;
+	}();
+
+/***/ },
+/* 370 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.HUDPanel = undefined;
+
+	var _hudobject = __webpack_require__(369);
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var HUDPanel = exports.HUDPanel = function (_HUDObject) {
+	    _inherits(HUDPanel, _HUDObject);
+
+	    function HUDPanel(name, texture, textureOnPress, hudsystem) {
+	        _classCallCheck(this, HUDPanel);
+
+	        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(HUDPanel).call(this, BABYLON.Mesh.CreatePlane(name, 1, hudsystem.getScene()), hudsystem));
+
+	        _this.texture = texture;
+	        var textSize = _this.texture.getBaseSize();
+	        if (textSize.width === 0) {
+	            textSize = _this.texture.getSize();
+	        }
+	        _this.texture.hasAlpha = false;
+	        var mat = new BABYLON.StandardMaterial(name + "_material", hudsystem.getScene());
+	        mat.emissiveColor = BABYLON.Color3.White();
+	        mat.diffuseTexture = texture;
+	        mat.opacityTexture = texture;
+	        mat.backFaceCulling = false;
+	        _this.mesh.material = mat;
+	        _this.mesh.scaling = new BABYLON.Vector3((textSize.width - .1) / hudsystem.zoom, (textSize.height - .1) / hudsystem.zoom, 1);
+	        _this.texturePressed = textureOnPress;
+	        if (_this.texturePressed) {
+	            _this.texturePressed.hasAlpha = true;
+	        }
+
+	        var updateOnPick = new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, function () {
+	            if (this.texturePressed) {
+	                this.mesh.material.diffuseTexture = this.texturePressed;
+	            }
+	        }.bind(_this));
+	        var updateOnPointerUp = new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickUpTrigger, function (e) {
+	            this.mesh.material.diffuseTexture = this.texture;
+	        }.bind(_this));
+	        _this.mesh.actionManager.registerAction(updateOnPick);
+	        _this.mesh.actionManager.registerAction(updateOnPointerUp);
+	        return _this;
+	    }
+
+	    return HUDPanel;
+	}(_hudobject.HUDObject);
+
+/***/ },
+/* 371 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var GazeEvent = exports.GazeEvent = function () {
+		function GazeEvent(_target) {
+			var _callback = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+
+			var _gazeTime = arguments.length <= 2 || arguments[2] === undefined ? 2000 : arguments[2];
+
+			_classCallCheck(this, GazeEvent);
+
+			this.target = _target;
+			this.hitTime = null;
+			this.gazeTime = _gazeTime;
+			this.intervalID = null;
+			this.callback = _callback;
+		}
+
+		_createClass(GazeEvent, [{
+			key: "setTimerInterval",
+			value: function setTimerInterval() {
+				this.clear();
+				this.intervalID = setInterval(this.hitCallback.bind(this), this.gazeTime);
+			}
+		}, {
+			key: "clear",
+			value: function clear() {
+				try {
+					clearInterval(this.intervalID);
+				} catch (e) {}
+			}
+		}, {
+			key: "hitCallback",
+			value: function hitCallback() {
+				this.clear();
+				this.callback();
+			}
+		}, {
+			key: "setGaze",
+			value: function setGaze() {
+				this.hitTime = new Date().getTime();
+				this.setTimerInterval.apply(this);
+			}
+		}, {
+			key: "endGaze",
+			value: function endGaze() {
+				var end = new Date().getTime();
+				var time = end - this.hitTime;
+				this.hitTime = null;
+				this.clear();
+				return time;
+			}
+		}]);
+
+		return GazeEvent;
+	}();
 
 /***/ }
 /******/ ]);

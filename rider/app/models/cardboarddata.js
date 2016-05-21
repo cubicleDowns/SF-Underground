@@ -16,6 +16,7 @@ export class CardBoardData{
       this.babylonMod = null;
       this.currentUserKey = null;
       this.isCurrentlyUsingBart = false;
+      this.executeUserRemoval = null;
       this.userToUpdate = 'https://sf-noise.firebaseio.com/riders/'
       this.brartRoutes = ['Pittsburg / Bay Point', 'Richmond / Millbrae', 'Richmond / Fremont', 'Fremont / Daily City', 'Dublin Pleasanton / Daily City'];
       this.init();
@@ -56,24 +57,6 @@ export class CardBoardData{
          this.currentRiders.push({data:data.val(), key: data.key()});
       }.bind(this));
     }.bind(this));
-
-    
-
-
-    /* debugging
-  	this.sfunderground.on('value', function(info){
-        console.log(info.val());
-  	});
-
-
-
-    this.users.on("child_added", function(snapshot, key) {
-      console.log(snapshot);
-      console.log(key);
-    });
-    */
-
-
   }
 
   deleteUser(_dkey){
