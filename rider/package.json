@@ -24,5 +24,10 @@
     "strip-sourcemap-loader": "0.0.1"
   },
   "name": "BoilerVR",
-  "description": "BoilerVR: An Ionic project"
+  "description": "BoilerVR: An Ionic project",
+  "cordovaPlugins": [],
+  "cordovaPlatforms": [
+    "ios",
+    "android"
+  ]
 }

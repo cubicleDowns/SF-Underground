@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<spriter_data scml_version="1.0" generator="BrashMonkey Spriter" generator_version="r7">
+    <folder id="0" name="idle">
+        <file id="0" name="idle/m_idle1.png" width="80" height="191" pivot_x="0.5" pivot_y="0.5"/>
+        <file id="1" name="idle/m_idle2.png" width="100" height="191" pivot_x="0.5" pivot_y="0.5"/>
+    </folder>
+    <folder id="1" name="walk">
+        <file id="0" name="walk/m1_walk.png" width="80" height="191" pivot_x="0.5" pivot_y="0.5"/>
+        <file id="1" name="walk/m1_walk2.png" width="80" height="191" pivot_x="0.5" pivot_y="0.5"/>
+    </folder>
+    <entity id="0" name="bart_rider">
+        <animation id="0" name="idle" length="20" interval="100">
+            <mainline>
+                <key id="0">
+                    <object_ref id="0" timeline="0" key="0" z_index="0"/>
+                </key>
+                <key id="1" time="1">
+                    <object_ref id="0" timeline="2" key="0" z_index="0"/>
+                </key>
+                <key id="2" time="2">
+                    <object_ref id="0" timeline="1" key="0" z_index="0"/>
+                </key>
+            </mainline>
+            <timeline id="0" name="m_idle1">
+                <key id="0" spin="0">
+                    <object folder="0" file="0" angle="0"/>
+                </key>
+            </timeline>
+            <timeline id="1" name="m_idle2">
+                <key id="0" time="2" spin="0">
+                    <object folder="0" file="1" angle="0"/>
+                </key>
+            </timeline>
+            <timeline id="2" name="m_idle1_000">
+                <key id="0" time="1" spin="0">
+                    <object folder="0" file="0" angle="0"/>
+                </key>
+            </timeline>
+        </animation>
+    </entity>
+</spriter_data>

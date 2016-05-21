@@ -1,0 +1,75 @@
+{
+    "prepare_queue": {
+        "installed": [],
+        "uninstalled": []
+    },
+    "config_munge": {
+        "files": {
+            "config.xml": {
+                "parents": {
+                    "/*": [
+                        {
+                            "xml": "<feature name=\"Gamepad\"><param name=\"ios-package\" value=\"CordovaPluginGamepad\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"Insomnia\"><param name=\"ios-package\" value=\"Insomnia\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"LongPressFix\"><param name=\"ios-package\" value=\"LongPressFix\" /><param name=\"onload\" value=\"true\" /></feature>",
+                            "count": 1
+                        }
+                    ]
+                }
+            }
+        }
+    },
+    "installed_plugins": {
+        "cordova-plugin-canvas-gamepad": {
+            "PACKAGE_NAME": "io.ionic.starter"
+        },
+        "com.judax.cordova.plugin.gamepad": {
+            "PACKAGE_NAME": "io.ionic.starter"
+        },
+        "cordova-plugin-insomnia": {
+            "PACKAGE_NAME": "io.ionic.starter"
+        },
+        "cordova-plugin-ios-longpress-fix": {
+            "PACKAGE_NAME": "io.ionic.starter"
+        }
+    },
+    "dependent_plugins": {},
+    "modules": [
+        {
+            "file": "plugins/cordova-plugin-canvas-gamepad/www/CDVGamepad.js",
+            "id": "cordova-plugin-canvas-gamepad.CDVGamepad",
+            "pluginId": "cordova-plugin-canvas-gamepad",
+            "clobbers": [
+                "CDVGamepad"
+            ]
+        },
+        {
+            "file": "plugins/com.judax.cordova.plugin.gamepad/www/Gamepad.js",
+            "id": "com.judax.cordova.plugin.gamepad.Gamepad",
+            "pluginId": "com.judax.cordova.plugin.gamepad",
+            "clobbers": [
+                "Gamepad"
+            ]
+        },
+        {
+            "file": "plugins/cordova-plugin-insomnia/www/Insomnia.js",
+            "id": "cordova-plugin-insomnia.Insomnia",
+            "pluginId": "cordova-plugin-insomnia",
+            "clobbers": [
+                "window.plugins.insomnia"
+            ]
+        }
+    ],
+    "plugin_metadata": {
+        "cordova-plugin-canvas-gamepad": "0.1.1",
+        "com.judax.cordova.plugin.gamepad": "1.0.0",
+        "cordova-plugin-insomnia": "4.2.0",
+        "cordova-plugin-ios-longpress-fix": "1.1.0"
+    }
+}

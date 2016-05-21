@@ -3194,7 +3194,7 @@
 
 	var _intro = __webpack_require__(363);
 
-	var _settings = __webpack_require__(365);
+	var _settings = __webpack_require__(370);
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -63852,9 +63852,9 @@
 
 	var _app = __webpack_require__(4);
 
-	var _settings = __webpack_require__(365);
+	var _settings = __webpack_require__(370);
 
-	var _cardboard = __webpack_require__(366);
+	var _cardboard = __webpack_require__(371);
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -63934,9 +63934,9 @@
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _BartVR_HeadsUpDisplay = __webpack_require__(367);
+	var _BartVR_HeadsUpDisplay = __webpack_require__(365);
 
-	var _gazeevent = __webpack_require__(371);
+	var _gazeevent = __webpack_require__(369);
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -64115,161 +64115,15 @@
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.SettingsModal = undefined;
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _dec, _class;
-
-	var _ionicAngular = __webpack_require__(5);
-
-	var _app = __webpack_require__(4);
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	var SettingsModal = exports.SettingsModal = (_dec = (0, _ionicAngular.Page)({
-	  templateUrl: 'build/pages/settings/settings.html'
-	}), _dec(_class = function () {
-	  _createClass(SettingsModal, null, [{
-	    key: 'parameters',
-	    get: function get() {
-	      return [[_ionicAngular.ViewController], [_app.BoilerVR]];
-	    }
-	  }]);
-
-	  function SettingsModal(viewCtrl, _BoilerVR) {
-	    _classCallCheck(this, SettingsModal);
-
-	    this.viewCtrl = viewCtrl;
-	    this.babylonMod = _BoilerVR.babylonMod;
-	    this.Data = _BoilerVR.Data;
-	  }
-
-	  _createClass(SettingsModal, [{
-	    key: 'dismiss',
-	    value: function dismiss() {
-	      this.viewCtrl.dismiss();
-	    }
-	  }, {
-	    key: 'toggle',
-	    value: function toggle() {
-	      this.babylonMod.toggle();
-	    }
-	  }]);
-
-	  return SettingsModal;
-	}()) || _class);
-
-/***/ },
-/* 366 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.CardboardGl = undefined;
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _dec, _class;
-
-	var _ionicAngular = __webpack_require__(5);
-
-	var _core = __webpack_require__(7);
-
-	var _babylonmod = __webpack_require__(364);
-
-	var _app = __webpack_require__(4);
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	var CardboardGl = exports.CardboardGl = (_dec = (0, _core.Component)({
-	  selector: 'cardboardgl',
-	  templateUrl: "build/pages/cardboard/cardboard.html"
-	}), _dec(_class = function () {
-	  _createClass(CardboardGl, null, [{
-	    key: 'parameters',
-	    get: function get() {
-	      return [[_core.ElementRef], [_app.BoilerVR]];
-	    }
-	  }]);
-
-	  function CardboardGl(_element, _boilerVR) {
-	    _classCallCheck(this, CardboardGl);
-
-	    this._element = _element;
-	    this._babylon = null;
-	    this.Data = _boilerVR.Data;
-	    this.app = _boilerVR;
-	    this.init();
-	    this.isStereoEffect = false;
-	    this.inLandScape = false;
-	    this.boilerVR = _boilerVR;
-	  }
-
-	  _createClass(CardboardGl, [{
-	    key: 'isVisible',
-	    value: function isVisible() {
-	      if (this.Data.landscapeMode && this.Data.stereoEffect) {
-	        this.isStereoEffect = true;
-	      } else {
-	        this.isStereoEffect = false;
-	      }
-	    }
-	  }, {
-	    key: 'init',
-	    value: function init() {
-	      function readDeviceOrientation() {
-	        if (Math.abs(window.orientation) === 90) {
-	          // Landscape
-	          if (this.boilerVR.isNative) {
-	            Vibrate(50);
-	          }
-
-	          this.Data.landscapeMode = true;
-	          this.Data.stereoEffect = true;
-
-	          if (this._engine == null) {
-	            this._babylon = new _babylonmod.babylonMod(this._element.nativeElement, this.Data, this.app);
-	            this.boilerVR.babylonMod = this._babylon;
-	          }
-	        } else {
-	          // Portrait
-	          if (this.boilerVR.isNative) {
-	            Vibrate(50);
-	          }
-	          this.Data.landscapeMode = false;
-	          this.Data.stereoEffect = false;
-	        }
-	        //this.isVisible();
-	      }
-	      window.addEventListener('orientationchange', readDeviceOrientation.bind(this), false);
-	    }
-	  }]);
-
-	  return CardboardGl;
-	}()) || _class);
-
-/***/ },
-/* 367 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
 	exports.BartVR_HeadsUpDisplay = undefined;
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _hudsystem = __webpack_require__(368);
+	var _hudsystem = __webpack_require__(366);
 
-	var _hudpanel = __webpack_require__(370);
+	var _hudpanel = __webpack_require__(368);
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -64339,7 +64193,7 @@
 	}();
 
 /***/ },
-/* 368 */
+/* 366 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -64351,7 +64205,7 @@
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _hudobject = __webpack_require__(369);
+	var _hudobject = __webpack_require__(367);
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -64489,7 +64343,7 @@
 	}();
 
 /***/ },
-/* 369 */
+/* 367 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -64615,7 +64469,7 @@
 	}();
 
 /***/ },
-/* 370 */
+/* 368 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -64625,7 +64479,7 @@
 	});
 	exports.HUDPanel = undefined;
 
-	var _hudobject = __webpack_require__(369);
+	var _hudobject = __webpack_require__(367);
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -64676,7 +64530,7 @@
 	}(_hudobject.HUDObject);
 
 /***/ },
-/* 371 */
+/* 369 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -64742,6 +64596,152 @@
 
 		return GazeEvent;
 	}();
+
+/***/ },
+/* 370 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.SettingsModal = undefined;
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _dec, _class;
+
+	var _ionicAngular = __webpack_require__(5);
+
+	var _app = __webpack_require__(4);
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var SettingsModal = exports.SettingsModal = (_dec = (0, _ionicAngular.Page)({
+	  templateUrl: 'build/pages/settings/settings.html'
+	}), _dec(_class = function () {
+	  _createClass(SettingsModal, null, [{
+	    key: 'parameters',
+	    get: function get() {
+	      return [[_ionicAngular.ViewController], [_app.BoilerVR]];
+	    }
+	  }]);
+
+	  function SettingsModal(viewCtrl, _BoilerVR) {
+	    _classCallCheck(this, SettingsModal);
+
+	    this.viewCtrl = viewCtrl;
+	    this.babylonMod = _BoilerVR.babylonMod;
+	    this.Data = _BoilerVR.Data;
+	  }
+
+	  _createClass(SettingsModal, [{
+	    key: 'dismiss',
+	    value: function dismiss() {
+	      this.viewCtrl.dismiss();
+	    }
+	  }, {
+	    key: 'toggle',
+	    value: function toggle() {
+	      this.babylonMod.toggle();
+	    }
+	  }]);
+
+	  return SettingsModal;
+	}()) || _class);
+
+/***/ },
+/* 371 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.CardboardGl = undefined;
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _dec, _class;
+
+	var _ionicAngular = __webpack_require__(5);
+
+	var _core = __webpack_require__(7);
+
+	var _babylonmod = __webpack_require__(364);
+
+	var _app = __webpack_require__(4);
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var CardboardGl = exports.CardboardGl = (_dec = (0, _core.Component)({
+	  selector: 'cardboardgl',
+	  templateUrl: "build/pages/cardboard/cardboard.html"
+	}), _dec(_class = function () {
+	  _createClass(CardboardGl, null, [{
+	    key: 'parameters',
+	    get: function get() {
+	      return [[_core.ElementRef], [_app.BoilerVR]];
+	    }
+	  }]);
+
+	  function CardboardGl(_element, _boilerVR) {
+	    _classCallCheck(this, CardboardGl);
+
+	    this._element = _element;
+	    this._babylon = null;
+	    this.Data = _boilerVR.Data;
+	    this.app = _boilerVR;
+	    this.init();
+	    this.isStereoEffect = false;
+	    this.inLandScape = false;
+	    this.boilerVR = _boilerVR;
+	  }
+
+	  _createClass(CardboardGl, [{
+	    key: 'isVisible',
+	    value: function isVisible() {
+	      if (this.Data.landscapeMode && this.Data.stereoEffect) {
+	        this.isStereoEffect = true;
+	      } else {
+	        this.isStereoEffect = false;
+	      }
+	    }
+	  }, {
+	    key: 'init',
+	    value: function init() {
+	      function readDeviceOrientation() {
+	        if (Math.abs(window.orientation) === 90) {
+	          // Landscape
+	          if (this.boilerVR.isNative) {
+	            Vibrate(50);
+	          }
+
+	          this.Data.landscapeMode = true;
+	          this.Data.stereoEffect = true;
+
+	          if (this._engine == null) {
+	            this._babylon = new _babylonmod.babylonMod(this._element.nativeElement, this.Data, this.app);
+	            this.boilerVR.babylonMod = this._babylon;
+	          }
+	        } else {
+	          // Portrait
+	          if (this.boilerVR.isNative) {
+	            Vibrate(50);
+	          }
+	          this.Data.landscapeMode = false;
+	          this.Data.stereoEffect = false;
+	        }
+	        //this.isVisible();
+	      }
+	      window.addEventListener('orientationchange', readDeviceOrientation.bind(this), false);
+	    }
+	  }]);
+
+	  return CardboardGl;
+	}()) || _class);
 
 /***/ }
 /******/ ]);

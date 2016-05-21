@@ -1,7 +1,7 @@
 {
     "cordova-plugin-canvas-gamepad": {
         "source": {
-            "type": "registry",
+            "type": "git",
             "id": "cordova-plugin-canvas-gamepad"
         },
         "is_top_level": true,
@@ -15,10 +15,11 @@
         "is_top_level": true,
         "variables": {}
     },
-    "cordova-plugin-canvas-gamepad": {
+    "cordova-plugin-insomnia": {
         "source": {
             "type": "git",
-            "id": "cordova-plugin-canvas-gamepad"
+            "url": "https://github.com/EddyVerbruggen/Insomnia-PhoneGap-Plugin.git",
+            "subdir": "."
         },
         "is_top_level": true,
         "variables": {}

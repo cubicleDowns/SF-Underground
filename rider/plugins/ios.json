@@ -1,0 +1,25 @@
+{
+    "prepare_queue": {
+        "installed": [],
+        "uninstalled": []
+    },
+    "config_munge": {
+        "files": {}
+    },
+    "installed_plugins": {
+        "cordova-plugin-canvas-gamepad": {
+            "PACKAGE_NAME": "io.ionic.starter"
+        },
+        "cordova-plugin-insomnia": {
+            "PACKAGE_NAME": "io.ionic.starter"
+        },
+        "cordova-plugin-ios-longpress-fix": {
+            "PACKAGE_NAME": "io.ionic.starter"
+        }
+    },
+    "dependent_plugins": {
+        "com.judax.cordova.plugin.gamepad": {
+            "PACKAGE_NAME": "io.ionic.starter"
+        }
+    }
+}
