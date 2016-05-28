@@ -16,22 +16,43 @@ angular.module('SFUnderground.constants', [])
             color: 0xFFFFFF
         },
         CAMERA: {
-            CONTROLS: true,
-            POSITION: {
-                x: 444.06123338824165,
-                y: -447.4310307648058,
-                z: 533.4634729998194
-            },
-            ROTATION: {
-                x: 0.9201325724102727,
-                y: -0.0066064876515145084,
-                z: -0.0327089770515521,
-                order: "XYZ"},
+            TYPE: "ORTHO",
+            PERP: {
+                CONTROLS: true,
+                POSITION: {
+                    x: 444.06123338824165,
+                    y: -447.4310307648058,
+                    z: 533.4634729998194
+                },
+                ROTATION: {
+                    x: 0.9201325724102727,
+                    y: -0.0066064876515145084,
+                    z: -0.0327089770515521,
+                    order: "XYZ"},
 
-            LOOK_AT: {
-                x: 500,
-                y: 500,
-                z: 0
+                LOOK_AT: {
+                    x: 500,
+                    y: 500,
+                    z: 0
+                }
+            },
+            ORTHO: {
+                    POSITION: {
+                        x: 500,
+                        y: 500,
+                        z: 700
+                    },
+                    ROTATION: {
+                        x: 0.0,
+                        y: -0.0066064876515145084,
+                        z: -0.0327089770515521,
+                        order: "XYZ"},
+
+                    LOOK_AT: {
+                        x: 500,
+                        y: 500,
+                        z: 0
+                    }
             }
         }
     })

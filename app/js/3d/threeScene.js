@@ -32,21 +32,34 @@ angular.module('SFUnderground.3D.scene', [])
                 renderer = new THREE.WebGLRenderer();
                 renderer.setSize(window.innerWidth, window.innerHeight);
                 document.body.appendChild(renderer.domElement);
-
-                camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 5000);
-                camera.position.set(SETUP.CAMERA.POSITION.x, SETUP.CAMERA.POSITION.y, SETUP.CAMERA.POSITION.z);
-                camera.rotation.set(SETUP.CAMERA.ROTATION.x, SETUP.CAMERA.ROTATION.y, SETUP.CAMERA.ROTATION.z, SETUP.CAMERA.ROTATION.order);
-                camera.up.set(0, 1, 0);
-
                 scene = new THREE.Scene();
-                if (SETUP.CAMERA.CONTROLS) {
-                    controls = new THREE.FlyControls(camera);
-                    controls.movementSpeed = 1000;
-                    controls.domElement = renderer.domElement;
-                    controls.rollSpeed = Math.PI / 24;
-                    controls.autoForward = false;
-                    controls.dragToLook = false;
+
+                camera = new THREE.CombinedCamera(window.innerWidth / 2, window.innerHeight / 2, 70, 1, 1000, -500, 2000);
+
+
+                if (SETUP.CAMERA.TYPE === "PERP") {
+                    debugger;
+                    camera.toPerspective();
+                    camera.position.set(SETUP.CAMERA.PERP.POSITION.x, SETUP.CAMERA.PERP.POSITION.y, SETUP.CAMERA.PERP.POSITION.z);
+                    camera.rotation.set(SETUP.CAMERA.PERP.ROTATION.x, SETUP.CAMERA.PERP.ROTATION.y, SETUP.CAMERA.PERP.ROTATION.z, SETUP.CAMERA.PERP.ROTATION.order);
+                    camera.up.set(0, 1, 0);
+                    if (SETUP.CAMERA.PERP.CONTROLS) {
+                        controls = new THREE.FlyControls(camera);
+                        controls.movementSpeed = 1000;
+                        controls.domElement = renderer.domElement;
+                        controls.rollSpeed = Math.PI / 24;
+                        controls.autoForward = false;
+                        controls.dragToLook = false;
+                    }
+                } else {
+                    camera.toOrthographic();
+                    camera.position.set(SETUP.CAMERA.ORTHO.POSITION.x, SETUP.CAMERA.ORTHO.POSITION.y, SETUP.CAMERA.ORTHO.POSITION.z);
+//                    camera.rotation.set(SETUP.CAMERA.ORTHO.ROTATION.x, SETUP.CAMERA.ORTHO.ROTATION.y, SETUP.CAMERA.ORTHO.ROTATION.z, SETUP.CAMERA.ORTHO.ROTATION.order);
+                    camera.rotation.set(SETUP.CAMERA.ORTHO.ROTATION.x, SETUP.CAMERA.ORTHO.ROTATION.y, SETUP.CAMERA.ORTHO.ROTATION.z, SETUP.CAMERA.ORTHO.ROTATION.order);
+
+                    camera.up.set(1, 0, 0);
                 }
+
                 if (SETUP.AXIS_HELPER) {
                     var axisHelper = new THREE.AxisHelper(50);
                     scene.add(axisHelper);
@@ -156,6 +169,11 @@ angular.module('SFUnderground.3D.scene', [])
 
             }
 
+            function onWindowResize() {
+                camera.setSize(window.innerWidth, window.innerHeight);
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
 
             /**
              * Initialize the 3D scene.
@@ -164,6 +182,7 @@ angular.module('SFUnderground.3D.scene', [])
 
                 setupScene();
                 setupRoutes();
+                window.addEventListener('resize', onWindowResize, false);
 
                 animate();
 
@@ -205,71 +224,6 @@ angular.module('SFUnderground.3D.scene', [])
                 }
             }
 
-            function makeTextSprite(message, parameters) {
-
-                if (parameters === undefined) parameters = {};
-                var fontface = parameters.hasOwnProperty("fontface") ? parameters["fontface"] : "Arial";
-                var fontsize = parameters.hasOwnProperty("fontsize") ? parameters["fontsize"] : 18;
-                var borderThickness = parameters.hasOwnProperty("borderThickness") ? parameters["borderThickness"] : 4;
-                var borderColor = parameters.hasOwnProperty("borderColor") ? parameters["borderColor"] : {
-                    r: 0,
-                    g: 0,
-                    b: 0,
-                    a: 1.0
-                };
-                var backgroundColor = parameters.hasOwnProperty("backgroundColor") ? parameters["backgroundColor"] : {
-                    r: 255,
-                    g: 255,
-                    b: 255,
-                    a: 1.0
-                };
-                var textColor = parameters.hasOwnProperty("textColor") ? parameters["textColor"] : {
-                    r: 0,
-                    g: 0,
-                    b: 0,
-                    a: 1.0
-                };
-
-                var canvas = document.createElement('canvas');
-                var context = canvas.getContext('2d');
-                context.font = "Bold " + fontsize + "px " + fontface;
-                var metrics = context.measureText(message);
-                var textWidth = metrics.width;
-
-                context.fillStyle = "rgba(" + backgroundColor.r + "," + backgroundColor.g + "," + backgroundColor.b + "," + backgroundColor.a + ")";
-                context.strokeStyle = "rgba(" + borderColor.r + "," + borderColor.g + "," + borderColor.b + "," + borderColor.a + ")";
-
-                context.lineWidth = borderThickness;
-                roundRect(context, borderThickness / 2, borderThickness / 2, (textWidth + borderThickness) * 1.1, fontsize * 1.4 + borderThickness, 8);
-
-                context.fillStyle = "rgba(" + textColor.r + ", " + textColor.g + ", " + textColor.b + ", 1.0)";
-                context.fillText(message, borderThickness, fontsize + borderThickness);
-
-                var texture = new THREE.Texture(canvas)
-                texture.needsUpdate = true;
-
-                var spriteMaterial = new THREE.SpriteMaterial({map: texture, useScreenCoordinates: false});
-                var sprite = new THREE.Sprite(spriteMaterial);
-                sprite.scale.set(0.5 * fontsize, 0.25 * fontsize, 0.75 * fontsize);
-
-                return sprite;
-            }
-
-            function roundRect(ctx, x, y, w, h, r) {
-                ctx.beginPath();
-                ctx.moveTo(x + r, y);
-                ctx.lineTo(x + w - r, y);
-                ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-                ctx.lineTo(x + w, y + h - r);
-                ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-                ctx.lineTo(x + r, y + h);
-                ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-                ctx.lineTo(x, y + r);
-                ctx.quadraticCurveTo(x, y, x + r, y);
-                ctx.closePath();
-                ctx.fill();
-                ctx.stroke();
-            }
 
             function animate() {
                 requestAnimationFrame(animate);
