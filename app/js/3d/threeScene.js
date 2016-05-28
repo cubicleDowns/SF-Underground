@@ -8,6 +8,7 @@ angular.module('SFUnderground.3D.scene', [])
                 scene,
                 camera,
                 subways = [],
+                dbLevels = [],
                 dbSplines = [],
                 splines = [];
 
@@ -27,15 +28,16 @@ angular.module('SFUnderground.3D.scene', [])
             }
 
             function setupScene() {
+
                 renderer = new THREE.WebGLRenderer();
                 renderer.setSize(window.innerWidth, window.innerHeight);
                 document.body.appendChild(renderer.domElement);
+
                 camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 5000);
-                //TODO:  Why is camera looking at origin?
                 camera.position.set(SETUP.CAMERA.POSITION.x, SETUP.CAMERA.POSITION.y, SETUP.CAMERA.POSITION.z);
                 camera.rotation.set(SETUP.CAMERA.ROTATION.x, SETUP.CAMERA.ROTATION.y, SETUP.CAMERA.ROTATION.z, SETUP.CAMERA.ROTATION.order);
                 camera.up.set(0, 1, 0);
-//                camera.lookAt(SETUP.CAMERA.LOOK_AT.x, SETUP.CAMERA.LOOK_AT.y, SETUP.CAMERA.LOOK_AT.z);
+
                 scene = new THREE.Scene();
                 if (SETUP.CAMERA.CONTROLS) {
                     controls = new THREE.FlyControls(camera);
@@ -79,21 +81,25 @@ angular.module('SFUnderground.3D.scene', [])
                     var line = new THREE.Line(geometry, material);
                     scene.add(line);
 
-                    geometry = new THREE.BoxGeometry(5, 40, 4);
                     material = new THREE.MeshBasicMaterial({
-                        color: route.subwayColor
+                        color: isSubway ? route.subwayColor : SETUP.DB.color
                     });
 
                     var group = new THREE.Object3D();
-                    var mesh = new THREE.Mesh(geometry, material);
-                    group.add(mesh);
 
                     if (isSubway) {
+                        geometry = new THREE.BoxGeometry(5, 40, 4);
+                        var subwayMesh = new THREE.Mesh(geometry, material);
+                        group.add(subwayMesh);
+
                         group.userData.normalizer = BART.longestRoute / route.routeLength;
                         group.counter = 0;
                         subways.push(group);
                     } else {
-
+                        geometry = new THREE.BoxGeometry(5, 5, 5);
+                        var dbMesh = new THREE.Mesh(geometry, material);
+                        group.add(dbMesh);
+                        dbLevels.push(group);
                     }
                     scene.add(group);
                 }
@@ -146,7 +152,7 @@ angular.module('SFUnderground.3D.scene', [])
                 }
 
                 createSplines(splines, 100, true);
-                createSplines(dbSplines, 20, false);
+                createSplines(dbSplines, 100, false);
 
             }
 
@@ -159,7 +165,6 @@ angular.module('SFUnderground.3D.scene', [])
                 setupScene();
                 setupRoutes();
 
-
                 animate();
 
                 setInterval(moveSubway, 100);
@@ -170,9 +175,13 @@ angular.module('SFUnderground.3D.scene', [])
                 for (var i = 0; i < subways.length; i++) {
                     var subway = subways[i];
                     var radians;
+                    var dbLevel = dbLevels[i];
                     if (subway.counter <= 1) {
                         subway.position.copy(splines[i].getPointAt(subway.counter));
+                        var dbPoint = splines[i].getPointAt(subway.counter);
 
+                        dbLevel.position.copy(splines[i].getPointAt(subway.counter));
+//                        dbLevel.position.setZ(dbSplines[i].getPointAt(subway.counter / 2));
                         tangent = splines[i].getTangentAt(subway.counter).normalize();
 
                         axis.crossVectors(up, tangent).normalize();
@@ -180,11 +189,13 @@ angular.module('SFUnderground.3D.scene', [])
                         radians = Math.acos(up.dot(tangent));
 
                         subway.quaternion.setFromAxisAngle(axis, radians);
+//                        dbLevel.quaternion.setFromAxisAngle(axis, radians);
 
                         /**
                          * `normalizer` is the current track / longest track.
                          * the spline length is normalized so we need to modify the
                          * length of arc movement.
+                         *
                          * @type {number}
                          */
                         subway.counter = subway.counter + (delta * multiplier * subway.userData.normalizer);
