@@ -1,23 +1,17 @@
- <ion-content [ngSwitch]="Data.landscapeMode" (click)="fullScreenLaunch();" scroll="false">
- <cardboardgl [hidden]="!Data.landscapeMode"  stereo-effect="Data.stereoEffect" landscape-mode="Data.landscapeMode"></cardboardgl>
- <div [ngSwitch]="Data.stereoEffect"><div class="shadow" *ngSwitchWhen="true"></div></div>
- <div class="bottomControls" *ngSwitchWhen="true">
- 	<button class="button button-clear" (click)="openSettingsModal()">
- 		<img class="cardBoardLogo" src="build/img/cardboard_logo.png">
- 	</button>
- </div>
- <ion-slides pager *ngSwitchWhen="false" scroll="false">
+<ion-content  (click)="fullScreenLaunch();" scroll="false">
+ <cardboardgl  stereo-effect="Data.stereoEffect" landscape-mode="Data.landscapeMode" id="cardBoardView"></cardboardgl>
+ <ion-slides pager scroll="false" id="slidesView">
  <ion-slide >
- <img src="build/img/bartVRLogo.png">
+ <img src="bartvr/img/bartVRLogo.png">
 </ion-slide>
 <ion-slide >
-<img src="build/img/angularjs_logo.png">
+<img src="bartvr/img/angularjs_logo.png">
 </ion-slide>
 <ion-slide >
-<img src="build/img/cardboard_logo.png">
+<img src="bartvr/img/cardboard_logo.png">
 </ion-slide>
 <ion-slide >
-<img src="build/img/logo-babylonjs.svg">
+<img src="bartvr/img/logo-babylonjs.svg">
 </ion-slide>
 <ion-slide scroll="false">
 <div padding id="userReg">
@@ -41,20 +35,20 @@
 </ion-list>
 <ion-list>
 <div class="centered">
-	Rotate your device to get started.
-	<br>
-	<i class="icon ion-loop"></i>
+  Rotate your device to get started.
+  <br>
+  <i class="icon ion-loop"></i>
 </div>
   </ion-list>
 </div>
   <ion-list id="currentUser">
-	<div id="userName"></div>
-	Rotate your device to get started.
-	<br>
+  <div id="userName"></div>
+  Rotate your device to get started.
+  <br>
   <div padding>
     <button block (click)="reset()">reset</button>
   </div>
-	</ion-list>
+  </ion-list>
 
 </ion-slide>
 </ion-slides>

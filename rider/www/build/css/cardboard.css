@@ -1,4 +1,5 @@
-
+#cardBoardView{display: none;}
+#slidesView{visibility: visible;}
 html, body {
                 overflow: hidden;
                 width: 100%;
@@ -42,8 +43,10 @@ html, body {
 
 
 cardboard-gl {
+  position: relative;
   display: block;
   background: black;
+  float: left;
   width: 100%;
   height: 100%;
 }
@@ -140,12 +143,6 @@ cardboardgl, #renderCanvas {
   float: right;
   margin-right: 10px;
 }
-
-
-
-
-
-
 body {
   background-color: #000;
 }
@@ -241,6 +238,15 @@ body {
   float:left; width:100%
 }
 scroll-content {
+    width: 100%;
+    height: 100%;
+    float: left;
     padding: 0px !important;
 }
 
+ion-page.intro-page.show-page{
+  /*z-index: 0 !important;
+  position: relative !important;*/
+  float: left;
+  width: 100%;
+}

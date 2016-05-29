@@ -48,7 +48,7 @@ export class threeMod {
     effect.setSize(window.innerWidth, window.innerHeight);
     var boxWidth = 5;
     var loader = new THREE.TextureLoader();
-    loader.load('build/img/textures/_holoDeck_diffuse.png', onTextureLoaded);
+    loader.load('bartvr/img/textures/_holoDeck_diffuse.png', onTextureLoaded);
     function onTextureLoaded(texture) {
       texture.wrapS = THREE.RepeatWrapping;
       texture.wrapT = THREE.RepeatWrapping;

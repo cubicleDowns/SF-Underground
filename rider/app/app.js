@@ -1,5 +1,5 @@
 import {App, IonicApp, Platform, NavController} from 'ionic-angular';
-import {Component, View, bootstrap, NgFor} from 'angular2/core';
+import {Component, View, bootstrap, NgFor} from '@angular/core';
 import {CardBoardData} from './models/cardboarddata';
 import {IntroPage} from './pages/intro/intro';
 import {SettingsModal} from './pages/settings/settings';
@@ -29,16 +29,42 @@ export class BoilerVR {
     ];
 
     this.rootPage = IntroPage;
+
+
     platform.ready().then(() => {
       if (window.cordova && window.cordova.plugins.Keyboard) {
         cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
         cordova.plugins.Keyboard.disableScroll(true);
       }
-      platform.fullScreen();
+      //platform.fullScreen();
       if (window.StatusBar) {
         return StatusBar.hide();
       }
     });
+  }
+
+  initStayAwake(){
+    function Insomnia() {
+    }
+
+    Insomnia.prototype.keepAwake = function (successCallback, errorCallback) {
+      cordova.exec(successCallback, errorCallback, "Insomnia", "keepAwake", []);
+    };
+
+    Insomnia.prototype.allowSleepAgain = function (successCallback, errorCallback) {
+      cordova.exec(successCallback, errorCallback, "Insomnia", "allowSleepAgain", []);
+    };
+
+    Insomnia.install = function () {
+      if (!window.plugins) {
+        window.plugins = {};
+      }
+
+      window.plugins.insomnia = new Insomnia();
+      return window.plugins.insomnia;
+    };
+
+    cordova.addConstructor(Insomnia.install);
   }
 
   launchIntoFullscreen(element = document.documentElement) {

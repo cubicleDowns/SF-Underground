@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, Inject, Pipe, View, WrappedValue, bind, bootstrap} from 'angular2/core';
+import {ChangeDetectorRef, Component, Inject, Pipe, View, WrappedValue, bind, bootstrap} from '@angular/core';
 
 @Pipe({
   name: 'firebaseevent',

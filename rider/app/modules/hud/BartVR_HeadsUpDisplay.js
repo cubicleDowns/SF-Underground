@@ -19,8 +19,8 @@ export class BartVR_HeadsUpDisplay {
 
 
         this.toLoad = [
-            {name : "logo", src : "build/img/bartVRLogo_b.png" },
-            {name : "targetCam", src: "build/img/target_sm.png"}
+            {name : "logo", src : "bartvr/img/bartVRLogo_b.png" },
+            {name : "targetCam", src: "bartvr/img/target_sm.png"}
         ];
         this.toLoad.forEach(function(obj) {
             var img = this.loader.addTextureTask(obj.name, obj.src);

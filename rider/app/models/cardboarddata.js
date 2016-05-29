@@ -9,7 +9,7 @@ export class CardBoardData{
       this.user = {name:null, position:{x:0, y:0, z:0}, rotation:{x:0, y:0, z:0}, sprite:null};
       this.currentRiders = [];
       this.fakeUser = ['Tom','Richard','Jane','John','Dan','Josh','Brendon','Emma','Peter'];
-      this.sprites = ['build/sprites/person/barvr_rider_idle.png'];
+      this.sprites = ['bartvr/sprites/person/barvr_rider_idle.png'];
       this.bartAlerts = new Firebase(this.firebaseRef + 'alerts');
       this.currentAlerts = [];
       this.currentRouteID = 0;
@@ -68,7 +68,7 @@ export class CardBoardData{
         fountain.isVisible = false;
         fountain.position = new BABYLON.Vector3(_data.val().position.x, _data.val().position.y, _data.val().position.z)
         var particleSystem = new BABYLON.ParticleSystem("particles", 1000, this.babylonMod.scene);
-        particleSystem.particleTexture = new BABYLON.Texture("build/img/textures/flare.png", this.babylonMod.scene);
+        particleSystem.particleTexture = new BABYLON.Texture("bartvr/img/textures/flare.png", this.babylonMod.scene);
         particleSystem.emitter = fountain; // the starting object, the emitter
         particleSystem.minEmitBox = new BABYLON.Vector3(-1, 0, 0); // Starting all from
         particleSystem.maxEmitBox = new BABYLON.Vector3(1, 0, 0); // To...

@@ -37,7 +37,7 @@ export class HUDSystem {
         this._camera.mode = BABYLON.Camera.ORTHOGRAPHIC_CAMERA;
         this._camera.setTarget(BABYLON.Vector3.Zero());
         this._camera.layerMask = this.LAYER_MASK;
-        this.resize();
+        //this.resize();
         this._scene.activeCameras.push(this._camera);
 
     }

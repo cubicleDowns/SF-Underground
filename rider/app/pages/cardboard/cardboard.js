@@ -1,7 +1,9 @@
-import {App, IonicApp, Page, Template} from 'ionic-angular';
-import {Directive, Component, ElementRef} from 'angular2/core';
+import {App, IonicApp, Page, NavController, NavParams, Template,  Modal} from 'ionic-angular';
+import {Directive, Component, ElementRef} from '@angular/core';
+import {SettingsModal} from '../settings/settings';
 import {babylonMod} from '../../modules/babylonmod'; 
 import {BoilerVR} from '../../app';
+
 
 @Component({
   selector: 'cardboardgl',
@@ -12,52 +14,55 @@ import {BoilerVR} from '../../app';
 export class CardboardGl{
   
   static get parameters() {
-    return [[ElementRef], [BoilerVR]];
+    return [[ElementRef], [BoilerVR], [NavController], [NavParams]];
   }
 
-  constructor (_element, _boilerVR) {
-  	this._element = _element;
-  	this._babylon = null;
+  constructor (_element, _boilerVR, nav, navParams) {
+    this._element = _element;
+    this.nav = nav;
+    this._babylon = null;
     this.Data = _boilerVR.Data;
     this.app = _boilerVR;
-    this.init();
     this.isStereoEffect = false;
     this.inLandScape = false;
+    this.hasInit = false;
+    this.init();
     this.boilerVR = _boilerVR;
   }
 
+  openSettingsModal() {
+    document.getElementById('cardboardControls').style.display = "none";
+    document.getElementById("cardBoardView").style.display = "none";
+    var modal = Modal.create(SettingsModal);
+    this.nav.present(modal);
+  }
+
   isVisible(){
-  	if(this.Data.landscapeMode && this.Data.stereoEffect){
-  		this.isStereoEffect = true;
-  	}else{
-  		this.isStereoEffect = false;
-  	}
+    if(this.Data.landscapeMode && this.Data.stereoEffect){
+      this.isStereoEffect = true;
+    }else{
+      this.isStereoEffect = false;
+    }
   }
 
    init(){
     function readDeviceOrientation() {
       if (Math.abs(window.orientation) === 90) {
-        // Landscape
-        if(this.boilerVR.isNative){
-          Vibrate(50);
-        }
-
+        document.getElementById("slidesView").style.visibility = "hidden";
+        document.getElementById("cardBoardView").style.display = "block";
         this.Data.landscapeMode = true;
         this.Data.stereoEffect = true;
-
-        if(this._engine  == null){
-         this._babylon = new babylonMod(this._element.nativeElement, this.Data, this.app);
-         this.boilerVR.babylonMod = this._babylon;
+        if(this.hasInit  == false){
+          this.hasInit = true;
+          this._babylon = new babylonMod(this._element.nativeElement, this.Data, this.app);
+          this.boilerVR.babylonMod = this._babylon;
         }
       } else {
-        // Portrait
-        if(this.boilerVR.isNative){
-          Vibrate(50);
-        }
         this.Data.landscapeMode = false;
         this.Data.stereoEffect = false;
+        document.getElementById("slidesView").style.visibility = "visible";
+        document.getElementById("cardBoardView").style.display = "none";
       }
-      //this.isVisible();
     }
     window.addEventListener('orientationchange', readDeviceOrientation.bind(this), false);
   }

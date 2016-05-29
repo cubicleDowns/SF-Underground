@@ -16,6 +16,8 @@ export class SettingsModal {
   
   dismiss() {
     this.viewCtrl.dismiss();
+    document.getElementById("cardBoardView").style.display = "block";
+    document.getElementById('cardboardControls').style.display = "block";
   }
 
   toggle(){

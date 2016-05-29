@@ -1,1 +1,0 @@
-To view and test download http://view.ionic.io/ and then use this key (fa9a5e8d). 

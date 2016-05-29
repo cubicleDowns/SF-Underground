@@ -8,7 +8,6 @@ export class babylonMod {
         this.playerSprite = null;
         this.Data = _data;
         this.app = _app;
-        setTimeout(this.init.bind(this), 500);
         this.vrCamera = null;
         this.nonVRCamera = null;
         this.activeCamera = null;
@@ -19,12 +18,23 @@ export class babylonMod {
         this.updateFunctionBeforeLoop = [];
         this.sprites = [];
         this.Data.babylonMod = this;
+        this.distortionLens = null;
+        setTimeout(this.init.bind(this), 500);
     }
 
     init() {
         window._babylon = this;
+        
+        document.querySelector("ion-page").style.zIndex = 'auto';
+        document.querySelector("scroll-content").style.webkitOverflowScrolling = 'auto';
+        document.querySelector("scroll-content").style.willChange = 'auto';
+        document.querySelector("scroll-content").style.zIndex = 'auto';
+        //document.querySelector("scroll-content").style.zIndex = '';
         this.engine = new BABYLON.Engine(this.canvas , true);
-        BABYLON.SceneLoader.Load('', 'build/scenes/subway3/bart_16.babylon?once=3665092109', this.engine, function(newScene) {
+        this.canvas.style.width = '100%';
+        this.canvas.style.height = '100%';
+        BABYLON.SceneLoader.ShowLoadingScreen = false;
+        BABYLON.SceneLoader.Load('', 'bartvr/scenes/subway3/bart_16.babylon?once=3665092109', this.engine, function(newScene) {
             this.scene = newScene;
             var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(100, 100, 0), this.scene );
             if(_babylon.app.isNative){
@@ -41,17 +51,17 @@ export class babylonMod {
             this.vrCamera.rotation = new BABYLON.Vector3(newScene.cameras[0].rotation.x, newScene.cameras[0].rotation.y, newScene.cameras[0].rotation.z)
             this.vrCamera.attachControl(this.canvas, true);
             this.activeCamera = this.vrCamera;
-            this.nonVRCamera = new BABYLON.VirtualJoysticksCamera("VJC", BABYLON.Vector3.Zero(), this.scene);
-            this.nonVRCamera.attachControl(this.canvas, true);
+            this.nonVRCamera = new BABYLON.VirtualJoysticksCamera("VJC", this.vrCamera.position, this.scene);
             this.nonVRCamera.checkCollisions = this.scene.activeCamera.checkCollisions;
             this.nonVRCamera.applyGravity = this.scene.activeCamera.applyGravity;
+            this.nonVRCamera.attachControl(this.canvas, true);
             this.nonVRCamera.parent = this.vrCamera;  
             this.scene.activeCamera = this.vrCamera;
             this.vrCamera.position.x = 6;
             this.Data.setUser(null, this.vrCamera.position);
-            this.hud = new BartVR_HeadsUpDisplay(this.scene, this);
 
-            var spriteManagerPlayer = new BABYLON.SpriteManager("riderManager", this.Data.user.sprite, 1, 128, this.scene);
+            this.hud = new BartVR_HeadsUpDisplay(this.scene, this);
+            var spriteManagerPlayer = new BABYLON.SpriteManager("userManager", this.Data.user.sprite, 1, 128, this.scene);
             spriteManagerPlayer.layerMask = 3;
             this.playerSprite = new BABYLON.Sprite("player", spriteManagerPlayer);
             this.playerSprite.isPickable = true;
@@ -59,14 +69,11 @@ export class babylonMod {
             this.playerSprite.parent = this.vrCamera;
             this.sprites.push(this.playerSprite);
             this.skyBox('oakland');
-          
             for(let i = 0; i < this.Data.currentRiders.length; i++){
                 if(this.Data.currentRouteID == parseInt(this.Data.currentRiders[i].data.routeID)){
                     this.generateUserSprites(this.Data.currentRiders[i], i);
                 }
             }
-            
-
             if(this.Data.executeUserRemoval != null){
                 this.Data.deleteUser(this.Data.executeUserRemoval);
             }
@@ -75,7 +82,7 @@ export class babylonMod {
                 this.playerSprite.position = new BABYLON.Vector3(this.Data.user.position.x, this.Data.user.position.y, this.Data.user.position.z);
                 this.Data.updateUser(this.activeCamera.position, this.activeCamera.rotation);
             }.bind(this)));
-
+            //http://www.babylonjs-playground.com/#DX6AV#39
 
             for(let i = 0; i < this.updateFunctionBeforeLoop.length; i++){
                 this.updateFunctionBeforeLoop[i]();
@@ -86,22 +93,34 @@ export class babylonMod {
          }.bind(this), function(progress) {
             // To do: give progress feedback to user
         }.bind(this));
-        
-
-        /*
-        window.addEventListener("resize", function() {
-            this.engine.resize();
-        });
-        */
 
     }
 
-
-    /*
-    randomPos(min, max){
-        return Math.random() * (max - min) + min;
+    enableDistotion(){
+        this.distortionLens = new BABYLON.LensRenderingPipeline('lens', {
+                edge_blur: 1.0,
+                chromatic_aberration: 20.0,
+                distortion: 1.0,
+                dof_focus_distance: 50,
+                dof_aperture: 6.0,          // set this very high for tilt-shift effect
+                grain_amount: 1.0,
+                dof_pentagon: true,
+                dof_gain: 1.0,
+                dof_threshold: 1.0,
+                dof_darken: 0.25
+            }, this.scene, 1.0, this.vrCamera);
     }
-    */
+
+    gameLoop(){
+         this.scene.executeWhenReady(function() {
+            this.engine.runRenderLoop(function() {
+                for(let i=0; i < this.updateFunctionsInLoop.length; i++){
+                    this.updateFunctionsInLoop[i]();
+                }
+                this.scene.render();
+            }.bind(this));
+        }.bind(this));
+    }
 
 
 
@@ -124,7 +143,7 @@ export class babylonMod {
         }catch(e){}
         
         this.skybox = null;
-        this.currentSkyBoxName = "build/img/textures/" + _type;
+        this.currentSkyBoxName = "bartvr/img/textures/" + _type;
         var skybox = BABYLON.Mesh.CreateBox("skybox", _size, this.scene);
         skybox.layerMask = 2;
         var skyboxMaterial = new BABYLON.StandardMaterial("skyBox", this.scene);
@@ -137,23 +156,12 @@ export class babylonMod {
         skybox.material = skyboxMaterial;
         this.skybox = skybox;
     }
-
-
-    gameLoop(){
-         this.scene.executeWhenReady(function() {
-            this.engine.runRenderLoop(function() {
-                for(let i=0; i < this.updateFunctionsInLoop.length; i++){
-                    this.updateFunctionsInLoop[i]();
-                }
-                this.scene.render();
-            }.bind(this));
-        }.bind(this));
-    }
-
+    
     toggle() {
         if (this.mode == 'vr') {
             this.mode = 'nomral';
             if (this.scene != null) {
+                this.hud.hudsystem.updateCamera(this.nonVRCamera);
                 this.scene.activeCamera = this.nonVRCamera;
                 this.activeCamera = this.nonVRCamera;
             }
@@ -161,7 +169,7 @@ export class babylonMod {
             this.mode = 'vr';
             if (this.scene != null) {
                 this.scene.activeCamera = this.vrCamera;
-                this.activeCamera = this.vrCamera;
+                 this.activeCamera = this.vrCamera;
             }
         }
     }

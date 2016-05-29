@@ -1,37 +1,64 @@
 cordova.define('cordova/plugin_list', function(require, exports, module) {
 module.exports = [
     {
-        "file": "plugins/cordova-plugin-canvas-gamepad/www/CDVGamepad.js",
-        "id": "cordova-plugin-canvas-gamepad.CDVGamepad",
-        "pluginId": "cordova-plugin-canvas-gamepad",
+        "file": "plugins/cordova-plugin-console/www/console-via-logger.js",
+        "id": "cordova-plugin-console.console",
+        "pluginId": "cordova-plugin-console",
         "clobbers": [
-            "CDVGamepad"
+            "console"
         ]
     },
     {
-        "file": "plugins/com.judax.cordova.plugin.gamepad/www/Gamepad.js",
-        "id": "com.judax.cordova.plugin.gamepad.Gamepad",
-        "pluginId": "com.judax.cordova.plugin.gamepad",
+        "file": "plugins/cordova-plugin-console/www/logger.js",
+        "id": "cordova-plugin-console.logger",
+        "pluginId": "cordova-plugin-console",
         "clobbers": [
-            "Gamepad"
+            "cordova.logger"
         ]
     },
     {
-        "file": "plugins/cordova-plugin-insomnia/www/Insomnia.js",
-        "id": "cordova-plugin-insomnia.Insomnia",
-        "pluginId": "cordova-plugin-insomnia",
+        "file": "plugins/cordova-plugin-device/www/device.js",
+        "id": "cordova-plugin-device.device",
+        "pluginId": "cordova-plugin-device",
         "clobbers": [
-            "window.plugins.insomnia"
+            "device"
         ]
+    },
+    {
+        "file": "plugins/cordova-plugin-splashscreen/www/splashscreen.js",
+        "id": "cordova-plugin-splashscreen.SplashScreen",
+        "pluginId": "cordova-plugin-splashscreen",
+        "clobbers": [
+            "navigator.splashscreen"
+        ]
+    },
+    {
+        "file": "plugins/cordova-plugin-statusbar/www/statusbar.js",
+        "id": "cordova-plugin-statusbar.statusbar",
+        "pluginId": "cordova-plugin-statusbar",
+        "clobbers": [
+            "window.StatusBar"
+        ]
+    },
+    {
+        "file": "plugins/ionic-plugin-keyboard/www/ios/keyboard.js",
+        "id": "ionic-plugin-keyboard.keyboard",
+        "pluginId": "ionic-plugin-keyboard",
+        "clobbers": [
+            "cordova.plugins.Keyboard"
+        ],
+        "runs": true
     }
 ];
 module.exports.metadata = 
 // TOP OF METADATA
 {
-    "cordova-plugin-canvas-gamepad": "0.1.1",
-    "com.judax.cordova.plugin.gamepad": "1.0.0",
-    "cordova-plugin-insomnia": "4.2.0",
-    "cordova-plugin-ios-longpress-fix": "1.1.0"
+    "cordova-plugin-console": "1.0.3",
+    "cordova-plugin-device": "1.1.2",
+    "cordova-plugin-splashscreen": "3.2.2",
+    "cordova-plugin-statusbar": "2.1.3",
+    "cordova-plugin-whitelist": "1.2.2",
+    "ionic-plugin-keyboard": "2.2.0"
 }
 // BOTTOM OF METADATA
 });
