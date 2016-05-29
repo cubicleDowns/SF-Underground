@@ -11,6 +11,8 @@
     <select ng-options="route.id as route.name for route in main.routes"
             ng-model="main.selected.route"></select>
     <button value="Test1" ng-click="main.sendAlert()">Send Alert</button>
+    <button value="Test1" ng-click="main.toggleCamera()">Toggle Camera</button>
+
 </div>
 
 <!--<pre>{{main.riders[main.riders.length - 1] | json}}</pre>-->

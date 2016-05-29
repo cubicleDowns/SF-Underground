@@ -19,10 +19,6 @@ angular.module('SFUnderground.controller.main', ['SFUnderground.3D'])
             // read only firebase
             var ro_fb = new Firebase("https://sf-noise.firebaseio.com/riders");
 
-//            ro_fb.$watch(function(event){
-//                console.log('riders event: ', event);
-//            });
-
             main.riders = $firebaseArray(ro_fb);
 
             /**
@@ -37,15 +33,13 @@ angular.module('SFUnderground.controller.main', ['SFUnderground.3D'])
                 'route': -1
             };
 
-
-
-
             /**
              * Bound functions
              */
             main.sendAlert = sendAlert;
             main.changeTime = changeTime;
             main.init = init;
+            main.toggleCamera = toggleCamera;
 
             /**
              * Send and alert containing the route ID and alert type.
@@ -69,6 +63,10 @@ angular.module('SFUnderground.controller.main', ['SFUnderground.3D'])
              */
             function changeTime() {
                 ThreeScene.setMultiplier(main.time);
+            }
+
+            function toggleCamera() {
+                ThreeScene.setCameraType();
             }
 
             /**

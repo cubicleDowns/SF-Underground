@@ -4,6 +4,8 @@ angular.module('SFUnderground.3D.scene', [])
         'SETUP',
         function (BART, SETUP) {
             var controls,
+                heatmapInstance,
+                heatMapConfig = {},
                 renderer,
                 scene,
                 camera,
@@ -20,6 +22,10 @@ angular.module('SFUnderground.3D.scene', [])
             var multiplier = 1;
             var clock = new THREE.Clock();
 
+            var cameraType = SETUP.CAMERA.TYPE;
+
+            var heatmapContainer = $('#heatmap');
+
             /**
              * @param {number} num
              */
@@ -27,18 +33,37 @@ angular.module('SFUnderground.3D.scene', [])
                 multiplier = parseInt(num, 10) || SETUP.MULTIPLIER || 1;
             }
 
+            function setCameraType() {
+                if (cameraType === "PERP") {
+                    camera.toOrthographic();
+                    cameraType = "ORTHO";
+                    heatmapContainer.show();
+                    camera.position.set(SETUP.CAMERA.ORTHO.POSITION.x, SETUP.CAMERA.ORTHO.POSITION.y, SETUP.CAMERA.ORTHO.POSITION.z);
+                    camera.rotation.set(SETUP.CAMERA.ORTHO.ROTATION.x, SETUP.CAMERA.ORTHO.ROTATION.y, SETUP.CAMERA.ORTHO.ROTATION.z, SETUP.CAMERA.ORTHO.ROTATION.order);
+                    camera.up.set(1, 0, 0);
+
+                } else {
+
+                    camera.toPerspective();
+                    camera.position.set(SETUP.CAMERA.PERP.POSITION.x, SETUP.CAMERA.PERP.POSITION.y, SETUP.CAMERA.PERP.POSITION.z);
+                    camera.rotation.set(SETUP.CAMERA.PERP.ROTATION.x, SETUP.CAMERA.PERP.ROTATION.y, SETUP.CAMERA.PERP.ROTATION.z, SETUP.CAMERA.PERP.ROTATION.order);
+                    cameraType = "PERP";
+                    heatmapContainer.hide();
+                }
+            }
+
+
             function setupScene() {
 
-                renderer = new THREE.WebGLRenderer();
+                renderer = new THREE.WebGLRenderer({ alpha: true });
                 renderer.setSize(window.innerWidth, window.innerHeight);
                 document.body.appendChild(renderer.domElement);
                 scene = new THREE.Scene();
 
-                camera = new THREE.CombinedCamera(window.innerWidth / 2, window.innerHeight / 2, 70, 1, 1000, -500, 2000);
+                camera = new THREE.CombinedCamera(window.innerWidth / 2, window.innerHeight / 2, 70, 1, 1500, -500, 3000);
+                camera.setSize(window.innerWidth, window.innerHeight);
 
-
-                if (SETUP.CAMERA.TYPE === "PERP") {
-                    debugger;
+                if (cameraType === "PERP") {
                     camera.toPerspective();
                     camera.position.set(SETUP.CAMERA.PERP.POSITION.x, SETUP.CAMERA.PERP.POSITION.y, SETUP.CAMERA.PERP.POSITION.z);
                     camera.rotation.set(SETUP.CAMERA.PERP.ROTATION.x, SETUP.CAMERA.PERP.ROTATION.y, SETUP.CAMERA.PERP.ROTATION.z, SETUP.CAMERA.PERP.ROTATION.order);
@@ -54,9 +79,7 @@ angular.module('SFUnderground.3D.scene', [])
                 } else {
                     camera.toOrthographic();
                     camera.position.set(SETUP.CAMERA.ORTHO.POSITION.x, SETUP.CAMERA.ORTHO.POSITION.y, SETUP.CAMERA.ORTHO.POSITION.z);
-//                    camera.rotation.set(SETUP.CAMERA.ORTHO.ROTATION.x, SETUP.CAMERA.ORTHO.ROTATION.y, SETUP.CAMERA.ORTHO.ROTATION.z, SETUP.CAMERA.ORTHO.ROTATION.order);
                     camera.rotation.set(SETUP.CAMERA.ORTHO.ROTATION.x, SETUP.CAMERA.ORTHO.ROTATION.y, SETUP.CAMERA.ORTHO.ROTATION.z, SETUP.CAMERA.ORTHO.ROTATION.order);
-
                     camera.up.set(1, 0, 0);
                 }
 
@@ -64,6 +87,80 @@ angular.module('SFUnderground.3D.scene', [])
                     var axisHelper = new THREE.AxisHelper(50);
                     scene.add(axisHelper);
                 }
+            }
+
+
+            function toScreenXYFromOrtho(position, width, height, camera) {
+//                var camWidth = camera.right - camera.left;
+//                var camHeight = camera.top - camera.bottom;
+                var camWidth = camHeight = 1000;
+                /**
+                 * convert from Orthographic 3D to Screen 2D
+                 * - flip Y axis origin position to top left from bottom left
+                 */
+                var screenX = parseInt((position[0] - (camera.position.x + camera.left)) / camWidth * width, 0);
+                var screenY = parseInt(height - (position[1] - (camera.position.y + camera.bottom)) / camHeight * height, 0);
+
+                return {
+                    x: screenX,
+                    y: screenY
+                };
+            }
+
+            /**
+             * Set the heat map data based upon
+             */
+            function setHeatMapData() {
+
+                var points = [];
+                var width = window.innerWidth,
+                    height = window.innerHeight;
+
+                var max = 1;
+
+                var pos, point;
+
+
+                for(var r = 0; r < BART.routes.length; r++){
+                    var route = BART.routes[r];
+                    for (var i = 0; i < route.noise.length; i++) {
+                        pos = toScreenXYFromOrtho(route.noise[i],width, height, camera);
+                        point = {
+                            x: pos.x,
+                            y: pos.y,
+                            value: route.noise[i][2]
+                        };
+                        points.push(point);
+                    }
+                }
+
+                var data = {
+                    max: max,
+                    data: points
+                };
+
+                // this clears out prior instance data.
+                heatmapInstance.setData(data);
+            }
+
+            function setupHeatMap() {
+                heatMapConfig = {
+                    container: document.getElementById('heatmap'),
+                    radius: 25,
+                    maxOpacity: 0.9,
+                    minOpacity: .1,
+                    blur: 0.9,
+                    gradient: {
+                        // enter n keys between 0 and 1 here
+                        // for gradient color customization
+                        '.5': 'blue',
+                        '.8': 'red',
+                        '.95': 'white'
+                    }
+                };
+                heatmapInstance = h337.create(heatMapConfig);
+
+                setHeatMapData();
             }
 
             function createSplines(theSplines, numPoints, isSubway) {
@@ -170,6 +267,7 @@ angular.module('SFUnderground.3D.scene', [])
             }
 
             function onWindowResize() {
+                setHeatMapData();
                 camera.setSize(window.innerWidth, window.innerHeight);
                 camera.updateProjectionMatrix();
                 renderer.setSize(window.innerWidth, window.innerHeight);
@@ -181,7 +279,16 @@ angular.module('SFUnderground.3D.scene', [])
             function init() {
 
                 setupScene();
+                var material = new THREE.MeshBasicMaterial({
+                    color: SETUP.DB.color
+                });
+                var geometry = new THREE.BoxGeometry(5, 5, 5);
+                var mesh = new THREE.Mesh(geometry, material);
+                mesh.position.set(500, 500, 100);
+                scene.add(mesh);
+
                 setupRoutes();
+                setupHeatMap();
                 window.addEventListener('resize', onWindowResize, false);
 
                 animate();
@@ -232,7 +339,7 @@ angular.module('SFUnderground.3D.scene', [])
 
             function render() {
 
-                if (SETUP.CAMERA.CONTROLS) {
+                if (SETUP.CAMERA.PERP.CONTROLS) {
                     var delta = clock.getDelta();
                     controls.update(delta);
                 }
@@ -241,7 +348,8 @@ angular.module('SFUnderground.3D.scene', [])
 
             return {
                 init: init,
-                setMultiplier: setMultiplier
+                setMultiplier: setMultiplier,
+                setCameraType: setCameraType,
             };
         }])
 ;

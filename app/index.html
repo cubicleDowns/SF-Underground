@@ -14,18 +14,23 @@
 
 
     <!-- build:js js/libs.js -->
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
     <script src="bower_components/angular/angular.js"></script>
     <script src="bower_components/angular-aria/angular-aria.js"></script>
     <script src="bower_components/angular-animate/angular-animate.js"></script>
     <script src="bower_components/angular-material/angular-material.js"></script>
     <script src="bower_components/threejs/index.js"></script>
+    <script src="bower_components/heatmap.js-amd/build/heatmap.js"></script>
+
     <script src="lib/FlyControls.js"></script>
     <script src="lib/CombinedCamera.js"></script>
+    <script src="lib/wavesurfer.js"></script>
 
     <!--<script src="bower_components/threejs-trackball-controls/TrackballControls.js"></script>-->
     <script src="bower_components/firebase/firebase-debug.js"></script><!-- Firebase -->
     <script src="bower_components/angularfire/dist/angularfire.min.js"></script><!-- Firebase -->
     <!-- endbuild -->
+
 
 </head>
 <body>
@@ -41,11 +46,27 @@
     <script src="js/3d/threeScene.js"></script>
     <script src="js/util.js"></script>
     <!-- endbuild -->
+    <div id="heatmap" width="100%" height="100%" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0: z-index: 1000;"></div>
+    <div id="waveform" style="position: absolute; width: 100%; z-index: 10001; bottom: 100px; left: 0; height: 100px;"></div>
 
     <script>
         angular.element(document).ready(function () {
             angular.bootstrap(document, ['SFUnderground']);
         });
+
+        var wavesurfer = WaveSurfer.create({
+            container: '#waveform',
+            waveColor: 'violet',
+            progressColor: 'purple'
+        });
+        wavesurfer.on('ready', function() {
+            wavesurfer.play();
+            setTimeout(function(){
+                wavesurfer.zoom(150);
+            }, 100);
+        });
+
+        wavesurfer.load('sound/garage_test.wav');
     </script>
 </body>
 </html>
