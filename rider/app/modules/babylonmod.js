@@ -35,6 +35,7 @@ export class babylonMod {
         this.canvas.style.height = '100%';
         BABYLON.SceneLoader.ShowLoadingScreen = false;
         BABYLON.SceneLoader.Load('', 'bartvr/scenes/subway3/bart_16.babylon?once=3665092109', this.engine, function(newScene) {
+
             this.scene = newScene;
             var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(100, 100, 0), this.scene );
             if(_babylon.app.isNative){
@@ -60,7 +61,7 @@ export class babylonMod {
             this.vrCamera.position.x = 6;
             this.Data.setUser(null, this.vrCamera.position);
 
-            this.hud = new BartVR_HeadsUpDisplay(this.scene, this);
+            //this.hud = new BartVR_HeadsUpDisplay(this.scene, this);
             var spriteManagerPlayer = new BABYLON.SpriteManager("userManager", this.Data.user.sprite, 1, 128, this.scene);
             spriteManagerPlayer.layerMask = 3;
             this.playerSprite = new BABYLON.Sprite("player", spriteManagerPlayer);
@@ -89,6 +90,9 @@ export class babylonMod {
             }
             this.gameLoop();
 
+
+            window._activeCam = this.scene.activeCamera;
+            window._scene = this.scene;
         
          }.bind(this), function(progress) {
             // To do: give progress feedback to user
@@ -99,16 +103,18 @@ export class babylonMod {
     enableDistotion(){
         this.distortionLens = new BABYLON.LensRenderingPipeline('lens', {
                 edge_blur: 1.0,
-                chromatic_aberration: 20.0,
+                chromatic_aberration: 1.0,
                 distortion: 1.0,
                 dof_focus_distance: 50,
-                dof_aperture: 6.0,          // set this very high for tilt-shift effect
+                dof_aperture: 1.0,          // set this very high for tilt-shift effect
                 grain_amount: 1.0,
                 dof_pentagon: true,
                 dof_gain: 1.0,
                 dof_threshold: 1.0,
                 dof_darken: 0.25
-            }, this.scene, 1.0, this.vrCamera);
+            },  window._scene , 1.0);
+         window._scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline('lens', window._activeCam);
+
     }
 
     gameLoop(){
