@@ -121,10 +121,10 @@ angular.module('SFUnderground.3D.scene', [])
                 var pos, point;
 
 
-                for(var r = 0; r < BART.routes.length; r++){
+                for (var r = 0; r < BART.routes.length; r++) {
                     var route = BART.routes[r];
                     for (var i = 0; i < route.noise.length; i++) {
-                        pos = toScreenXYFromOrtho(route.noise[i],width, height, camera);
+                        pos = toScreenXYFromOrtho(route.noise[i], width, height, camera);
                         point = {
                             x: pos.x,
                             y: pos.y,
@@ -153,8 +153,8 @@ angular.module('SFUnderground.3D.scene', [])
                     gradient: {
                         // enter n keys between 0 and 1 here
                         // for gradient color customization
-                        '.5': 'blue',
-                        '.8': 'red',
+                        '.1': 'black',
+                        '.8': 'grey',
                         '.95': 'white'
                     }
                 };
@@ -296,6 +296,39 @@ angular.module('SFUnderground.3D.scene', [])
                 setInterval(moveSubway, 100);
             }
 
+            function load3DScene() {
+
+                var onProgress = function ( xhr ) {
+                    if ( xhr.lengthComputable ) {
+                        var percentComplete = xhr.loaded / xhr.total * 100;
+                        console.log( Math.round(percentComplete, 2) + '% downloaded' );
+                    }
+                };
+
+                var onError = function ( xhr ) { };
+
+                THREE.Loader.Handlers.add( /\.dds$/i, new THREE.DDSLoader() );
+
+                var mtlLoader = new THREE.MTLLoader();
+                mtlLoader.setPath( 'obj/' );
+                mtlLoader.load( 'bart-tripping.mtl', function( materials ) {
+
+                    materials.preload();
+
+                    var objLoader = new THREE.OBJLoader();
+                    objLoader.setMaterials( materials );
+                    objLoader.setPath( 'obj/' );
+                    objLoader.load( 'bart-tripping.obj', function ( object ) {
+
+                        object.position.y = - 95;
+                        scene.add( object );
+
+                    }, onProgress, onError );
+
+                });
+
+            }
+
 
             function moveSubway() {
                 for (var i = 0; i < subways.length; i++) {
@@ -330,7 +363,6 @@ angular.module('SFUnderground.3D.scene', [])
                     }
                 }
             }
-
 
             function animate() {
                 requestAnimationFrame(animate);
