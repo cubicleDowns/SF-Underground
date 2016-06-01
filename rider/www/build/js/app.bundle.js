@@ -241,7 +241,7 @@ var CardBoardData = exports.CardBoardData = function () {
 
       if (window.localStorage.getItem("bart_vr_user") == null) {
         _pos.x = this.randomPos(-85, 2);
-        _pos.y = 6;
+        _pos.y = 10;
         _pos.z = this.randomPos(5, 15);
         var _username = null;
         if (this.user.name == null) {
@@ -303,9 +303,10 @@ var babylonMod = exports.babylonMod = function () {
         this.vrCamera = null;
         this.nonVRCamera = null;
         this.activeCamera = null;
-        this.mode = 'vr';
+        this.mode = 'normal';
         this.hud = null;
         this.scene = null;
+        this.spManager = null;
         this.updateFunctionsInLoop = [];
         this.updateFunctionBeforeLoop = [];
         this.sprites = [];
@@ -344,65 +345,83 @@ var babylonMod = exports.babylonMod = function () {
                 this.vrCamera = new BABYLON.VRDeviceOrientationFreeCamera("Camera", BABYLON.Vector3.Zero(), this.scene, true);
                 this.vrCamera.rotation = new BABYLON.Vector3(newScene.cameras[0].rotation.x, newScene.cameras[0].rotation.y, newScene.cameras[0].rotation.z);
                 this.vrCamera.attachControl(this.canvas, true);
+                this.vrCamera.checkCollisions = true;
+                //this.vrCamera.applyGravity = true;
                 this.activeCamera = this.vrCamera;
-                this.nonVRCamera = new BABYLON.VirtualJoysticksCamera("VJC", this.vrCamera.position, this.scene);
+                this.nonVRCamera = new BABYLON.VirtualJoysticksCamera("VJC", BABYLON.Vector3.Zero(), this.scene);
                 this.nonVRCamera.checkCollisions = this.scene.activeCamera.checkCollisions;
                 this.nonVRCamera.applyGravity = this.scene.activeCamera.applyGravity;
-                this.nonVRCamera.attachControl(this.canvas, true);
-                this.nonVRCamera.parent = this.vrCamera;
-                this.scene.activeCamera = this.vrCamera;
-                this.vrCamera.position.x = 6;
+                this.nonVRCamera.attachControl(this.canvas);
+                this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick.reverseUpDown = true;
+                this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._rotateOnAxisRelativeToMesh = true;
+                this.nonVRCamera.inputs.attached.virtualJoystick.camera.inertia = 0.5;
+                this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._inverseRotationSpeed = 2;
+                this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._rotationSpeed = 2;
+                //this.nonVRCamera.parent = this.vrCamera; 
+                this.scene.activeCamera = this.nonVRCamera;
+                this.vrCamera.position.x = 7;
                 this.Data.setUser(null, this.vrCamera.position);
-
+                this.nonVRCamera.position = this.vrCamera.position;
+                //this.nonVRCamera.position = this.vrCamera.position;
                 //this.hud = new BartVR_HeadsUpDisplay(this.scene, this);
-                var spriteManagerPlayer = new BABYLON.SpriteManager("userManager", this.Data.user.sprite, 1, 128, this.scene);
-                spriteManagerPlayer.layerMask = 3;
-                this.playerSprite = new BABYLON.Sprite("player", spriteManagerPlayer);
+                this.spManager = new BABYLON.SpriteManager("userManager", this.Data.user.sprite, 1000, 128, this.scene);
+                //spriteManagerPlayer.layerMask = 3;
+                this.playerSprite = new BABYLON.Sprite("player", this.spManager);
                 this.playerSprite.isPickable = true;
                 this.playerSprite.playAnimation(0, 20, true, 100);
-                this.playerSprite.parent = this.vrCamera;
-                this.sprites.push(this.playerSprite);
+                //this.playerSprite.parent = this.vrCamera;
+                this.scene.activeCamera.position = new BABYLON.Vector3(this.Data.user.position.x, this.Data.user.position.y, this.Data.user.position.z);
+                this.playerSprite.position = new BABYLON.Vector3(this.Data.user.position.x, this.Data.user.position.y, this.Data.user.position.z);
+                this.scene.activeCamera.rotation = new BABYLON.Vector3(this.Data.user.rotation.x, this.Data.user.rotation.y, this.Data.user.rotation.z);
+                //this.sprites.push(this.playerSprite);
                 this.skyBox('oakland');
                 for (var i = 0; i < this.Data.currentRiders.length; i++) {
                     if (this.Data.currentRouteID == parseInt(this.Data.currentRiders[i].data.routeID)) {
-                        this.generateUserSprites(this.Data.currentRiders[i], i);
+                        if (_babylon.Data.currentRiders[i].key != _babylon.Data.currentUserKey) {
+                            this.generateUserSprites(this.Data.currentRiders[i], i);
+                        }
                     }
                 }
                 if (this.Data.executeUserRemoval != null) {
                     this.Data.deleteUser(this.Data.executeUserRemoval);
                 }
                 this.updateFunctionsInLoop.push(function () {
-                    this.vrCamera.position = new BABYLON.Vector3(this.Data.user.position.x, this.Data.user.position.y, this.Data.user.position.z);
-                    this.playerSprite.position = new BABYLON.Vector3(this.Data.user.position.x, this.Data.user.position.y, this.Data.user.position.z);
-                    this.Data.updateUser(this.activeCamera.position, this.activeCamera.rotation);
+                    this.vrCamera.position = this.scene.activeCamera.position;
+                    this.nonVRCamera.position = this.scene.activeCamera.position;
+                    this.playerSprite.position = this.scene.activeCamera.position;
+                    this.Data.updateUser(this.scene.activeCamera.position, this.scene.activeCamera.rotation);
+                    //this.scene.activeCamera.position = new BABYLON.Vector3(this.Data.user.position.x, this.Data.user.position.y, this.Data.user.position.z);
+                    //this.playerSprite.position = new BABYLON.Vector3(this.Data.user.position.x, this.Data.user.position.y, this.Data.user.position.z);
                 }.bind(this));
-                //http://www.babylonjs-playground.com/#DX6AV#39
 
                 for (var _i = 0; _i < this.updateFunctionBeforeLoop.length; _i++) {
                     this.updateFunctionBeforeLoop[_i]();
                 }
                 this.gameLoop();
-
-                window._activeCam = this.scene.activeCamera;
-                window._scene = this.scene;
             }.bind(this), function (progress) {
                 // To do: give progress feedback to user
             }.bind(this));
+        }
+    }, {
+        key: 'applyCameraChange',
+        value: function applyCameraChange() {
+            this.scene.activeCamera = this.nonVRCamera;
+            this.nonVRCamera.checkCollisions = this.scene.activeCamera.checkCollisions;
+            this.nonVRCamera.applyGravity = this.scene.activeCamera.applyGravity;
+            this.nonVRCamera.attachControl(this.canvas);
+            this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick.reverseUpDown = true;
+            this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._rotateOnAxisRelativeToMesh = true;
+            this.nonVRCamera.inputs.attached.virtualJoystick.camera.inertia = 0.5;
+            this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._inverseRotationSpeed = 2;
+            this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._rotationSpeed = 2;
         }
     }, {
         key: 'enableDistotion',
         value: function enableDistotion() {
             this.distortionLens = new BABYLON.LensRenderingPipeline('lens', {
                 edge_blur: 1.0,
-                chromatic_aberration: 1.0,
-                distortion: 1.0,
-                dof_focus_distance: 50,
-                dof_aperture: 1.0, // set this very high for tilt-shift effect
-                grain_amount: 1.0,
-                dof_pentagon: true,
-                dof_gain: 1.0,
-                dof_threshold: 1.0,
-                dof_darken: 0.25
+                chromatic_aberration: 50.0,
+                distortion: 1.0
             }, window._scene, 1.0);
             window._scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline('lens', window._activeCam);
         }
@@ -421,12 +440,12 @@ var babylonMod = exports.babylonMod = function () {
     }, {
         key: 'generateUserSprites',
         value: function generateUserSprites(_data, _id) {
-            console.log(_data);
+
             var spriteManagerRider = new BABYLON.SpriteManager(_data.key, _data.data.sprite, 1, 128, this.scene);
             spriteManagerRider.layerMask = 3;
+            spriteManagerRider.texture = this.spManager.texture.clone();
             var player = new BABYLON.Sprite(_data.key, spriteManagerRider);
             player.isPickable = true;
-            console.log(_data.data.position);
             player.position = _data.data.position;
             player.rotation = _data.data.rotation;
             player.size = 14.0;
@@ -458,18 +477,18 @@ var babylonMod = exports.babylonMod = function () {
     }, {
         key: 'toggle',
         value: function toggle() {
-            if (this.mode == 'vr') {
-                this.mode = 'nomral';
-                if (this.scene != null) {
-                    this.hud.hudsystem.updateCamera(this.nonVRCamera);
-                    this.scene.activeCamera = this.nonVRCamera;
-                    this.activeCamera = this.nonVRCamera;
-                }
-            } else {
+            if (this.mode == 'normal') {
                 this.mode = 'vr';
                 if (this.scene != null) {
                     this.scene.activeCamera = this.vrCamera;
                     this.activeCamera = this.vrCamera;
+                }
+            } else {
+                this.mode = 'normal';
+                if (this.scene != null) {
+                    // this.hud.hudsystem.updateCamera(this.nonVRCamera);
+                    this.scene.activeCamera = this.nonVRCamera;
+                    this.activeCamera = this.nonVRCamera;
                 }
             }
         }
@@ -1026,8 +1045,12 @@ var CardboardGl = exports.CardboardGl = (_dec = (0, _core.Component)({
         if (Math.abs(window.orientation) === 90) {
           document.getElementById("slidesView").style.visibility = "hidden";
           document.getElementById("cardBoardView").style.display = "block";
+          document.querySelector("ion-page").style.zIndex = 'auto';
+          document.querySelector("scroll-content").style.webkitOverflowScrolling = 'auto';
+          document.querySelector("scroll-content").style.willChange = 'auto';
+          document.querySelector("scroll-content").style.zIndex = 'auto';
           this.Data.landscapeMode = true;
-          this.Data.stereoEffect = true;
+          this.Data.stereoEffect = false;
           if (this.hasInit == false) {
             this.hasInit = true;
             this._babylon = new _babylonmod.babylonMod(this._element.nativeElement, this.Data, this.app);
@@ -1038,6 +1061,10 @@ var CardboardGl = exports.CardboardGl = (_dec = (0, _core.Component)({
           this.Data.stereoEffect = false;
           document.getElementById("slidesView").style.visibility = "visible";
           document.getElementById("cardBoardView").style.display = "none";
+          document.querySelector("ion-page").style.zIndex = '100';
+          document.querySelector("scroll-content").style.webkitOverflowScrolling = 'touch';
+          document.querySelector("scroll-content").style.willChange = 'scroll-position';
+          document.querySelector("scroll-content").style.zIndex = '1';
         }
       }
       window.addEventListener('orientationchange', readDeviceOrientation.bind(this), false);
