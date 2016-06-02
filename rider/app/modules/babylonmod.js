@@ -64,12 +64,10 @@ export class babylonMod {
             this.nonVRCamera.inputs.attached.virtualJoystick.camera.inertia = 0.5;
             this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._inverseRotationSpeed = 2;
             this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._rotationSpeed = 2;
-            //this.nonVRCamera.parent = this.vrCamera;  
             this.scene.activeCamera = this.nonVRCamera;
             this.vrCamera.position.x = 7;
             this.Data.setUser(null, this.vrCamera.position);
             this.nonVRCamera.position =  this.vrCamera.position;
-            //this.nonVRCamera.position = this.vrCamera.position;
             //this.hud = new BartVR_HeadsUpDisplay(this.scene, this);
             this.spManager  = new BABYLON.SpriteManager("userManager", this.Data.user.sprite, 1000, 128, this.scene);
             //spriteManagerPlayer.layerMask = 3;
@@ -80,11 +78,13 @@ export class babylonMod {
             this.scene.activeCamera.position = new BABYLON.Vector3(this.Data.user.position.x, this.Data.user.position.y, this.Data.user.position.z);
             this.playerSprite.position = new BABYLON.Vector3(this.Data.user.position.x, this.Data.user.position.y, this.Data.user.position.z);
             this.scene.activeCamera.rotation = new BABYLON.Vector3(this.Data.user.rotation.x, this.Data.user.rotation.y, this.Data.user.rotation.z);
-            //this.sprites.push(this.playerSprite);
+            this.sprites.push({sprite:this.playerSprite, key:this.Data.currentUserKey});
             this.skyBox('oakland');
+
+        
             for(let i = 0; i < this.Data.currentRiders.length; i++){
                 if(this.Data.currentRouteID == parseInt(this.Data.currentRiders[i].data.routeID)){
-                    if(_babylon.Data.currentRiders[i].key != _babylon.Data.currentUserKey){
+                    if(this.Data.currentRiders[i].key != this.Data.currentUserKey){
                         this.generateUserSprites(this.Data.currentRiders[i], i);
                     }
                     
@@ -98,8 +98,17 @@ export class babylonMod {
                 this.nonVRCamera.position = this.scene.activeCamera.position;
                 this.playerSprite.position =  this.scene.activeCamera.position;
                 this.Data.updateUser(this.scene.activeCamera.position, this.scene.activeCamera.rotation);
-                //this.scene.activeCamera.position = new BABYLON.Vector3(this.Data.user.position.x, this.Data.user.position.y, this.Data.user.position.z);
-                //this.playerSprite.position = new BABYLON.Vector3(this.Data.user.position.x, this.Data.user.position.y, this.Data.user.position.z);
+                for(let i = 0; i < this.Data.currentRiders.length; i++){
+                    if(this.Data.currentRouteID == parseInt(this.Data.currentRiders[i].data.routeID)){
+                        if(this.Data.currentRiders[i].key != this.Data.currentUserKey){
+                                if(! this.spriteDoesNotExist(this.Data.currentRiders[i].key, this.sprites)){
+                                    this.generateUserSprites(this.Data.currentRiders[i], i);
+                                }else{
+                                    this.updateUserSprites(this.Data.currentRiders[i], i);
+                                }
+                        }
+                    }
+                }
             }.bind(this)));
 
 
@@ -148,10 +157,28 @@ export class babylonMod {
         }.bind(this));
     }
 
+    spriteDoesNotExist(value, array) {
+        var found = false;
+        for(var i = 0; i < array.length; i++) {
+            if (array[i].key == value) {
+                return found = true;
+                break;
+            }
+        }
+        return found;
+    }
 
+
+    updateUserSprites(_data){
+        for(var i = 0; i < this.sprites.length; i++) {
+            if (_data.key == this.sprites[i].key) {
+                this.sprites[i].sprite.position =  _data.data.position;
+                break;
+            }
+        }
+    }
 
     generateUserSprites(_data, _id){
-     
         var spriteManagerRider = new BABYLON.SpriteManager(_data.key, _data.data.sprite, 1, 128, this.scene);
         spriteManagerRider.layerMask = 3;
         spriteManagerRider.texture = this.spManager.texture.clone();
@@ -161,7 +188,7 @@ export class babylonMod {
         player.rotation = _data.data.rotation;
         player.size = 14.0;
         player.playAnimation(0, 20, true, 100);
- 
+        this.sprites.push({sprite:player, key:_data.key});
     }
 
     skyBox(_type, _size = 5000.0) {

@@ -44,6 +44,27 @@ export class CardBoardData{
       }.bind(this));
     }.bind(this));
 
+    this.users.on("child_added", function(userData) {
+       this.currentRiders.push({data:userData.val(), key: userData.key()});
+    }.bind(this));
+
+    this.users.on("child_changed", function(userData) {
+        for(let i = 0; i < this.currentRiders.length; i++){
+            if(userData.key() == this.currentRiders[i].key){
+               this.currentRiders[i].data =  userData.val();
+            }
+        }
+    }.bind(this));
+
+
+    /*
+    this.users.on("value", function(userData) {
+      this.currentRiders = [];
+      userData.forEach(function(data) {
+         this.currentRiders.push({data:data.val(), key: data.key()});
+      }.bind(this));
+    }.bind(this));
+    */
 
     this.users.once("value", function(userData) {
       userData.forEach(function(data) {
@@ -53,8 +74,8 @@ export class CardBoardData{
           this.userToUpdate +=  data.key();
           this.userToUpdate = new Firebase(this.userToUpdate);
           this.isCurrentlyUsingBart = true;
-        }    
-         this.currentRiders.push({data:data.val(), key: data.key()});
+        } 
+        // this.currentRiders.push({data:data.val(), key: data.key()});
       }.bind(this));
     }.bind(this));
   }
