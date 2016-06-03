@@ -10,18 +10,18 @@
  */
 angular.module('SFUnderground.constants', [])
     .constant('SETUP', {
-        MESH: false,
-        HEAT_MAP: true,
-        ROUTES: true,
+        MESH: true,
+        HEAT_MAP: false,
+        ROUTES: false,
         MULTIPLIER: 1,
         AXIS_HELPER: true,
         DB: {
             color: 0xFFFFFF
         },
         CAMERA: {
-            TYPE: "PERP",
+            TYPE: "ORTHO",
             PERP: {
-                CONTROLS: true,
+                CONTROLS: false,
                 POSITION: {
                     x: 444.06123338824165,
                     y: -447.4310307648058,
@@ -41,9 +41,11 @@ angular.module('SFUnderground.constants', [])
             },
             ORTHO: {
                 POSITION: {
-                    x: 500,
-                    y: 500,
-                    z: 700
+                    x: 0,
+                    y: 0,
+//                    x: 500,
+//                    y: 500,
+                    z: 100000
                 },
                 ROTATION: {
                     x: 0.0,
