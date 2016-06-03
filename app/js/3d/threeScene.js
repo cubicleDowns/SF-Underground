@@ -1,5 +1,5 @@
 angular.module('SFUnderground.3D.scene', [])
-    .factory('ThreeScene', [
+    .factory('THREE_SCENE', [
         'BART',
         'SETUP',
         function (BART, SETUP) {
@@ -56,9 +56,14 @@ angular.module('SFUnderground.3D.scene', [])
             function setupScene() {
 
                 renderer = new THREE.WebGLRenderer({ alpha: true });
+                renderer.setPixelRatio( window.devicePixelRatio );
                 renderer.setSize(window.innerWidth, window.innerHeight);
+
                 document.body.appendChild(renderer.domElement);
                 scene = new THREE.Scene();
+
+                var ambient = new THREE.AmbientLight( 0xFFFFFF );
+                scene.add( ambient );
 
                 camera = new THREE.CombinedCamera(window.innerWidth / 2, window.innerHeight / 2, 70, 1, 1500, -500, 3000);
                 camera.setSize(window.innerWidth, window.innerHeight);
@@ -268,8 +273,10 @@ angular.module('SFUnderground.3D.scene', [])
 
             function onWindowResize() {
                 setHeatMapData();
-                camera.setSize(window.innerWidth, window.innerHeight);
+
+                camera.aspect = window.innerWidth / window.innerHeight;
                 camera.updateProjectionMatrix();
+
                 renderer.setSize(window.innerWidth, window.innerHeight);
             }
 
@@ -287,8 +294,17 @@ angular.module('SFUnderground.3D.scene', [])
                 mesh.position.set(500, 500, 100);
                 scene.add(mesh);
 
-                setupRoutes();
-                setupHeatMap();
+
+                if (SETUP.ROUTES) {
+                    setupRoutes();
+                }
+
+                if (SETUP.HEAT_MAP) {
+                    setupHeatMap();
+                }
+                if (SETUP.MESH) {
+                    load3DScene();
+                }
                 window.addEventListener('resize', onWindowResize, false);
 
                 animate();
@@ -298,34 +314,44 @@ angular.module('SFUnderground.3D.scene', [])
 
             function load3DScene() {
 
-                var onProgress = function ( xhr ) {
-                    if ( xhr.lengthComputable ) {
+                var onProgress = function (xhr) {
+                    if (xhr.lengthComputable) {
                         var percentComplete = xhr.loaded / xhr.total * 100;
-                        console.log( Math.round(percentComplete, 2) + '% downloaded' );
+                        console.log(Math.round(percentComplete, 2) + '% downloaded');
                     }
                 };
 
-                var onError = function ( xhr ) { };
+                var onError = function (xhr) {
+                    debugger;
+                    console.log('error: ', xhr);
+                };
 
-                THREE.Loader.Handlers.add( /\.dds$/i, new THREE.DDSLoader() );
+                THREE.Loader.Handlers.add(/\.dds$/i, new THREE.DDSLoader());
 
                 var mtlLoader = new THREE.MTLLoader();
-                mtlLoader.setPath( 'obj/' );
-                mtlLoader.load( 'bart-tripping.mtl', function( materials ) {
+                mtlLoader.setPath('obj/');
+                mtlLoader.load('blender-modelobj.mtl', function (materials) {
+//                mtlLoader.setPath('obj/male02/');
+//                mtlLoader.load('male02.mtl', function (materials) {
 
                     materials.preload();
 
                     var objLoader = new THREE.OBJLoader();
-                    objLoader.setMaterials( materials );
-                    objLoader.setPath( 'obj/' );
-                    objLoader.load( 'bart-tripping.obj', function ( object ) {
+                    objLoader.setMaterials(materials);
+//                    objLoader.setPath('obj/male02/');
+//                    objLoader.load('male02.obj', function (object) {
+                    objLoader.setPath('obj/');
+                    objLoader.load('blender-modelobj.obj', function (object) {
 
-                        object.position.y = - 95;
-                        scene.add( object );
+//                        object.position.y = - 95;s
+                        object.scale.set(10,10,10);
 
-                    }, onProgress, onError );
 
-                });
+                        scene.add(object);
+
+                    }.bind(this), onProgress, onError);
+
+                }.bind(this));
 
             }
 
