@@ -50,10 +50,14 @@ export class CardboardGl{
       if (Math.abs(window.orientation) === 90) {
         document.getElementById("slidesView").style.visibility = "hidden";
         document.getElementById("cardBoardView").style.display = "block";
+
+
         document.querySelector("ion-page").style.zIndex = 'auto';
         document.querySelector("scroll-content").style.webkitOverflowScrolling = 'auto';
         document.querySelector("scroll-content").style.willChange = 'auto';
         document.querySelector("scroll-content").style.zIndex = 'auto';
+   
+
         this.Data.landscapeMode = true;
         this.Data.stereoEffect = false;
         if(this.hasInit  == false){
@@ -66,10 +70,13 @@ export class CardboardGl{
         this.Data.stereoEffect = false;
         document.getElementById("slidesView").style.visibility = "visible";
         document.getElementById("cardBoardView").style.display = "none";
+
         document.querySelector("ion-page").style.zIndex = '100';
         document.querySelector("scroll-content").style.webkitOverflowScrolling = 'touch';
         document.querySelector("scroll-content").style.willChange = 'scroll-position';
         document.querySelector("scroll-content").style.zIndex = '1';
+
+
       }
     }
     window.addEventListener('orientationchange', readDeviceOrientation.bind(this), false);

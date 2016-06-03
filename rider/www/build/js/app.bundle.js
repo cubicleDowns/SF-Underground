@@ -345,13 +345,12 @@ var babylonMod = exports.babylonMod = function () {
             document.querySelector("scroll-content").style.webkitOverflowScrolling = 'auto';
             document.querySelector("scroll-content").style.willChange = 'auto';
             document.querySelector("scroll-content").style.zIndex = 'auto';
-            //document.querySelector("scroll-content").style.zIndex = '';
+
             this.engine = new BABYLON.Engine(this.canvas, true);
             this.canvas.style.width = '100%';
             this.canvas.style.height = '100%';
             BABYLON.SceneLoader.ShowLoadingScreen = false;
             BABYLON.SceneLoader.Load('', 'bartvr/scenes/subway3/bart_16.babylon?once=3665092109', this.engine, function (newScene) {
-
                 this.scene = newScene;
                 var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(100, 100, 0), this.scene);
                 if (_babylon.app.isNative) {
@@ -361,7 +360,6 @@ var babylonMod = exports.babylonMod = function () {
                         console.log(this.engine.getFps());
                     }.bind(this));
                 }
-
                 document.getElementById('loadCover').style.display = "none";
                 this.vrCamera = new BABYLON.VRDeviceOrientationFreeCamera("Camera", BABYLON.Vector3.Zero(), this.scene, true);
                 this.vrCamera.rotation = new BABYLON.Vector3(newScene.cameras[0].rotation.x, newScene.cameras[0].rotation.y, newScene.cameras[0].rotation.z);
@@ -372,19 +370,21 @@ var babylonMod = exports.babylonMod = function () {
                 this.nonVRCamera = new BABYLON.VirtualJoysticksCamera("VJC", BABYLON.Vector3.Zero(), this.scene);
                 this.nonVRCamera.checkCollisions = this.scene.activeCamera.checkCollisions;
                 this.nonVRCamera.applyGravity = this.scene.activeCamera.applyGravity;
-                this.nonVRCamera.attachControl(this.canvas);
+                this.nonVRCamera.attachControl(this.canvas, false);
+
                 this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick.reverseUpDown = true;
                 this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._rotateOnAxisRelativeToMesh = true;
                 this.nonVRCamera.inputs.attached.virtualJoystick.camera.inertia = 0.5;
                 this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._inverseRotationSpeed = 2;
                 this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._rotationSpeed = 2;
+
                 this.scene.activeCamera = this.nonVRCamera;
                 this.vrCamera.position.x = 7;
                 this.Data.setUser(null, this.vrCamera.position);
                 this.nonVRCamera.position = this.vrCamera.position;
                 //this.hud = new BartVR_HeadsUpDisplay(this.scene, this);
                 this.spManager = new BABYLON.SpriteManager("userManager", this.Data.user.sprite, 1000, 128, this.scene);
-                //spriteManagerPlayer.layerMask = 3;
+                this.spManager.layerMask = 3;
                 this.playerSprite = new BABYLON.Sprite("player", this.spManager);
                 this.playerSprite.isPickable = true;
                 this.playerSprite.playAnimation(0, 20, true, 100);
@@ -1096,10 +1096,12 @@ var CardboardGl = exports.CardboardGl = (_dec = (0, _core.Component)({
         if (Math.abs(window.orientation) === 90) {
           document.getElementById("slidesView").style.visibility = "hidden";
           document.getElementById("cardBoardView").style.display = "block";
+
           document.querySelector("ion-page").style.zIndex = 'auto';
           document.querySelector("scroll-content").style.webkitOverflowScrolling = 'auto';
           document.querySelector("scroll-content").style.willChange = 'auto';
           document.querySelector("scroll-content").style.zIndex = 'auto';
+
           this.Data.landscapeMode = true;
           this.Data.stereoEffect = false;
           if (this.hasInit == false) {
@@ -1112,6 +1114,7 @@ var CardboardGl = exports.CardboardGl = (_dec = (0, _core.Component)({
           this.Data.stereoEffect = false;
           document.getElementById("slidesView").style.visibility = "visible";
           document.getElementById("cardBoardView").style.display = "none";
+
           document.querySelector("ion-page").style.zIndex = '100';
           document.querySelector("scroll-content").style.webkitOverflowScrolling = 'touch';
           document.querySelector("scroll-content").style.willChange = 'scroll-position';
