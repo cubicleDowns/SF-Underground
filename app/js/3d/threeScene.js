@@ -2,17 +2,117 @@ angular.module('SFUnderground.3D.scene', [])
     .factory('THREE_SCENE', [
         'BART',
         'SETUP',
-        function (BART, SETUP) {
+        'SCENE',
+        function (BART, SETUP, SCENE) {
             var controls,
                 heatmapInstance,
                 heatMapConfig = {},
                 renderer,
+                loader = new THREE.glTFLoader(),
+                gltf,
                 scene,
                 camera,
+                spot1,
                 subways = [],
                 dbLevels = [],
                 dbSplines = [],
                 splines = [];
+
+
+            function loadglTF() {
+                var sceneInfo = SCENE[1];
+                var url = sceneInfo.url;
+
+                var r = eval("/" + '\%s' + "/g");
+//                var dir = useMaterialsExtension ? 'glTF-MaterialsCommon' : 'glTF';
+//                url = url.replace(r, dir);
+
+                loader.load(url, function (data) {
+
+                    gltf = data;
+
+                    var object = gltf.scene;
+
+//                    var loadEndTime = Date.now();
+
+
+                    if (sceneInfo.cameraPos)
+                        camera.position.copy(sceneInfo.cameraPos);
+
+                    if (sceneInfo.center) {
+                        orbitControls.target.copy(sceneInfo.center);
+                    }
+
+                    if (sceneInfo.objectPosition) {
+                        object.position.copy(sceneInfo.objectPosition);
+
+                        if (spot1) {
+                            spot1.position.set(sceneInfo.objectPosition.x - 100, sceneInfo.objectPosition.y + 200, sceneInfo.objectPosition.z - 100);
+                            spot1.target.position.copy(sceneInfo.objectPosition);
+                        }
+                    }
+
+                    if (sceneInfo.objectRotation)
+                        object.rotation.copy(sceneInfo.objectRotation);
+
+                    if (sceneInfo.objectScale)
+                        object.scale.copy(sceneInfo.objectScale);
+//
+//                    cameraIndex = 0;
+//                    cameras = [];
+//                    cameraNames = [];
+
+//                    if (gltf.cameras && gltf.cameras.length) {
+//
+//                        var i, len = gltf.cameras.length;
+//
+//                        for (i = 0; i < len; i++) {
+//
+//                            var addCamera = true;
+//                            var cameraName = gltf.cameras[i].parent.name;
+//
+//                            if (sceneInfo.cameras && !(cameraName in sceneInfo.cameras)) {
+//                                addCamera = false;
+//                            }
+//
+//                            if (addCamera) {
+//                                cameraNames.push(cameraName);
+//                                cameras.push(gltf.cameras[i]);
+//                            }
+//
+//                        }
+//
+////                        updateCamerasList();
+////                        switchCamera(1);
+//
+//                    }
+//                    else {
+//
+//                        updateCamerasList();
+//                        switchCamera(0);
+//                    }
+
+//                    if (gltf.animations && gltf.animations.length) {
+//
+//                        var i, len = gltf.animations.length;
+//                        for (i = 0; i < len; i++) {
+//                            var animation = gltf.animations[i];
+//                            animation.loop = true;
+//                            // There's .3333 seconds junk at the tail of the Monster animation that
+//                            // keeps it from looping cleanly. Clip it at 3 seconds
+//                            if (sceneInfo.animationTime)
+//                                animation.duration = sceneInfo.animationTime;
+//                            animation.play();
+//                        }
+//                    }
+                    debugger;
+                    scene.add(object);
+//                    onWindowResize();
+
+                });
+
+
+            }
 
             var tangent = new THREE.Vector3();
             var axis = new THREE.Vector3();
@@ -56,16 +156,20 @@ angular.module('SFUnderground.3D.scene', [])
             function setupScene() {
 
                 renderer = new THREE.WebGLRenderer({ alpha: true });
-                renderer.setPixelRatio( window.devicePixelRatio );
+                renderer.setPixelRatio(window.devicePixelRatio);
                 renderer.setSize(window.innerWidth, window.innerHeight);
 
                 document.body.appendChild(renderer.domElement);
                 scene = new THREE.Scene();
 
-                var ambient = new THREE.AmbientLight( 0xFFFFFF );
-                scene.add( ambient );
+                var ambient = new THREE.AmbientLight(0xFFFFFF);
+                scene.add(ambient);
 
-                camera = new THREE.CombinedCamera(window.innerWidth / 2, window.innerHeight / 2, 70, 1, 1500, -500, 3000);
+                /**
+                 * TODO:  changed orthoFOV back.
+                 * @type {THREE.CombinedCamera}
+                 */
+                camera = new THREE.CombinedCamera(window.innerWidth / 2, window.innerHeight / 2, 70, 1, 1500, -500, 300000);
                 camera.setSize(window.innerWidth, window.innerHeight);
 
                 if (cameraType === "PERP") {
@@ -286,14 +390,6 @@ angular.module('SFUnderground.3D.scene', [])
             function init() {
 
                 setupScene();
-                var material = new THREE.MeshBasicMaterial({
-                    color: SETUP.DB.color
-                });
-                var geometry = new THREE.BoxGeometry(5, 5, 5);
-                var mesh = new THREE.Mesh(geometry, material);
-                mesh.position.set(500, 500, 100);
-                scene.add(mesh);
-
 
                 if (SETUP.ROUTES) {
                     setupRoutes();
@@ -303,8 +399,10 @@ angular.module('SFUnderground.3D.scene', [])
                     setupHeatMap();
                 }
                 if (SETUP.MESH) {
-                    load3DScene();
+//                    load3DScene();
+                    loadglTF();
                 }
+
                 window.addEventListener('resize', onWindowResize, false);
 
                 animate();
@@ -322,17 +420,15 @@ angular.module('SFUnderground.3D.scene', [])
                 };
 
                 var onError = function (xhr) {
-                    debugger;
                     console.log('error: ', xhr);
                 };
 
                 THREE.Loader.Handlers.add(/\.dds$/i, new THREE.DDSLoader());
-
                 var mtlLoader = new THREE.MTLLoader();
-                mtlLoader.setPath('obj/');
-                mtlLoader.load('blender-modelobj.mtl', function (materials) {
 //                mtlLoader.setPath('obj/male02/');
 //                mtlLoader.load('male02.mtl', function (materials) {
+                mtlLoader.setPath('3D_files/obj/');
+                mtlLoader.load('SF-BART-with-route-texture.mtl', function (materials) {
 
                     materials.preload();
 
@@ -341,10 +437,10 @@ angular.module('SFUnderground.3D.scene', [])
 //                    objLoader.setPath('obj/male02/');
 //                    objLoader.load('male02.obj', function (object) {
                     objLoader.setPath('obj/');
-                    objLoader.load('blender-modelobj.obj', function (object) {
+                    objLoader.load('SF-BART-with-route-texture.obj', function (object) {
 
 //                        object.position.y = - 95;s
-                        object.scale.set(10,10,10);
+                        object.scale.set(1, 1, 1);
 
 
                         scene.add(object);

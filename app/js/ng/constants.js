@@ -9,6 +9,29 @@
  *
  */
 angular.module('SFUnderground.constants', [])
+    .constant('SCENE', [
+        {
+            name: "SF_UNDERGROUND",
+            url: "/models/gltf/bart_sounds.gltf",
+//            cameraPos: new THREE.Vector3(30, 10, 70),
+//            objectScale: new THREE.Vector3(0.01, 0.01, 0.01),
+            objectPosition: new THREE.Vector3(0, 0, 0),
+//            objectRotation: new THREE.Euler(0, -3 * Math.PI / 4, 0),
+//            animationTime: 3,
+//            addLights: true,
+//            shadows: true,
+//            addGround: true
+        },
+//        ,
+        {
+            name: "Duck", url: "./models/gltf/duck/duck.gltf",
+            cameraPos: new THREE.Vector3(0, 3, 5),
+//            cameraPos: new THREE.Vector3(30, 10, 70),
+            addLights: true,
+            addGround: true,
+            shadows: true
+        }
+    ])
     .constant('SETUP', {
         MESH: true,
         HEAT_MAP: false,
