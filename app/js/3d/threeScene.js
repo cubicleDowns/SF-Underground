@@ -8,7 +8,6 @@ angular.module('SFUnderground.3D.scene', [])
                 heatmapInstance,
                 heatMapConfig = {},
                 renderer,
-                loader = new THREE.glTFLoader(),
                 gltf,
                 scene,
                 camera,
@@ -17,6 +16,43 @@ angular.module('SFUnderground.3D.scene', [])
                 dbLevels = [],
                 dbSplines = [],
                 splines = [];
+
+            function loadCollada() {
+                var loader = new THREE.ColladaLoader();
+                loader.setCrossOrigin( '' );
+
+                loader.load(
+                    // resource URL
+                    './models/collada/bart_sounds.dae',
+                    // Function when resource is loaded
+                    function ( collada ) {
+//                        collada.scene.traverse( function ( child ) {
+//
+//                            if ( child instanceof THREE.SkinnedMesh ) {
+//
+//                                var animation = new THREE.Animation( child, child.geometry.animation );
+//                                animation.play();
+//
+//                                camera.lookAt( child.position );
+//
+//                            }
+//
+//                            debugger;
+//
+//                        } );
+
+                        collada.scene.scale.set(1,1,1);
+                        collada.scene.rotation.x = Math.PI / 2;
+                        scene.add( collada.scene );
+
+                    },
+                    // Function called when download progresses
+                    function ( xhr ) {
+                        console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
+                    }
+                );
+            }
+
 
 
             function loadglTF() {
@@ -162,8 +198,8 @@ angular.module('SFUnderground.3D.scene', [])
                 document.body.appendChild(renderer.domElement);
                 scene = new THREE.Scene();
 
-                var ambient = new THREE.AmbientLight(0xFFFFFF);
-                scene.add(ambient);
+//                var ambient = new THREE.AmbientLight(0xFFFFFF);
+//                scene.add(ambient);
 
                 /**
                  * TODO:  changed orthoFOV back.
@@ -400,7 +436,8 @@ angular.module('SFUnderground.3D.scene', [])
                 }
                 if (SETUP.MESH) {
 //                    load3DScene();
-                    loadglTF();
+//                    loadglTF();
+                    loadCollada();
                 }
 
                 window.addEventListener('resize', onWindowResize, false);

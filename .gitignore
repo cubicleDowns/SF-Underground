@@ -4,3 +4,11 @@ app/bower_components/
 dist/
 node_modules/
 *.log
+app/js/3d/.DS_Store
+.DS_Store
+app/.DS_Store
+app/js/.DS_Store
+app/js/ng/.DS_Store
+app/models/DAE_FBX.old/.DS_Store
+app/models/collada/.DS_Store
+map/.DS_Store
