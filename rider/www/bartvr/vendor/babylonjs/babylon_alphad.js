@@ -32089,8 +32089,10 @@ var BABYLON;
             this._inversedSensibility = 1 / (this._joystickSensibility / 1000);
         };
         VirtualJoystick.prototype._onPointerDown = function (e) {
+            
             var positionOnScreenCondition;
             e.preventDefault();
+            console.log('ever called?');
             if (this._leftJoystick === true) {
                 positionOnScreenCondition = (e.clientX < VirtualJoystick.halfWidth);
             }
@@ -32119,6 +32121,7 @@ var BABYLON;
         };
         VirtualJoystick.prototype._onPointerMove = function (e) {
             // If the current pointer is the one associated to the joystick (first touch contact)
+            
             if (this._joystickPointerID == e.pointerId) {
                 this._joystickPointerPos.x = e.clientX;
                 this._joystickPointerPos.y = e.clientY;
@@ -32150,6 +32153,9 @@ var BABYLON;
                         this.deltaPosition.z = Math.min(1, Math.max(-1, deltaJoystickY));
                         break;
                 }
+
+                console.log(e);
+                console.log("_onPointerMove");
             }
             else {
                 if (this._touches.item(e.pointerId.toString())) {
@@ -32174,6 +32180,7 @@ var BABYLON;
             this._deltaJoystickVector.x = 0;
             this._deltaJoystickVector.y = 0;
             this._touches.remove(e.pointerId.toString());
+            console.log('ever _onPointerUp?');
         };
         /**
         * Change the color of the virtual joystick
@@ -32187,27 +32194,33 @@ var BABYLON;
         };
         // Define which axis you'd like to control for left & right 
         VirtualJoystick.prototype.setAxisForLeftRight = function (axis) {
+            console.log(axis);
             switch (axis) {
                 case JoystickAxis.X:
                 case JoystickAxis.Y:
                 case JoystickAxis.Z:
+                    console.log('left1');
                     this._axisTargetedByLeftAndRight = axis;
                     break;
                 default:
+                    console.log('left2');
                     this._axisTargetedByLeftAndRight = JoystickAxis.X;
                     break;
             }
         };
         // Define which axis you'd like to control for up & down 
         VirtualJoystick.prototype.setAxisForUpDown = function (axis) {
+            console.log(axis);
             switch (axis) {
                 case JoystickAxis.X:
                 case JoystickAxis.Y:
                 case JoystickAxis.Z:
                     this._axisTargetedByUpAndDown = axis;
+                    console.log('down1');
                     break;
                 default:
                     this._axisTargetedByUpAndDown = JoystickAxis.Y;
+                    console.log('down2');
                     break;
             }
         };

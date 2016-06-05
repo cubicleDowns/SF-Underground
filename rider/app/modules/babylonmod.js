@@ -9,6 +9,8 @@ export class babylonMod {
         this.Data = _data;
         this.app = _app;
         this.vrCamera = null;
+        this.colliderCap = null;
+        this.ground = null;
         this.nonVRCamera = null;
         this.activeCamera = null;
         this.mode = 'normal';
@@ -66,7 +68,8 @@ export class babylonMod {
             this.vrCamera.position.x = 7;
             this.Data.setUser(null, this.vrCamera.position);
             this.nonVRCamera.position =  this.vrCamera.position;
-            //this.hud = new BartVR_HeadsUpDisplay(this.scene, this);
+            this.hud = new BartVR_HeadsUpDisplay(this.scene, this);
+            
             this.spManager  = new BABYLON.SpriteManager("userManager", this.Data.user.sprite, 1000, 128, this.scene);
             this.spManager  .layerMask = 3;
             this.playerSprite = new BABYLON.Sprite("player", this.spManager );
@@ -79,6 +82,20 @@ export class babylonMod {
             this.sprites.push({sprite:this.playerSprite, key:this.Data.currentUserKey});
             this.skyBox('oakland');
 
+
+            this.ground = BABYLON.Mesh.CreateGround("ground1", 300, 300, 10, this.scene);
+            this.ground.isVisible = false;
+            this.ground.position.y = 5;
+            this.ground.checkCollisions = true;
+            this.colliderCap =  BABYLON.Mesh.CreateSphere("sphere1", 16, 8, this.scene);
+            this.colliderCap.checkCollisions = true;
+            this.colliderCap.parent = this.nonVRCamera;
+            this.colliderCap.position.y = -2;
+            this.scene.collisionsEnabled = true;
+            this.scene.gravity = new BABYLON.Vector3(0, -0.9, 0);
+
+            //this.nonVRCamera.ellipsoid =  new BABYLON.Vector3(6, 6, 6);
+            this.nonVRCamera.applyGravity = true;
         
             for(let i = 0; i < this.Data.currentRiders.length; i++){
                 if(this.Data.currentRouteID == parseInt(this.Data.currentRiders[i].data.routeID)){
@@ -193,7 +210,6 @@ export class babylonMod {
         try{
             this.skybox.dispose();
         }catch(e){}
-        
         this.skybox = null;
         this.currentSkyBoxName = "bartvr/img/textures/" + _type;
         var skybox = BABYLON.Mesh.CreateBox("skybox", _size, this.scene);
@@ -213,16 +229,14 @@ export class babylonMod {
         if (this.mode == 'normal') {
             this.mode = 'vr';
             if (this.scene != null) {
-               this.scene.activeCamera = this.vrCamera;
-                this.activeCamera = this.vrCamera;
+                this.scene.activeCameras[0] = this.vrCamera;
+                //this.hud.onVRPointers();
             }
         } else {
             this.mode = 'normal';
             if (this.scene != null) {
-                // this.hud.hudsystem.updateCamera(this.nonVRCamera);
-                this.scene.activeCamera = this.nonVRCamera;
-                this.activeCamera = this.nonVRCamera;
-                
+                this.scene.activeCameras[0] = this.nonVRCamera;
+               // this.hud.onVRDisableDisplay();  
             }
         }
     }

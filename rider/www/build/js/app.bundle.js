@@ -322,6 +322,8 @@ var babylonMod = exports.babylonMod = function () {
         this.Data = _data;
         this.app = _app;
         this.vrCamera = null;
+        this.colliderCap = null;
+        this.ground = null;
         this.nonVRCamera = null;
         this.activeCamera = null;
         this.mode = 'normal';
@@ -340,12 +342,10 @@ var babylonMod = exports.babylonMod = function () {
         key: 'init',
         value: function init() {
             window._babylon = this;
-
             document.querySelector("ion-page").style.zIndex = 'auto';
             document.querySelector("scroll-content").style.webkitOverflowScrolling = 'auto';
             document.querySelector("scroll-content").style.willChange = 'auto';
             document.querySelector("scroll-content").style.zIndex = 'auto';
-
             this.engine = new BABYLON.Engine(this.canvas, true);
             this.canvas.style.width = '100%';
             this.canvas.style.height = '100%';
@@ -382,7 +382,8 @@ var babylonMod = exports.babylonMod = function () {
                 this.vrCamera.position.x = 7;
                 this.Data.setUser(null, this.vrCamera.position);
                 this.nonVRCamera.position = this.vrCamera.position;
-                //this.hud = new BartVR_HeadsUpDisplay(this.scene, this);
+                this.hud = new _BartVR_HeadsUpDisplay.BartVR_HeadsUpDisplay(this.scene, this);
+
                 this.spManager = new BABYLON.SpriteManager("userManager", this.Data.user.sprite, 1000, 128, this.scene);
                 this.spManager.layerMask = 3;
                 this.playerSprite = new BABYLON.Sprite("player", this.spManager);
@@ -394,6 +395,20 @@ var babylonMod = exports.babylonMod = function () {
                 this.scene.activeCamera.rotation = new BABYLON.Vector3(this.Data.user.rotation.x, this.Data.user.rotation.y, this.Data.user.rotation.z);
                 this.sprites.push({ sprite: this.playerSprite, key: this.Data.currentUserKey });
                 this.skyBox('oakland');
+
+                this.ground = BABYLON.Mesh.CreateGround("ground1", 300, 300, 10, this.scene);
+                this.ground.isVisible = false;
+                this.ground.position.y = 5;
+                this.ground.checkCollisions = true;
+                this.colliderCap = BABYLON.Mesh.CreateSphere("sphere1", 16, 8, this.scene);
+                this.colliderCap.checkCollisions = true;
+                this.colliderCap.parent = this.nonVRCamera;
+                this.colliderCap.position.y = -2;
+                this.scene.collisionsEnabled = true;
+                this.scene.gravity = new BABYLON.Vector3(0, -0.9, 0);
+
+                //this.nonVRCamera.ellipsoid =  new BABYLON.Vector3(6, 6, 6);
+                this.nonVRCamera.applyGravity = true;
 
                 for (var i = 0; i < this.Data.currentRiders.length; i++) {
                     if (this.Data.currentRouteID == parseInt(this.Data.currentRiders[i].data.routeID)) {
@@ -510,7 +525,6 @@ var babylonMod = exports.babylonMod = function () {
             try {
                 this.skybox.dispose();
             } catch (e) {}
-
             this.skybox = null;
             this.currentSkyBoxName = "bartvr/img/textures/" + _type;
             var skybox = BABYLON.Mesh.CreateBox("skybox", _size, this.scene);
@@ -531,17 +545,16 @@ var babylonMod = exports.babylonMod = function () {
             if (this.mode == 'normal') {
                 this.mode = 'vr';
                 if (this.scene != null) {
-                    this.scene.activeCamera = this.vrCamera;
-                    this.activeCamera = this.vrCamera;
+                    this.scene.activeCameras[0] = this.vrCamera;
+                    //this.hud.onVRPointers();
                 }
             } else {
-                this.mode = 'normal';
-                if (this.scene != null) {
-                    // this.hud.hudsystem.updateCamera(this.nonVRCamera);
-                    this.scene.activeCamera = this.nonVRCamera;
-                    this.activeCamera = this.nonVRCamera;
+                    this.mode = 'normal';
+                    if (this.scene != null) {
+                        this.scene.activeCameras[0] = this.nonVRCamera;
+                        // this.hud.onVRDisableDisplay();
+                    }
                 }
-            }
         }
     }]);
 
@@ -673,6 +686,22 @@ var BartVR_HeadsUpDisplay = exports.BartVR_HeadsUpDisplay = function () {
             this.camTargetObjRight.mesh.scaling.y = amount;
         }
     }, {
+        key: 'onVRPointers',
+        value: function onVRPointers() {
+            this.camTargetObjLeft = new _hudpanel.HUDPanel("camTargetObjLeft", this.assets["targetCam"], this.assets["targetCam"], this.hudsystem);
+            this.camTargetObjLeft.guiposition(new BABYLON.Vector3(this.pW50 - 32, this.pHeight - 32, 0));
+            this.camTargetObjRight = new _hudpanel.HUDPanel("camTargetObjRight", this.assets["targetCam"], this.assets["targetCam"], this.hudsystem);
+            this.camTargetObjRight.guiposition(new BABYLON.Vector3(this.pWidth + this.pW50 - 32, this.pHeight - 32, 0));
+            this.hudsystem.updateCamera();
+        }
+    }, {
+        key: 'onVRDisableDisplay',
+        value: function onVRDisableDisplay() {
+            this.camTargetObjLeft = null;
+            this.camTargetObjRight = null;
+            this.hudsystem.updateCamera();
+        }
+    }, {
         key: 'onFinish',
         value: function onFinish() {
             setTimeout(function () {
@@ -680,11 +709,6 @@ var BartVR_HeadsUpDisplay = exports.BartVR_HeadsUpDisplay = function () {
                 this.logo = new _hudpanel.HUDPanel("logo", this.assets["logo"], this.assets["logo"], gui);
                 this.logo.guiposition(new BABYLON.Vector3(250, 100, 0));
 
-                this.camTargetObjLeft = new _hudpanel.HUDPanel("camTargetObjLeft", this.assets["targetCam"], this.assets["targetCam"], gui);
-                this.camTargetObjLeft.guiposition(new BABYLON.Vector3(this.pW50 - 32, this.pHeight - 32, 0));
-
-                this.camTargetObjRight = new _hudpanel.HUDPanel("camTargetObjRight", this.assets["targetCam"], this.assets["targetCam"], gui);
-                this.camTargetObjRight.guiposition(new BABYLON.Vector3(this.pWidth + this.pW50 - 32, this.pHeight - 32, 0));
                 gui.updateCamera();
                 this.hudsystem = gui;
             }.bind(this), 200);
@@ -894,10 +918,13 @@ var HUDSystem = exports.HUDSystem = function () {
         _classCallCheck(this, HUDSystem);
 
         this._scene = scene;
+
         var mainCam = scene.activeCamera;
+        this.pos = scene.activeCamera.position;
         if (this._scene.activeCameras.indexOf(mainCam) == -1) {
             this._scene.activeCameras.push(mainCam);
         }
+
         this.dpr = window.devicePixelRatio;
         this.guiWidth = scene.getEngine().getRenderWidth();
         this.guiHeight = scene.getEngine().getRenderHeight();
@@ -934,6 +961,7 @@ var HUDSystem = exports.HUDSystem = function () {
             this._camera.layerMask = this.LAYER_MASK;
             //this.resize();
             this._scene.activeCameras.push(this._camera);
+            this._camera.position = this.pos;
         }
     }, {
         key: "resize",

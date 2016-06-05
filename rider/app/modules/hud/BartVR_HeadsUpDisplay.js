@@ -43,7 +43,19 @@ export class BartVR_HeadsUpDisplay {
         this.camTargetObjRight.mesh.scaling.y = amount;
     }
 
+    onVRPointers(){
+            this.camTargetObjLeft = new HUDPanel("camTargetObjLeft", this.assets["targetCam"], this.assets["targetCam"],  this.hudsystem);
+            this.camTargetObjLeft.guiposition(new BABYLON.Vector3((this.pW50 - 32), (this.pHeight - 32), 0));
+            this.camTargetObjRight = new HUDPanel("camTargetObjRight", this.assets["targetCam"], this.assets["targetCam"],  this.hudsystem);
+            this.camTargetObjRight.guiposition(new BABYLON.Vector3(((this.pWidth + this.pW50) - 32), (this.pHeight - 32), 0));
+            this.hudsystem.updateCamera();
+    }
 
+    onVRDisableDisplay(){
+        this.camTargetObjLeft = null;
+        this.camTargetObjRight = null;
+        this.hudsystem.updateCamera();
+    }
 
     onFinish(){
         setTimeout(function() {
@@ -51,11 +63,7 @@ export class BartVR_HeadsUpDisplay {
             this.logo = new HUDPanel("logo", this.assets["logo"], this.assets["logo"], gui);
             this.logo.guiposition(new BABYLON.Vector3(250, 100, 0));
  
-            this.camTargetObjLeft = new HUDPanel("camTargetObjLeft", this.assets["targetCam"], this.assets["targetCam"],  gui);
-            this.camTargetObjLeft.guiposition(new BABYLON.Vector3((this.pW50 - 32), (this.pHeight - 32), 0));
-
-            this.camTargetObjRight = new HUDPanel("camTargetObjRight", this.assets["targetCam"], this.assets["targetCam"],  gui);
-            this.camTargetObjRight.guiposition(new BABYLON.Vector3(((this.pWidth + this.pW50) - 32), (this.pHeight - 32), 0));
+           
             gui.updateCamera();
             this.hudsystem = gui;
         }.bind(this), 200);

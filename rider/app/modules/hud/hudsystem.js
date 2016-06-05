@@ -3,10 +3,13 @@ export class HUDSystem {
 
     constructor(scene, guiWidth, guiHeight) {
         this._scene = scene;
+     
         var mainCam = scene.activeCamera;
+        this.pos = scene.activeCamera.position;
         if (this._scene.activeCameras.indexOf(mainCam) == -1) {
             this._scene.activeCameras.push(mainCam);
         }
+  
         this.dpr = window.devicePixelRatio;
         this.guiWidth = scene.getEngine().getRenderWidth();
         this.guiHeight = scene.getEngine().getRenderHeight();
@@ -39,6 +42,7 @@ export class HUDSystem {
         this._camera.layerMask = this.LAYER_MASK;
         //this.resize();
         this._scene.activeCameras.push(this._camera);
+        this._camera.position = this.pos;
 
     }
 
