@@ -2,6 +2,9 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="shortcut icon" type="image/png" href="favicon-96x96.png" sizes="96x96">
+    <link rel="shortcut icon" type="image/png" href="favicon-16x16.png" sizes="16x16">
     <title>Sounds of the SF Underground</title>
     <base href="/">
     <meta charset="utf-8">
@@ -16,39 +19,34 @@
     <link rel="stylesheet" href="css/main.css">
     <!-- endbuild -->
     <script src="https://cdn.firebase.com/js/client/2.4.2/firebase.js"></script>
-    <script src="lib/jquery.js"></script>
-    <script src="lib/three.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js"
+            integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
+            crossorigin="anonymous"></script>    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script src="lib/three.min.js"></script>
     <script src="lib/OBJLoader.js"></script>
-    <script src="obj-test.js"></script>
+    <script src="js/ks.js"></script>
     <script src="sound/db_levels.js"></script>
+    <script src="bart.js"></script>
+    <script src="lib/tween.min.js"></script>
     <script>
         $(document).on('ready', function () {
             init();
             animate();
         });
-        var BARTVR_ANIMATE = false;
-
-        function go() {
-            document.getElementById('BART').play();
-            BARTVR_ANIMATE = true;
-            document.getElementById('go').style.visibility = "hidden";
-            sound.play();
-            dbLevels();
-        }
 
     </script>
     <style>
         body {
             font-family: monospace;
             line-height: 1.5;
-            background-color: #130C0E;
+            background-color: rgba(14,6,96, 0.1);
             padding: 20px;
         }
 
         button {
             font-size: 14px;
-            background: #130C0E;
-            color: #7AC143;
+            background-color: rgba(14,6,96, 0.1);
+            color: #48055E;
             border: none;
             outline: none;
             padding: 4px 8px;
@@ -56,7 +54,7 @@
         }
 
         button:hover {
-            background: #7AC143;
+            background: rgba(115,7,19, 0.25)
             color: #130C0E;
         }
 
@@ -68,36 +66,39 @@
             width: 50px;
         }
 
+        .messages {
+            position: absolute;
+            bottom: 2em;
+            width: 80%;
+            margin: 0 auto;
+            color: #DDDDDD;
+            font-size: 3em;
+            padding: 10px;
+            z-index: 1000;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
         #numRiders {
             font-size: 50px;
             color: #CCCCCC;
         }
 
-        #riders {
-            font-size: 10px;
-            text-align: center;
-            color: #CCCCCC;
-        }
     </style>
 </head>
 <body>
 <audio id="BART" src="sound/sound.mp3"></audio>
-<div id="go" style="z-index: 10002; position: absolute; left: 50px; bottom: 50px;">
+<div id="go" style="z-index: 10002; position: absolute; left: 20px; bottom: 20px;">
     <button onclick="go()">Play &#9658;</button>
-    <button onclick="document.getElementById('BART').pause(); BARTVR_ANIMATE = false;">Pause ||</button>
 </div>
 
 <div class="riders">
     <div id="numRiders">
-        46
+        111
     </div>
 </div>
 
-<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-
-
-<div id="info">
-    <a href="http://threejs.org" target="_blank">three.js</a> - OBJLoader test
+<div class="messages">
 </div>
 
 <script type="x-shader/x-vertex" id="vertexShader">
@@ -117,67 +118,10 @@ varying vec3 a_position;
 void main() {
 
 // color is RGBA: u, v, 0, 1
-//        gl_FragColor = vec4(0.5, 0., 0.0, 0.9);
-gl_FragColor = vec4(a_position, 0.9 );
+gl_FragColor = vec4(a_position, 0.1 );
 
 }
-
 </script>
-<!--<script type="x-shader/x-vertex" id="vertexshader">-->
-
-<!--// switch on high precision floats-->
-<!--#ifdef GL_ES-->
-<!--precision highp float;-->
-<!--#endif-->
-
-<!--uniform float amplitude;-->
-<!--attribute float displacement;-->
-<!--varying vec3 vNormal;-->
-
-<!--void main() {-->
-
-<!--vNormal = normal;-->
-
-<!--// multiply our displacement by the-->
-<!--// amplitude. The amp will get animated-->
-<!--// so we'll have animated displacement-->
-<!--vec3 newPosition = position +-->
-<!--normal *-->
-<!--vec3(displacement *-->
-<!--amplitude);-->
-
-<!--gl_Position = projectionMatrix *-->
-<!--modelViewMatrix *-->
-<!--vec4(newPosition,1.0);-->
-<!--}-->
-
-<!--</script>-->
-
-<!--<script type="x-shader/x-fragment" id="fragmentshader">-->
-
-<!--#ifdef GL_ES-->
-<!--precision highp float;-->
-<!--#endif-->
-
-<!--// same name and type as VS-->
-<!--varying vec3 vNormal;-->
-
-<!--void main() {-->
-
-<!--// calc the dot product and clamp-->
-<!--// 0 -> 1 rather than -1 -> 1-->
-<!--vec3 light = vec3(0.5,0.2,1.0);-->
-
-<!--// ensure it's normalized-->
-<!--light = normalize(light);-->
-
-<!--float dProd = max(0.0, dot(vNormal, light));-->
-
-<!--// feed into our frag colour-->
-<!--gl_FragColor = vec4(dProd, dProd, dProd, 1.0);-->
-
-<!--}-->
-<!--</script>-->
 
 </body>
 </html>
