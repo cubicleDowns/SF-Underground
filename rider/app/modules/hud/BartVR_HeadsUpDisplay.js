@@ -1,5 +1,7 @@
 import {HUDSystem} from './hudsystem';
 import {HUDPanel} from './hudpanel';
+import {HUDText} from './hudtext';
+import {HUDGroup} from './hudgroup';
 
 export class BartVR_HeadsUpDisplay {
 
@@ -16,6 +18,8 @@ export class BartVR_HeadsUpDisplay {
         this.logo;
         this.camTargetObjLeft;
         this.camTargetObjRight;
+        this.textGroupDB = null;
+        this.dbLevelText = null;
 
 
         this.toLoad = [
@@ -43,6 +47,13 @@ export class BartVR_HeadsUpDisplay {
         this.camTargetObjRight.mesh.scaling.y = amount;
     }
 
+    setDBLevel(level = 0){
+        try{
+            this.dbLevelText.update("DB:" + level)
+        }catch(e){}
+            
+    }
+
     onVRPointers(){
             this.camTargetObjLeft = new HUDPanel("camTargetObjLeft", this.assets["targetCam"], this.assets["targetCam"],  this.hudsystem);
             this.camTargetObjLeft.guiposition(new BABYLON.Vector3((this.pW50 - 32), (this.pHeight - 32), 0));
@@ -57,15 +68,32 @@ export class BartVR_HeadsUpDisplay {
         this.hudsystem.updateCamera();
     }
 
+    createGUIText(){
+            this.textGroupDB = new HUDGroup("text", this.hudsystem);
+            this.dbLevelText = new HUDText("helpText", 256, 128, {font:"40px Segoe UI", text:"DB:" + 0, color:"#ffffff"},  this.hudsystem);
+            this.dbLevelText.guiposition(new BABYLON.Vector3( this.engine.getRenderWidth() - 300, 100, 0));
+            this.textGroupDB.add(this.dbLevelText);
+            this.setDBLevel();
+    }
+
     onFinish(){
         setTimeout(function() {
             var gui = new HUDSystem(this._scene, this.engine.getRenderWidth(), this.engine.getRenderHeight());
             this.logo = new HUDPanel("logo", this.assets["logo"], this.assets["logo"], gui);
-            this.logo.guiposition(new BABYLON.Vector3(250, 100, 0));
+            this.logo.guiposition(new BABYLON.Vector3(120, 100, 0));
  
            
             gui.updateCamera();
             this.hudsystem = gui;
+
+            /* 
+            this.createGUIText();
+            diabled due to performance
+            */
+
+
+
+
         }.bind(this), 200);
     }
 

@@ -12,10 +12,6 @@ export class specialFX {
         this.init();
     }
 
-
-
-
-
     init(){
         this.specialFXPipeline = new BABYLON.PostProcessRenderPipeline(this._babylonMod.scene.getEngine(), "specialFXPipeline");
 
@@ -25,7 +21,6 @@ export class specialFX {
                   return this.RGBShiftFX ;
         }.bind(this));
         
-
         this.FilmPostProcess = new BABYLON.PostProcessRenderEffect(this._babylonMod.scene.getEngine(), "FilmPostProcess",
                  function() {
                   return new BABYLON.FilmPostProcess( "FilmPostProcessFX", null, new BABYLON.PassPostProcess("Scene copy", 1.0, this._babylonMod.scene.activeCameras[0]),  this._babylonMod.scene.activeCameras[0]);
@@ -46,10 +41,12 @@ export class specialFX {
 
 
         this._babylonMod.scene.registerBeforeRender(function () {
+            try{
                 window.time += 0.01;
                 this.BadTVPostProcess._postProcesses[0].time =  this.FilmPostProcess._postProcesses[0].time  = window.time;
+            }catch(e){}
         }.bind(this));
-        console.log('hit??');
+
     }
 
     disableEffect(_porcess){

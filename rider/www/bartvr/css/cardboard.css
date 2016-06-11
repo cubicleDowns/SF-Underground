@@ -245,6 +245,15 @@ scroll-content {
     padding: 0px !important;
 }
 
+#hudDBLevel{
+    position: absolute;
+    right:20px;
+    top:40px;
+    z-index: 9999991;
+    color: #fff;
+    font-size: 30px;
+}
+
 .bottomControls{
   z-index: 999999;
 }
