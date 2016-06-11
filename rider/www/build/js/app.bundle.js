@@ -389,7 +389,8 @@ var babylonMod = exports.babylonMod = function () {
 
                 this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick.reverseUpDown = true;
                 this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._rotateOnAxisRelativeToMesh = true;
-                this.nonVRCamera.inputs.attached.virtualJoystick.camera.inertia = 0.5;
+
+                this.nonVRCamera.inputs.attached.virtualJoystick.camera.inertia = 0.8;
                 this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._inverseRotationSpeed = 2;
                 this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._rotationSpeed = 2;
 
@@ -470,9 +471,9 @@ var babylonMod = exports.babylonMod = function () {
             this.nonVRCamera.attachControl(this.canvas);
             this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick.reverseUpDown = true;
             this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._rotateOnAxisRelativeToMesh = true;
-            //this.nonVRCamera.inputs.attached.virtualJoystick.camera.inertia = 0.2;
-            //this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._inverseRotationSpeed = 5;
-            //this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._rotationSpeed = 5;
+            this.nonVRCamera.inputs.attached.virtualJoystick.camera.inertia = 0.8;
+            this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._inverseRotationSpeed = 5;
+            this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._rotationSpeed = 5;
         }
     }, {
         key: 'enableDistotion',
@@ -492,8 +493,6 @@ var babylonMod = exports.babylonMod = function () {
         value: function gameLoop() {
             this.scene.executeWhenReady(function () {
                 this.engine.runRenderLoop(function () {
-                    //this.hud.setDBLevel(this.Data.dbLevel);
-
                     document.getElementById("hudDBLevel").innerHTML = "DB:" + this.Data.dbLevel;
                     for (var i = 0; i < this.updateFunctionsInLoop.length; i++) {
                         this.updateFunctionsInLoop[i]();
