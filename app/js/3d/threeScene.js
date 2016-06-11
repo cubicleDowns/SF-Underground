@@ -17,138 +17,6 @@ angular.module('SFUnderground.3D.scene', [])
                 dbSplines = [],
                 splines = [];
 
-            function loadCollada() {
-                var loader = new THREE.ColladaLoader();
-//                loader.setCrossOrigin( '' );
-
-                loader.load(
-                    // resource URL
-                    './models/collada/bart_sounds.dae',
-                    // Function when resource is loaded
-                    function ( collada ) {
-//                        collada.scene.traverse( function ( child ) {
-//
-//                            if ( child instanceof THREE.SkinnedMesh ) {
-//
-//                                var animation = new THREE.Animation( child, child.geometry.animation );
-//                                animation.play();
-//
-//                                camera.lookAt( child.position );
-//
-//                            }
-//
-//                            debugger;
-//
-//                        } );
-
-                        collada.scene.scale.set(1,1,1);
-                        collada.scene.rotation.x = Math.PI / 2;
-                        scene.add( collada.scene );
-
-                    },
-                    // Function called when download progresses
-                    function ( xhr ) {
-                        console.log( (xhr.loaded / xhr.total * 100) + '% loaded' );
-                    }
-                );
-            }
-
-
-
-            function loadglTF() {
-                var sceneInfo = SCENE[1];
-                var url = sceneInfo.url;
-
-                var r = eval("/" + '\%s' + "/g");
-//                var dir = useMaterialsExtension ? 'glTF-MaterialsCommon' : 'glTF';
-//                url = url.replace(r, dir);
-
-                loader.load(url, function (data) {
-
-                    gltf = data;
-
-                    var object = gltf.scene;
-
-//                    var loadEndTime = Date.now();
-
-
-                    if (sceneInfo.cameraPos)
-                        camera.position.copy(sceneInfo.cameraPos);
-
-                    if (sceneInfo.center) {
-                        orbitControls.target.copy(sceneInfo.center);
-                    }
-
-                    if (sceneInfo.objectPosition) {
-                        object.position.copy(sceneInfo.objectPosition);
-
-                        if (spot1) {
-                            spot1.position.set(sceneInfo.objectPosition.x - 100, sceneInfo.objectPosition.y + 200, sceneInfo.objectPosition.z - 100);
-                            spot1.target.position.copy(sceneInfo.objectPosition);
-                        }
-                    }
-
-                    if (sceneInfo.objectRotation)
-                        object.rotation.copy(sceneInfo.objectRotation);
-
-                    if (sceneInfo.objectScale)
-                        object.scale.copy(sceneInfo.objectScale);
-//
-//                    cameraIndex = 0;
-//                    cameras = [];
-//                    cameraNames = [];
-
-//                    if (gltf.cameras && gltf.cameras.length) {
-//
-//                        var i, len = gltf.cameras.length;
-//
-//                        for (i = 0; i < len; i++) {
-//
-//                            var addCamera = true;
-//                            var cameraName = gltf.cameras[i].parent.name;
-//
-//                            if (sceneInfo.cameras && !(cameraName in sceneInfo.cameras)) {
-//                                addCamera = false;
-//                            }
-//
-//                            if (addCamera) {
-//                                cameraNames.push(cameraName);
-//                                cameras.push(gltf.cameras[i]);
-//                            }
-//
-//                        }
-//
-////                        updateCamerasList();
-////                        switchCamera(1);
-//
-//                    }
-//                    else {
-//
-//                        updateCamerasList();
-//                        switchCamera(0);
-//                    }
-
-//                    if (gltf.animations && gltf.animations.length) {
-//
-//                        var i, len = gltf.animations.length;
-//                        for (i = 0; i < len; i++) {
-//                            var animation = gltf.animations[i];
-//                            animation.loop = true;
-//                            // There's .3333 seconds junk at the tail of the Monster animation that
-//                            // keeps it from looping cleanly. Clip it at 3 seconds
-//                            if (sceneInfo.animationTime)
-//                                animation.duration = sceneInfo.animationTime;
-//                            animation.play();
-//                        }
-//                    }
-                    scene.add(object);
-//                    onWindowResize();
-
-                });
-
-
-            }
-
             var tangent = new THREE.Vector3();
             var axis = new THREE.Vector3();
             var up = new THREE.Vector3(0, 1, 0);
@@ -234,78 +102,78 @@ angular.module('SFUnderground.3D.scene', [])
             }
 
 
-            function toScreenXYFromOrtho(position, width, height, camera) {
-//                var camWidth = camera.right - camera.left;
-//                var camHeight = camera.top - camera.bottom;
-                var camWidth = camHeight = 1000;
-                /**
-                 * convert from Orthographic 3D to Screen 2D
-                 * - flip Y axis origin position to top left from bottom left
-                 */
-                var screenX = parseInt((position[0] - (camera.position.x + camera.left)) / camWidth * width, 0);
-                var screenY = parseInt(height - (position[1] - (camera.position.y + camera.bottom)) / camHeight * height, 0);
+//            function toScreenXYFromOrtho(position, width, height, camera) {
+////                var camWidth = camera.right - camera.left;
+////                var camHeight = camera.top - camera.bottom;
+//                var camWidth = camHeight = 1000;
+//                /**
+//                 * convert from Orthographic 3D to Screen 2D
+//                 * - flip Y axis origin position to top left from bottom left
+//                 */
+//                var screenX = parseInt((position[0] - (camera.position.x + camera.left)) / camWidth * width, 0);
+//                var screenY = parseInt(height - (position[1] - (camera.position.y + camera.bottom)) / camHeight * height, 0);
+//
+//                return {
+//                    x: screenX,
+//                    y: screenY
+//                };
+//            }
 
-                return {
-                    x: screenX,
-                    y: screenY
-                };
-            }
+//            /**
+//             * Set the heat map data based upon
+//             */
+//            function setHeatMapData() {
+//
+//                var points = [];
+//                var width = window.innerWidth,
+//                    height = window.innerHeight;
+//
+//                var max = 1;
+//
+//                var pos, point;
+//
+//
+//                for (var r = 0; r < BART.routes.length; r++) {
+//                    var route = BART.routes[r];
+//                    for (var i = 0; i < route.noise.length; i++) {
+//                        pos = toScreenXYFromOrtho(route.noise[i], width, height, camera);
+//                        point = {
+//                            x: pos.x,
+//                            y: pos.y,
+//                            value: route.noise[i][2]
+//                        };
+//                        points.push(point);
+//                    }
+//                }
+//
+//                var data = {
+//                    max: max,
+//                    data: points
+//                };
+//
+//                // this clears out prior instance data.
+//                heatmapInstance.setData(data);
+//            }
 
-            /**
-             * Set the heat map data based upon
-             */
-            function setHeatMapData() {
-
-                var points = [];
-                var width = window.innerWidth,
-                    height = window.innerHeight;
-
-                var max = 1;
-
-                var pos, point;
-
-
-                for (var r = 0; r < BART.routes.length; r++) {
-                    var route = BART.routes[r];
-                    for (var i = 0; i < route.noise.length; i++) {
-                        pos = toScreenXYFromOrtho(route.noise[i], width, height, camera);
-                        point = {
-                            x: pos.x,
-                            y: pos.y,
-                            value: route.noise[i][2]
-                        };
-                        points.push(point);
-                    }
-                }
-
-                var data = {
-                    max: max,
-                    data: points
-                };
-
-                // this clears out prior instance data.
-                heatmapInstance.setData(data);
-            }
-
-            function setupHeatMap() {
-                heatMapConfig = {
-                    container: document.getElementById('heatmap'),
-                    radius: 25,
-                    maxOpacity: 0.9,
-                    minOpacity: .1,
-                    blur: 0.9,
-                    gradient: {
-                        // enter n keys between 0 and 1 here
-                        // for gradient color customization
-                        '.1': 'black',
-                        '.8': 'grey',
-                        '.95': 'white'
-                    }
-                };
-                heatmapInstance = h337.create(heatMapConfig);
-
-                setHeatMapData();
-            }
+//            function setupHeatMap() {
+//                heatMapConfig = {
+//                    container: document.getElementById('heatmap'),
+//                    radius: 25,
+//                    maxOpacity: 0.9,
+//                    minOpacity: .1,
+//                    blur: 0.9,
+//                    gradient: {
+//                        // enter n keys between 0 and 1 here
+//                        // for gradient color customization
+//                        '.1': 'black',
+//                        '.8': 'grey',
+//                        '.95': 'white'
+//                    }
+//                };
+//                heatmapInstance = h337.create(heatMapConfig);
+//
+//                setHeatMapData();
+//            }
 
             function createSplines(theSplines, numPoints, isSubway) {
                 // 1 spline for each route.
@@ -406,7 +274,7 @@ angular.module('SFUnderground.3D.scene', [])
                 }
 
                 createSplines(splines, 100, true);
-                createSplines(dbSplines, 100, false);
+//                createSplines(dbSplines, 100, false);
 
             }
 
@@ -429,21 +297,20 @@ angular.module('SFUnderground.3D.scene', [])
                 if (SETUP.ROUTES) {
                     setupRoutes();
                 }
-
-                if (SETUP.HEAT_MAP) {
-                    setupHeatMap();
-                }
-                if (SETUP.MESH) {
-//                    load3DScene();
-//                    loadglTF();
-                    loadCollada();
-                }
+//
+//                if (SETUP.HEAT_MAP) {
+//                    setupHeatMap();
+//                }
+//                if (SETUP.MESH) {
+////                    load3DScene();
+////                    loadglTF();
+//                    loadCollada();
+//                }
 
                 window.addEventListener('resize', onWindowResize, false);
 
                 animate();
 
-                setInterval(moveSubway, 100);
             }
 
             function load3DScene() {
@@ -470,12 +337,9 @@ angular.module('SFUnderground.3D.scene', [])
 
                     var objLoader = new THREE.OBJLoader();
                     objLoader.setMaterials(materials);
-//                    objLoader.setPath('obj/male02/');
-//                    objLoader.load('male02.obj', function (object) {
                     objLoader.setPath('obj/');
                     objLoader.load('SF-BART-with-route-texture.obj', function (object) {
 
-//                        object.position.y = - 95;s
                         object.scale.set(1, 1, 1);
 
 

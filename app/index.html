@@ -17,10 +17,12 @@
     <!-- endbuild -->
     <script src="https://cdn.firebase.com/js/client/2.4.2/firebase.js"></script>
     <script src="lib/jquery.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
     <script src="lib/three.js"></script>
     <script src="lib/OBJLoader.js"></script>
     <script src="obj-test.js"></script>
     <script src="sound/db_levels.js"></script>
+    <script src="bart.js"></script>
     <script>
         $(document).on('ready', function () {
             init();
@@ -34,6 +36,7 @@
             document.getElementById('go').style.visibility = "hidden";
             sound.play();
             dbLevels();
+            setInterval(moveSubway, 100);
         }
 
     </script>
@@ -73,11 +76,6 @@
             color: #CCCCCC;
         }
 
-        #riders {
-            font-size: 10px;
-            text-align: center;
-            color: #CCCCCC;
-        }
     </style>
 </head>
 <body>
@@ -89,7 +87,6 @@
 
 <div class="riders">
     <div id="numRiders">
-        46
     </div>
 </div>
 
