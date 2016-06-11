@@ -3,9 +3,12 @@ angular.module('SFUnderground.controller.main', ['SFUnderground.3D'])
         '$scope',
         '$location',
         '$firebaseObject',
-        'ThreeScene',
+        '$firebaseArray',
+        'THREE_SCENE',
         'SETUP',
-        function ($scope, $location, $firebaseObject, ThreeScene, SETUP) {
+        'ALERTS',
+        'BART',
+        function ($scope, $location, $firebaseObject, $firebaseArray, ThreeScene, SETUP, ALERTS, BART) {
 
             var main = this;
 
@@ -13,21 +16,45 @@ angular.module('SFUnderground.controller.main', ['SFUnderground.3D'])
             var syncObject = $firebaseObject(fb);
             syncObject.$bindTo($scope, "main.data");
 
+            // read only firebase
+            var ro_fb = new Firebase("https://sf-noise.firebaseio.com/riders");
+
+            main.riders = $firebaseArray(ro_fb);
+
             /**
              * @type {number}
              */
             main.time = SETUP.MULTIPLIER || 1;
             main.constants = SETUP;
+            main.alert_types = ALERTS;
+            main.routes = BART.routes;
+            main.selected = {
+                'event': '',
+                'route': -1
+            };
+
+            /**
+             * Bound functions
+             */
+            main.sendAlert = sendAlert;
             main.changeTime = changeTime;
             main.init = init;
+            main.toggleCamera = toggleCamera;
 
-            main.testFB = testFB;
+            /**
+             * Send and alert containing the route ID and alert type.
+             */
+            function sendAlert() {
 
-            function testFB(str) {
-                if (this.data.alerts) {
-                    this.data.alerts.push(str);
-                } else {
+                /**
+                 * If the data structure doesn't exist, go ahead and create it.
+                 */
+                if (!this.data.alerts) {
                     this.data.alerts = [];
+                }
+
+                if (main.selected.event && main.selected.route > -1) {
+                    this.data.alerts.push(main.selected);
                 }
             }
 
@@ -36,6 +63,10 @@ angular.module('SFUnderground.controller.main', ['SFUnderground.3D'])
              */
             function changeTime() {
                 ThreeScene.setMultiplier(main.time);
+            }
+
+            function toggleCamera() {
+                ThreeScene.setCameraType();
             }
 
             /**

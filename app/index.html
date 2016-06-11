@@ -1,48 +1,183 @@
+<!DOCTYPE html>
 <html>
-<head>
-    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+<head lang="en">
+    <meta charset="UTF-8">
     <title>Sounds of the SF Underground</title>
     <base href="/">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
 
     <!-- build:css css/libs.css -->
-    <link rel="stylesheet" href="bower_components/angular-material/angular-material.css">
+    <!--<link rel="stylesheet" href="bower_components/angular-material/angular-material.css">-->
     <!-- endbuild -->
 
     <!-- build:css css/main.css -->
     <link rel="stylesheet" href="css/main.css">
     <!-- endbuild -->
+    <script src="https://cdn.firebase.com/js/client/2.4.2/firebase.js"></script>
+    <script src="lib/jquery.js"></script>
+    <script src="lib/three.js"></script>
+    <script src="lib/OBJLoader.js"></script>
+    <script src="obj-test.js"></script>
+    <script src="sound/db_levels.js"></script>
+    <script>
+        $(document).on('ready', function () {
+            init();
+            animate();
+        });
+        var BARTVR_ANIMATE = false;
 
+        function go() {
+            document.getElementById('BART').play();
+            BARTVR_ANIMATE = true;
+            document.getElementById('go').style.visibility = "hidden";
+            sound.play();
+            dbLevels();
+        }
 
-    <!-- build:js js/libs.js -->
-    <script src="bower_components/angular/angular.js"></script>
-    <script src="bower_components/angular-aria/angular-aria.js"></script>
-    <script src="bower_components/angular-animate/angular-animate.js"></script>
-    <script src="bower_components/angular-material/angular-material.js"></script>
-    <script src="bower_components/threejs/index.js"></script>
-    <script src="bower_components/threejs-trackball-controls/TrackballControls.js"></script>
-    <script src="bower_components/firebase/firebase-debug.js"></script><!-- Firebase -->
-    <script src="bower_components/angularfire/dist/angularfire.min.js"></script><!-- Firebase -->
-    <!-- endbuild -->
+    </script>
+    <style>
+        body {
+            font-family: monospace;
+            line-height: 1.5;
+            background-color: #130C0E;
+            padding: 20px;
+        }
 
+        button {
+            font-size: 14px;
+            background: #130C0E;
+            color: #7AC143;
+            border: none;
+            outline: none;
+            padding: 4px 8px;
+            letter-spacing: 1px;
+        }
+
+        button:hover {
+            background: #7AC143;
+            color: #130C0E;
+        }
+
+        .riders {
+            position: absolute;
+            right: 50px;
+            top: 10px;
+            z-index: 10000;
+            width: 50px;
+        }
+
+        #numRiders {
+            font-size: 50px;
+            color: #CCCCCC;
+        }
+
+        #riders {
+            font-size: 10px;
+            text-align: center;
+            color: #CCCCCC;
+        }
+    </style>
 </head>
 <body>
-    <div class="sidebar" ng-controller="MainController as main" ng-init="main.init()">
-        <ng-include src="'views/sidebar.html'" />
+<audio id="BART" src="sound/sound.mp3"></audio>
+<div id="go" style="z-index: 10002; position: absolute; left: 50px; bottom: 50px;">
+    <button onclick="go()">Play &#9658;</button>
+    <button onclick="document.getElementById('BART').pause(); BARTVR_ANIMATE = false;">Pause ||</button>
+</div>
+
+<div class="riders">
+    <div id="numRiders">
+        46
     </div>
+</div>
 
-    <!-- build:js js/main.js -->
-    <script src="js/ng/app.js"></script>
-    <script src="js/ng/constants.js"></script>
-    <script src="js/ng/apiService.js"></script>
-    <script src="js/ng/mainController.js"></script>
-    <script src="js/3d/threeScene.js"></script>
-    <script src="js/util.js"></script>
-    <!-- endbuild -->
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 
-    <script>
-        angular.element(document).ready(function () {
-            angular.bootstrap(document, ['SFUnderground']);
-        });
-    </script>
+
+<div id="info">
+    <a href="http://threejs.org" target="_blank">three.js</a> - OBJLoader test
+</div>
+
+<script type="x-shader/x-vertex" id="vertexShader">
+varying vec2 vUv;
+varying vec3 a_position;
+void main() {
+   vUv = uv;
+   a_position = position / vec3(20, 20, 20);
+   gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+}
+
+</script>
+
+<script type="x-shader/x-vertex" id="fragmentShader">
+varying vec2 vUv;
+varying vec3 a_position;
+void main() {
+
+// color is RGBA: u, v, 0, 1
+//        gl_FragColor = vec4(0.5, 0., 0.0, 0.9);
+gl_FragColor = vec4(a_position, 0.9 );
+
+}
+
+</script>
+<!--<script type="x-shader/x-vertex" id="vertexshader">-->
+
+<!--// switch on high precision floats-->
+<!--#ifdef GL_ES-->
+<!--precision highp float;-->
+<!--#endif-->
+
+<!--uniform float amplitude;-->
+<!--attribute float displacement;-->
+<!--varying vec3 vNormal;-->
+
+<!--void main() {-->
+
+<!--vNormal = normal;-->
+
+<!--// multiply our displacement by the-->
+<!--// amplitude. The amp will get animated-->
+<!--// so we'll have animated displacement-->
+<!--vec3 newPosition = position +-->
+<!--normal *-->
+<!--vec3(displacement *-->
+<!--amplitude);-->
+
+<!--gl_Position = projectionMatrix *-->
+<!--modelViewMatrix *-->
+<!--vec4(newPosition,1.0);-->
+<!--}-->
+
+<!--</script>-->
+
+<!--<script type="x-shader/x-fragment" id="fragmentshader">-->
+
+<!--#ifdef GL_ES-->
+<!--precision highp float;-->
+<!--#endif-->
+
+<!--// same name and type as VS-->
+<!--varying vec3 vNormal;-->
+
+<!--void main() {-->
+
+<!--// calc the dot product and clamp-->
+<!--// 0 -> 1 rather than -1 -> 1-->
+<!--vec3 light = vec3(0.5,0.2,1.0);-->
+
+<!--// ensure it's normalized-->
+<!--light = normalize(light);-->
+
+<!--float dProd = max(0.0, dot(vNormal, light));-->
+
+<!--// feed into our frag colour-->
+<!--gl_FragColor = vec4(dProd, dProd, dProd, 1.0);-->
+
+<!--}-->
+<!--</script>-->
+
 </body>
 </html>
