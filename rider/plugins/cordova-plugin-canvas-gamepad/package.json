@@ -1,0 +1,45 @@
+{
+  "name": "cordova-plugin-canvas-gamepad",
+  "version": "0.1.1",
+  "description": "Cordova Canvas Gamepad Plugin",
+  "cordova": {
+    "id": "cordova-plugin-canvas-gamepad",
+    "platforms": [
+      "firefoxos",
+      "tizen",
+      "android",
+      "amazon-fireos",
+      "ubuntu",
+      "ios",
+      "blackberry10",
+      "wp7",
+      "wp8",
+      "windows8",
+      "windows",
+      "browser"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/32teeth/cordova-plugin-canvas-gamepad"
+  },
+  "keywords": [
+    "cordova",
+    "gamepad",
+    "ecosystem:cordova",
+    "cordova-firefoxos",
+    "cordova-tizen",
+    "cordova-android",
+    "cordova-amazon-fireos",
+    "cordova-ubuntu",
+    "cordova-ios",
+    "cordova-blackberry10",
+    "cordova-wp7",
+    "cordova-wp8",
+    "cordova-windows8",
+    "cordova-windows",
+    "cordova-browser"
+  ],
+  "author": "eugene andruszczenko <eugene.andruszczenko@gmail.com> (http://32teeth.org)",
+  "license": "Apache 2.0"
+}

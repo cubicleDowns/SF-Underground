@@ -1,0 +1,19 @@
+
+<ion-toolbar>
+  <ion-title>
+    Settings
+  </ion-title>
+  <ion-buttons end>
+    <button (click)="dismiss()">
+      Done
+    </button>
+  </ion-buttons>
+</ion-toolbar>
+<ion-content>
+  <ion-list>
+    <ion-item>
+    <ion-label> Enable Cardboard Effect</ion-label>
+     <ion-toggle [(ngModel)]="Data.stereoEffect" checked="false" (click)="toggle()" ></ion-toggle>
+    </ion-item>
+  </ion-list>
+</ion-content>
