@@ -1,5 +1,6 @@
 import {BartVR_HeadsUpDisplay} from './hud/BartVR_HeadsUpDisplay';
 import {GazeEvent} from './events/gazeevent';
+import {specialFX} from './specialFX';
 
 export class babylonMod {
 
@@ -22,6 +23,7 @@ export class babylonMod {
         this.sprites = [];
         this.Data.babylonMod = this;
         this.distortionLens = null;
+        this.specialFXBart = null;
         setTimeout(this.init.bind(this), 500);
     }
 
@@ -152,12 +154,15 @@ export class babylonMod {
     }
 
     enableDistotion(){
+        this.specialFXBart = new specialFX(this);
+        /*
         this.distortionLens = new BABYLON.LensRenderingPipeline('lens', {
                 edge_blur: 1.0,
                 chromatic_aberration: 50.0,
                 distortion: 1.0
             },  window._scene , 1.0);
          window._scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline('lens', window._activeCam);
+         */
 
     }
 
