@@ -29,10 +29,13 @@ export class babylonMod {
 
     init() {
         window._babylon = this;   
-        document.querySelector("ion-page").style.zIndex = 'auto';
-        document.querySelector("scroll-content").style.webkitOverflowScrolling = 'auto';
-        document.querySelector("scroll-content").style.willChange = 'auto';
-        document.querySelector("scroll-content").style.zIndex = 'auto';
+        try{
+            document.querySelector("ion-page").style.zIndex = 'auto';
+            document.querySelector("scroll-content").style.webkitOverflowScrolling = 'auto';
+            document.querySelector("scroll-content").style.willChange = 'auto';
+            document.querySelector("scroll-content").style.zIndex = 'auto';
+        }catch(e){}
+        
         this.engine = new BABYLON.Engine(this.canvas , true);
         this.canvas.style.width = '100%';
         this.canvas.style.height = '100%';
@@ -159,15 +162,6 @@ export class babylonMod {
 
     enableDistotion(){
         this.specialFXBart = new specialFX(this);
-        /*
-        this.distortionLens = new BABYLON.LensRenderingPipeline('lens', {
-                edge_blur: 1.0,
-                chromatic_aberration: 50.0,
-                distortion: 1.0
-            },  window._scene , 1.0);
-         window._scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline('lens', window._activeCam);
-         */
-
     }
 
     gameLoop(){

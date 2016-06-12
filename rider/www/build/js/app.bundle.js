@@ -41,6 +41,12 @@ var BoilerVR = exports.BoilerVR = (_dec = (0, _ionicAngular.App)({
     this.app = app;
     this.babylonMod = null;
     this.isNative = false;
+    this._platform = platform;
+    this._isDesktop = false;
+
+    if (_bartVR._platform.platforms()[0] == "core") {
+      this._isDesktop = true;
+    }
 
     this.pages = [{ title: 'CardboardVR', component: _intro.IntroPage }];
 
@@ -357,10 +363,13 @@ var babylonMod = exports.babylonMod = function () {
         key: 'init',
         value: function init() {
             window._babylon = this;
-            document.querySelector("ion-page").style.zIndex = 'auto';
-            document.querySelector("scroll-content").style.webkitOverflowScrolling = 'auto';
-            document.querySelector("scroll-content").style.willChange = 'auto';
-            document.querySelector("scroll-content").style.zIndex = 'auto';
+            try {
+                document.querySelector("ion-page").style.zIndex = 'auto';
+                document.querySelector("scroll-content").style.webkitOverflowScrolling = 'auto';
+                document.querySelector("scroll-content").style.willChange = 'auto';
+                document.querySelector("scroll-content").style.zIndex = 'auto';
+            } catch (e) {}
+
             this.engine = new BABYLON.Engine(this.canvas, true);
             this.canvas.style.width = '100%';
             this.canvas.style.height = '100%';
@@ -479,14 +488,6 @@ var babylonMod = exports.babylonMod = function () {
         key: 'enableDistotion',
         value: function enableDistotion() {
             this.specialFXBart = new _specialFX.specialFX(this);
-            /*
-            this.distortionLens = new BABYLON.LensRenderingPipeline('lens', {
-                    edge_blur: 1.0,
-                    chromatic_aberration: 50.0,
-                    distortion: 1.0
-                },  window._scene , 1.0);
-             window._scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline('lens', window._activeCam);
-             */
         }
     }, {
         key: 'gameLoop',
@@ -1351,9 +1352,9 @@ var CardboardGl = exports.CardboardGl = (_dec = (0, _core.Component)({
     value: function init() {
       function readDeviceOrientation() {
         if (Math.abs(window.orientation) === 90) {
+
           document.getElementById("slidesView").style.visibility = "hidden";
           document.getElementById("cardBoardView").style.display = "block";
-
           document.querySelector("ion-page").style.zIndex = 'auto';
           document.querySelector("scroll-content").style.webkitOverflowScrolling = 'auto';
           document.querySelector("scroll-content").style.willChange = 'auto';
@@ -1369,9 +1370,9 @@ var CardboardGl = exports.CardboardGl = (_dec = (0, _core.Component)({
         } else {
           this.Data.landscapeMode = false;
           this.Data.stereoEffect = false;
+
           document.getElementById("slidesView").style.visibility = "visible";
           document.getElementById("cardBoardView").style.display = "none";
-
           document.querySelector("ion-page").style.zIndex = '100';
           document.querySelector("scroll-content").style.webkitOverflowScrolling = 'touch';
           document.querySelector("scroll-content").style.willChange = 'scroll-position';
@@ -1398,6 +1399,8 @@ var _createClass = function () { function defineProperties(target, props) { for 
 var _dec, _class;
 
 var _ionicAngular = require('ionic-angular');
+
+var _core = require('@angular/core');
 
 var _babylonmod = require('../../modules/babylonmod');
 
@@ -1427,6 +1430,8 @@ var IntroPage = exports.IntroPage = (_dec = (0, _ionicAngular.Page)({
 
     this.nav = nav;
     this.app = app;
+    this._babylon = null;
+    this.hasInit = false;
     this.bartVR = _BoilerVR;
     this.Data = _BoilerVR.Data;
 
@@ -1437,8 +1442,28 @@ var IntroPage = exports.IntroPage = (_dec = (0, _ionicAngular.Page)({
   }
 
   _createClass(IntroPage, [{
+    key: 'goDesktop',
+    value: function goDesktop() {
+      document.getElementById("slidesView").style.visibility = "hidden";
+      document.getElementById("cardBoardView").style.display = "block";
+
+      if (this.hasInit == false) {
+        this.hasInit = true;
+
+        this._babylon = new _babylonmod.babylonMod(document.getElementById("cardBoardView"), this.Data, this.app);
+        this.bartVR.babylonMod = this._babylon;
+      }
+    }
+  }, {
     key: 'init',
     value: function init() {
+      console.log(this.bartVR._isDesktop);
+      if (this.bartVR._isDesktop) {
+        document.getElementById('desktopLaunch').style.display = "block";
+      } else {
+        document.getElementById('desktopLaunch').style.display = "none";
+      }
+
       if (window.localStorage.getItem("bart_vr_user") != null) {
         document.getElementById('userReg').style.display = "none";
         document.getElementById('currentUser').style.display = "block";
@@ -1454,8 +1479,6 @@ var IntroPage = exports.IntroPage = (_dec = (0, _ionicAngular.Page)({
   }, {
     key: 'reset',
     value: function reset() {
-      console.log(this.bartVR);
-
       this.Data.executeUserRemoval = "bart_vr_user_key";
       window.localStorage.removeItem("bart_vr_user");
       window.localStorage.removeItem("bart_vr_user_key");
@@ -1472,7 +1495,7 @@ var IntroPage = exports.IntroPage = (_dec = (0, _ionicAngular.Page)({
   return IntroPage;
 }()) || _class);
 
-},{"../../app":1,"../../modules/babylonmod":3,"../cardboard/cardboard":12,"../settings/settings":14,"ionic-angular":396}],14:[function(require,module,exports){
+},{"../../app":1,"../../modules/babylonmod":3,"../cardboard/cardboard":12,"../settings/settings":14,"@angular/core":147,"ionic-angular":396}],14:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
