@@ -1289,27 +1289,27 @@ var specialFX = exports.specialFX = function () {
             this.RGBShift = new BABYLON.PostProcessRenderEffect(this._babylonMod.scene.getEngine(), "RGBShift", function () {
                 this.RGBShiftFX = new BABYLON.RGBShiftPostProcess("RGBShiftFX", null, this._babylonMod.scene.activeCameras[0]);
                 this.RGBShiftFX._isRunning = true;
-                this.RGBShiftFX._isAttached = false;
                 this.fxArray.push(this.RGBShiftFX);
                 return this.RGBShiftFX;
             }.bind(this));
+            this.RGBShift._isAttached = false;
 
             this.FilmPostProcess = new BABYLON.PostProcessRenderEffect(this._babylonMod.scene.getEngine(), "FilmPostProcess", function () {
                 this.FilmPostProcessFX = new BABYLON.FilmPostProcess("FilmPostProcessFX", null, new BABYLON.PassPostProcess("Scene copy", 1.0, this._babylonMod.scene.activeCameras[0]), this._babylonMod.scene.activeCameras[0]);
                 this.FilmPostProcessFX._isRunning = true;
-                this.FilmPostProcessFX._isAttached = true;
                 //this.FilmPostProcessFX.grayscale = false;
                 this.fxArray.push(this.FilmPostProcessFX);
                 return this.FilmPostProcessFX;
             }.bind(this));
+            this.FilmPostProcess._isAttached = true;
 
             this.BadTVPostProcess = new BABYLON.PostProcessRenderEffect(this._babylonMod.scene.getEngine(), "BadTVPostProcess", function () {
                 this.BadTVPostProcessFX = new BABYLON.BadTVPostProcess("BadTVPostProcessFX", null, new BABYLON.PassPostProcess("Scene copy", 1.0, this._babylonMod.scene.activeCameras[0]), this._babylonMod.scene.activeCameras[0]);
                 this.BadTVPostProcessFX._isRunning = true;
-                this.BadTVPostProcessFX._isAttached = false;
                 this.fxArray.push(this.BadTVPostProcessFX);
                 return this.BadTVPostProcessFX;
             }.bind(this));
+            this.BadTVPostProcess._isAttached = false;
 
             this.specialFXPipeline.addEffect(this.FilmPostProcess);
             //this.specialFXPipeline.addEffect(this.BadTVPostProcess);
@@ -1322,23 +1322,20 @@ var specialFX = exports.specialFX = function () {
             this._babylonMod.scene.registerBeforeRender(function () {
                 try {
 
-                    if (this._babylonMod.Data.frequencyLevel > 0.5) {
+                    if (this._babylonMod.Data.frequencyLevel > 0.2) {
                         this.FilmPostProcessFX.grayscale = true;
                     }
 
-                    if (this._babylonMod.Data.frequencyLevel > 1.0) {
+                    if (this._babylonMod.Data.frequencyLevel > 0.3) {
                         this.FilmPostProcessFX.grayscale = false;
                         if (!this.RGBShift._isAttached) {
                             this.RGBShift._isAttached = true;
-                            this.specialFXPipeline.addEffect(this.RGBShift);
                         }
                     }
 
-                    if (this._babylonMod.Data.frequencyLevel > 1.5) {
-                        if (!this.BadTVPostProcessFX._isAttached) {
-                            this.BadTVPostProcessFX._isAttached = true;
-                            this.specialFXPipeline.addEffect(this.BadTVPostProcess);
-                            this.specialFXPipeline.addEffect(this.RGBShift);
+                    if (this._babylonMod.Data.frequencyLevel > 0.35) {
+                        if (!this.BadTVPostProcess._isAttached) {
+                            this.BadTVPostProcess._isAttached = true;
                         }
                     }
                     window.time += 0.01;
