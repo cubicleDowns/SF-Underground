@@ -83,11 +83,16 @@ export class babylonMod {
             this.spManager  .layerMask = 3;
             this.playerSprite = new BABYLON.Sprite("player", this.spManager );
             this.playerSprite.isPickable = true;
-            this.playerSprite.playAnimation(( 20 - this.Data.user.spriteID), this.Data.user.spriteID, true, 100);
+            if(this.Data.zombieMode){
+                this.playerSprite.playAnimation( 80,  100, true, 100);
+            }else{
+                this.playerSprite.playAnimation(Math.abs( 20 - this.Data.user.spriteID),  parseInt(this.Data.user.spriteID), true, 100);
+            }
             //this.playerSprite.parent = this.vrCamera;
             this.scene.activeCamera.position = new BABYLON.Vector3(this.Data.user.position.x, this.Data.user.position.y, this.Data.user.position.z);
             this.playerSprite.position = new BABYLON.Vector3(this.Data.user.position.x, this.Data.user.position.y, this.Data.user.position.z);
-            this.scene.activeCamera.rotation = new BABYLON.Vector3(this.Data.user.rotation.x, this.Data.user.rotation.y, this.Data.user.rotation.z);
+            
+           // this.scene.activeCamera.rotation = new BABYLON.Vector3(this.Data.user.rotation.x, this.Data.user.rotation.y, this.Data.user.rotation.z);
             this.sprites.push({sprite:this.playerSprite, key:this.Data.currentUserKey});
             this.skyBox('oakland');
 
@@ -191,6 +196,12 @@ export class babylonMod {
     updateUserSprites(_data){
         for(var i = 0; i < this.sprites.length; i++) {
             if (_data.key == this.sprites[i].key) {
+                if(this.Data.zombieMode){
+                        this.sprites[i].sprite.playAnimation( 80,  100, true, 100);
+                    }else{
+                        this.sprites[i].sprite.playAnimation(Math.abs( 20 - parseInt(_data.data.spriteID)),  parseInt(_data.data.spriteID), true, 100);
+                    }
+
                 this.sprites[i].sprite.position =  _data.data.position;
                 break;
             }
@@ -206,7 +217,13 @@ export class babylonMod {
         player.position = _data.data.position;
         player.rotation = _data.data.rotation;
         player.size = 14.0;
-        player.playAnimation(Math.abs( 20 - parseInt(_data.data.spriteID)),  parseInt(_data.data.spriteID), true, 100);
+        if(this.Data.zombieMode){
+
+            player.playAnimation( 80,  100, true, 100);
+        }else{
+            player.playAnimation(Math.abs( 20 - parseInt(_data.data.spriteID)),  parseInt(_data.data.spriteID), true, 100);
+        }
+        
         this.sprites.push({sprite:player, key:_data.key});
     }
 
