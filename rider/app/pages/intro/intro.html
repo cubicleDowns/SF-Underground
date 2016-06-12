@@ -34,16 +34,19 @@
       </ion-item>
 </ion-list>
 <ion-list>
-<div class="centered">
+<div padding id="desktopLaunch1">
+    <button block (click)="goDesktop()">launch</button>
+  </div>
+<div class="centered" id="rotateMessage1">
   Rotate your device to get started.
   <br>
   <i class="icon ion-loop"></i>
 </div>
   </ion-list>
 </div>
-  <ion-list id="currentUser">
+  <ion-list id="currentUser" >
   <div id="userName"></div>
-  Rotate your device to get started.
+  <span id="rotateMessage">Rotate your device to get started.</span>
   <br>
   <div padding>
     <button block (click)="reset()">reset</button>
