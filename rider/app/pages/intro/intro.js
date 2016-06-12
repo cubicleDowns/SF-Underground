@@ -48,7 +48,7 @@ export class IntroPage {
 
 
   init(){
-    console.log(this.bartVR._isDesktop);
+
     if( this.bartVR._isDesktop ){
       document.getElementById('desktopLaunch').style.display = "block";
       document.getElementById('desktopLaunch1').style.display = "block";
