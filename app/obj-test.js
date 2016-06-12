@@ -13,15 +13,33 @@ var level = 0;
 var uniforms, attributes;
 var numRiders;
 var subways = [], dbSplines = [], splines = [];
-
+var delta = 0.005;
+var multiplier = 0.5;
+var tangent = new THREE.Vector3();
+var axis = new THREE.Vector3();
+var up = new THREE.Vector3(0, 1, 0);
+var particle, delay;
+var PARTICLES_ACTIVE = false;
 var FB_ACTIVE = false;
+var AXIS_HELPER = false;
+
+
+function go() {
+    document.getElementById('BART').play();
+    BARTVR_ANIMATE = true;
+    document.getElementById('go').style.visibility = "hidden";
+    sound.play();
+    dbLevels();
+    setInterval(moveSubway, 100);
+}
+
 
 function dbLevels() {
-    dbs = setInterval(function(){
+    dbs = setInterval(function () {
         console.log(DB_LEVELS[level]);
-        if(FB_ACTIVE){
-            fb_db.transaction(function(){
-                if(DB_LEVELS[level]){
+        if (FB_ACTIVE) {
+            fb_db.transaction(function () {
+                if (DB_LEVELS[level]) {
                     dbs = DB_LEVELS[level];
                     level++;
                     return dbs;
@@ -33,26 +51,61 @@ function dbLevels() {
     }, 1000);
 }
 
-function init() {
+function generateSprite() {
+    var canvas = document.createElement('canvas');
+    canvas.width = 16;
+    canvas.height = 16;
+    var context = canvas.getContext('2d');
+    var gradient = context.createRadialGradient(canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, canvas.width / 2);
+    gradient.addColorStop(0, 'rgba(255,255,255,1)');
+    gradient.addColorStop(0.2, 'rgba(0,255,255,1)');
+    gradient.addColorStop(0.4, 'rgba(0,0,64,1)');
+    gradient.addColorStop(1, 'rgba(0,0,0,1)');
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    return canvas;
+}
 
+
+function initParticle(particle, delay) {
+    particle = this instanceof THREE.Sprite ? this : particle;
+    delay = delay !== undefined ? delay : 0;
+    particle.position.set(0, 0, 0);
+    particle.scale.x = particle.scale.y = Math.random() * 32 + 16;
+    new TWEEN.Tween(particle)
+        .delay(delay)
+        .to({}, 10000)
+        .onComplete(initParticle)
+        .start();
+    new TWEEN.Tween(particle.position)
+        .delay(delay)
+        .to({ x: Math.random() * 4000 - 2000, y: Math.random() * 1000 - 500, z: Math.random() * 4000 - 2000 }, 10000)
+        .start();
+    new TWEEN.Tween(particle.scale)
+        .delay(delay)
+        .to({ x: 0.01, y: 0.01 }, 10000)
+        .start();
+}
+
+function init() {
 
     fb = new Firebase("https://sf-noise.firebaseio.com/freq");
     fb_db = new Firebase("https://sf-noise.firebaseio.com/db");
     fb_riders = new Firebase("https://sf-noise.firebaseio.com/riders");
     numRiders = $('#numRiders');
 
-
-    fb_riders.on('value', function(data){
+    if (FB_ACTIVE) {
+        fb_riders.on('value', function (data) {
 //        console.log('num riders', data.numChildren());
-        numRiders.html(data.numChildren());
-    });
-
+            numRiders.html(data.numChildren());
+        });
+    }
 
     container = document.createElement('div');
     document.body.appendChild(container);
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 2000);
-//    camera.position.set(0, 50, 150);
     camera.position.set(0, 50, 150);
+//    camera.position.set(0, 500, 1500);
     // scene
     scene = new THREE.Scene();
     var ambient = new THREE.AmbientLight(0x101030);
@@ -64,15 +117,15 @@ function init() {
     setupRoutes();
 
     material = new THREE.ShaderMaterial({
-        vertexShader: document.getElementById( 'vertexShader' ).textContent,
-        fragmentShader: document.getElementById( 'fragmentShader' ).textContent
+        vertexShader: document.getElementById('vertexShader').textContent,
+        fragmentShader: document.getElementById('fragmentShader').textContent
     });
 
     var manager = new THREE.LoadingManager();
     manager.onProgress = function (item, loaded, total) {
         console.log(item, loaded, total);
     };
-    var texture = new THREE.Texture();
+
     var onProgress = function (xhr) {
         if (xhr.lengthComputable) {
             var percentComplete = xhr.loaded / xhr.total * 100;
@@ -92,34 +145,42 @@ function init() {
         obj.scale.set(10, 10, 10);
         obj.position.set(-50, 0, -50);
 
-        sound = new THREE.PositionalAudio( listener );
-        audioLoader.load( 'sound/sound.wav', function( buffer ) {
-            sound.setBuffer( buffer );
-            sound.setRefDistance( 20 );
+        sound = new THREE.PositionalAudio(listener);
+        audioLoader.load('sound/sound.mp3', function (buffer) {
+            sound.setBuffer(buffer);
+            sound.setRefDistance(20);
             sound.setVolume(0);
             scene.add(obj);
-            analyser = new THREE.AudioAnalyser( sound, 32 );
+            analyser = new THREE.AudioAnalyser(sound, 32);
         });
 
     }, onProgress, onError);
 
-    var audioLoader = new THREE.AudioLoader();
+    var spriteMat = new THREE.SpriteMaterial({
+        map: new THREE.CanvasTexture(generateSprite()),
+        blending: THREE.AdditiveBlending
+    });
 
-//    var testmat = new THREE.MeshBasicMaterial({
-//        color: 0xFFFFFF
-//    });
-//    var geometry = new THREE.BoxGeometry(4, 4, 4);
-//    var mesh = new THREE.Mesh(geometry, testmat);
-//    scene.add(mesh);
-//    var axisHelper = new THREE.AxisHelper(5);
-//    scene.add(axisHelper);
+    if (PARTICLES_ACTIVE) {
+        for (var i = 0; i < 1000; i++) {
+            particle = new THREE.Sprite(spriteMat);
+            initParticle(particle, i * 10);
+            scene.add(particle);
+        }
+    }
+
+    if (AXIS_HELPER) {
+        var axisHelper = new THREE.AxisHelper(20);
+        scene.add(axisHelper);
+    }
+
+    var audioLoader = new THREE.AudioLoader();
 
     renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
     container.appendChild(renderer.domElement);
 
-    setInterval(moveSubway, 100);
     window.addEventListener('resize', onWindowResize, false);
 }
 
@@ -137,20 +198,20 @@ function animate() {
 }
 
 function render() {
-
-    if(BARTVR_ANIMATE){
+    if (BARTVR_ANIMATE) {
         theta += 0.1;
         camera.position.x = radius * Math.sin(THREE.Math.degToRad(theta));
         camera.position.z = radius * Math.cos(THREE.Math.degToRad(theta));
         var fr = analyser.getAverageFrequency() / 256;
-//        uniforms.amplitude.value = analyser.getAverageFrequency();
-        if(FB_ACTIVE){
-            fb.transaction(function(){
+        if (FB_ACTIVE) {
+            fb.transaction(function () {
                 console.log(fr);
                 return fr;
             });
         }
     }
+
+    TWEEN.update();
     camera.lookAt(scene.position);
     renderer.render(scene, camera);
 }
@@ -180,7 +241,6 @@ function setupRoutes() {
         for (var q = 0; q < route.stops.length; q++) {
 
             // janky as fuck
-            // TODO: Fix this.
             var z = q;
             if (q > halfLength) {
                 z = route.stops.length - q;
@@ -193,22 +253,24 @@ function setupRoutes() {
         }
         dbSplines.push(new THREE.SplineCurve3(elevatedPoints));
 
+        // glorious glorious tweaking
+        var offsetX = 51;
+        var offsetZ = -67;
+        var scale = 8.6;
+
         // create the twoway splines.
         for (var s = 0; s < twoWay.length; s++) {
             stop = twoWay[s];
-            points.push(new THREE.Vector3(stop[0], stop[1], stop[2]));
+            points.push(new THREE.Vector3((stop[0] / scale) - offsetX, 2.0, (stop[1] / -scale) - offsetZ));
         }
         splines.push(new THREE.SplineCurve3(points));
     }
-
     createSplines(splines, 100, true);
-
 }
 
 function createSplines(theSplines, numPoints, isSubway) {
-    // 1 spline for each route.
-    // create a geometry and material for each route
 
+    var splinesGroup = new THREE.Object3D();
 
     for (var j = 0; j < theSplines.length; j++) {
         var route = BART.routes[j];
@@ -225,16 +287,18 @@ function createSplines(theSplines, numPoints, isSubway) {
                     lineGeometry.vertices.push(splinePoints[i]);
                     lineGeometry.vertices.push(new THREE.Vector3(splinePoints[i].x, splinePoints[i].y, 0));
                     var vertLine = new THREE.Line(lineGeometry, material);
-                    scene.add(vertLine);
+                    splinesGroup.add(vertLine);
                 }
             }
         }
 
         var line = new THREE.Line(geometry, material);
+        line.visible = false;
         scene.add(line);
 
         material = new THREE.MeshBasicMaterial({
-            color: isSubway ? route.subwayColor : SETUP.DB.color
+            color: route.subwayColor,
+            alpha: true
         });
 
         var group = new THREE.Object3D();
@@ -250,23 +314,25 @@ function createSplines(theSplines, numPoints, isSubway) {
         } else {
             geometry = new THREE.BoxGeometry(5, 5, 5);
             var dbMesh = new THREE.Mesh(geometry, material);
+
             group.add(dbMesh);
-            dbLevels.push(group);
+//            dbLevels.push(group);
         }
         scene.add(group);
     }
+    scene.add(splinesGroup);
 }
 
 function moveSubway() {
     for (var i = 0; i < subways.length; i++) {
         var subway = subways[i];
         var radians;
-        var dbLevel = dbLevels[i];
+//        var dbLevel = dbLevels[i];
         if (subway.counter <= 1) {
             subway.position.copy(splines[i].getPointAt(subway.counter));
-            var dbPoint = splines[i].getPointAt(subway.counter);
+//            var dbPoint = splines[i].getPointAt(subway.counter);
 
-            dbLevel.position.copy(splines[i].getPointAt(subway.counter));
+//            dbLevel.position.copy(splines[i].getPointAt(subway.counter));
 //                        dbLevel.position.setZ(dbSplines[i].getPointAt(subway.counter / 2));
             tangent = splines[i].getTangentAt(subway.counter).normalize();
 

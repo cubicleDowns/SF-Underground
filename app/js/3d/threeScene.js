@@ -355,7 +355,7 @@ angular.module('SFUnderground.3D.scene', [])
             function moveSubway() {
                 for (var i = 0; i < subways.length; i++) {
                     var subway = subways[i];
-                    var radians;
+                    var nsns;
                     var dbLevel = dbLevels[i];
                     if (subway.counter <= 1) {
                         subway.position.copy(splines[i].getPointAt(subway.counter));
