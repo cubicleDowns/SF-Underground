@@ -14,7 +14,7 @@ var attributes;
 var numRiders;
 var subways = [], dbSplines = [], splines = [];
 var delta = 0.005;
-var multiplier = 0.5;
+var multiplier = 0.1;
 var tangent = new THREE.Vector3();
 var axis = new THREE.Vector3();
 var up = new THREE.Vector3(0, 1, 0);
@@ -24,13 +24,14 @@ var FB_ACTIVE = false;
 var AXIS_HELPER = false;
 var BARTVR_ANIMATE = false;
 var currentMessage = 0;
-var emitter, particleGroup;
+var emitter, particleGroups = [];
 var clock = new THREE.Clock();
 var NUM_PARTICLES = 1000;
 
 var MESSAGES = [
     "SOUNDS OF THE SAN FRANCISCO UNDERGROUND",
     "A SOUND DISPLACEMENT MAP OF BART",
+    " ",
     "150,000 SAMPLES. 35 HOURS",
     "AVG 89 dB. MAX 129.7 dB",
     "125 dB === PAIN",
@@ -49,9 +50,9 @@ function go() {
 
     dbLevels();
 
-    setInterval(moveSubway, 100);
+    setInterval(moveSubway, 25);
 
-    setTimeout(function(){
+    setTimeout(function () {
         setInterval(changeMessage, 7500);
     }, 40000);
 }
@@ -59,7 +60,7 @@ function go() {
 
 function changeMessage() {
     var msg = MESSAGES[currentMessage];
-    if(msg) {
+    if (msg) {
         $('.messages').html(msg);
         currentMessage++;
     }
@@ -83,24 +84,15 @@ function dbLevels() {
     }, 1000);
 }
 
-function generateSprite() {
-    var canvas = document.createElement('canvas');
-    canvas.width = 16;
-    canvas.height = 16;
-    var context = canvas.getContext('2d');
-    var gradient = context.createRadialGradient(canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, canvas.width / 2);
-    gradient.addColorStop(0, 'rgba(255,255,255,1)');
-    gradient.addColorStop(0.2, 'rgba(0,255,255,1)');
-    gradient.addColorStop(0.4, 'rgba(0,0,64,1)');
-    gradient.addColorStop(1, 'rgba(0,0,0,1)');
-    context.fillStyle = gradient;
-    context.fillRect(0, 0, canvas.width, canvas.height);
-    return canvas;
+
+function createParticleGroups() {
+    for (var i = 0; i < BART.routes.length; i++) {
+        particleGroups.push(initParticles());
+    }
 }
 
 function initParticles() {
-
-    particleGroup = new SPE.Group({
+    var pg = new SPE.Group({
         texture: {
             value: THREE.ImageUtils.loadTexture('./images/smoke_particle.png')
         }
@@ -112,12 +104,12 @@ function initParticles() {
         },
         position: {
             value: new THREE.Vector3(0, 0.5, 0),
-            spread: new THREE.Vector3( 0, 0, 0 )
+            spread: new THREE.Vector3(0, 0, 0)
         },
 
         acceleration: {
             value: new THREE.Vector3(0, 5, 0),
-            spread: new THREE.Vector3( 0, 10, 0)
+            spread: new THREE.Vector3(0, 10, 0)
         },
 
         velocity: {
@@ -136,7 +128,8 @@ function initParticles() {
         particleCount: NUM_PARTICLES
     });
 
-    particleGroup.addEmitter( emitter );
+    pg.addEmitter(emitter);
+    return pg;
 }
 
 
@@ -168,7 +161,7 @@ function init() {
     scene.add(directionalLight);
 
     setupRoutes();
-    initParticles();
+    createParticleGroups();
 
     material = new THREE.ShaderMaterial({
         vertexShader: document.getElementById('vertexShader').textContent,
@@ -255,7 +248,9 @@ function render(dt) {
         }
     }
 
-    particleGroup.tick(dt);
+    for (var i = 0; i < particleGroups.length; i++) {
+        particleGroups[i].tick(dt);
+    }
 
     camera.lookAt(scene.position);
     renderer.render(scene, camera);
@@ -353,7 +348,7 @@ function createSplines(theSplines, numPoints, isSubway) {
             geometry = new THREE.BoxGeometry(1, 1, 1);
             var subwayMesh = new THREE.Mesh(geometry, material);
             group.add(subwayMesh);
-            group.add(particleGroup.mesh);
+            group.add(particleGroups[j].mesh);
 
             group.userData.normalizer = BART.longestRoute / route.routeLength;
             group.counter = 0;
