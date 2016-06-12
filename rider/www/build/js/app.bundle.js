@@ -1460,8 +1460,12 @@ var IntroPage = exports.IntroPage = (_dec = (0, _ionicAngular.Page)({
       console.log(this.bartVR._isDesktop);
       if (this.bartVR._isDesktop) {
         document.getElementById('desktopLaunch').style.display = "block";
+        document.getElementById('desktopLaunch1').style.display = "block";
+        document.getElementById('rotateMessage').style.display = "none";
+        document.getElementById('rotateMessage1').style.display = "none";
       } else {
         document.getElementById('desktopLaunch').style.display = "none";
+        document.getElementById('desktopLaunch1').style.display = "none";
       }
 
       if (window.localStorage.getItem("bart_vr_user") != null) {
