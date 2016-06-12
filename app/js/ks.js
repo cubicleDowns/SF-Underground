@@ -7,7 +7,7 @@ var windowHalfX = window.innerWidth / 2;
 var windowHalfY = window.innerHeight / 2;
 var sound, analyser, listener;
 var obj;
-var fb, fb_db, fb_riders, fb_start;
+var fb_freq, fb_db, fb_riders, fb_start;
 var dbs;
 var level = 0;
 var attributes;
@@ -20,7 +20,7 @@ var axis = new THREE.Vector3();
 var up = new THREE.Vector3(0, 1, 0);
 var particle, delay;
 var PARTICLES_ACTIVE = false;
-var FB_ACTIVE = false;
+var FB_ACTIVE = true;
 var AXIS_HELPER = false;
 
 // starts the BART animation on 'play' click
@@ -30,31 +30,29 @@ var emitter, particleGroups = [], emitters = [];
 var clock = new THREE.Clock();
 var NUM_PARTICLES = 200;
 
-var SHOW_SUBWAY = false;
+var GLITCH_MODE_STARTED = false;
 
-var particleColors = [
-    "#770810", // redish
-    "#140581", // dark blue
-    "#780568", // purplish
-    "#000000", // black
-    "#FFFFFF"  // white
-];
+var SHOW_SUBWAY = false;
 
 
 var MESSAGES = [
     "SOUNDS OF THE SAN FRANCISCO UNDERGROUND",
-    "A SOUND DISPLACEMENT MAP OF BART",
+    "A dB LEVEL  MAP OF BART",
     " ",
-    "150,000 SAMPLES. 35 HOURS",
+    "150,000 SAMPLES. ~35 HOURS",
     "AVG 89 dB. MAX 129.8 dB",
     "125 dB === PAIN",
     " ",
-    "Trains in Japan are so quiet...",
-    "they ask you to turn off your phones",
+    "Trains in Japan are so quiet,",
+    "they request you turn off your phones",
+    "so you won't disturb anyone",
     " ",
-    "Here in SF headphones are your only hope",
+    "on BART, headphones are your only hope",
     "What a wonderful way to start and end a workday",
-    " "];
+    " ",
+    " ",
+    "Don't worry, we'll all be deaf soon",
+    "¯\_(ツ)_/¯"];
 
 
 function go() {
@@ -88,20 +86,30 @@ function dbLevels() {
 
     var slow = {
         accel: new THREE.Vector3(0, 0.1, 0),
-        velocity: new THREE.Vector3(0.1, 0.1, 0.1)
+        velocity: new THREE.Vector3(0.3, 0.3, 0.3),
+        spread: new THREE.Vector3(1, 1, 1),
+        opacity: 0.5
     };
 
     var mid = {
         accel: new THREE.Vector3(0.5, 0.5, 0.5),
-        velocity: new THREE.Vector3(0.1, 0.3, 0.1)
+        velocity: new THREE.Vector3(0.7, 0.7, 0.7),
+        spread: new THREE.Vector3(3, 3, 3),
+        opacity: 0.7
     };
 
     var fast = {
         accel: new THREE.Vector3(1, 1, 1),
-        velocity: new THREE.Vector3(0.3, 0.3, 0.3)
+        velocity: new THREE.Vector3(2, 2, 2),
+        spread: new THREE.Vector3(8, 8, 8),
+        opacity: 1.0
     };
 
     dbs = setInterval(function () {
+
+        var particleColors = [];
+
+        var colorSet = [];
 
         if (DB_LEVELS[level]) {
             db = DB_LEVELS[level];
@@ -115,37 +123,70 @@ function dbLevels() {
                 return parseInt(db, 10);
             });
             if (db === 76.666) {
+                GLITCH_MODE_STARTED = true;
                 fb_start.transaction(function () {
                     return true;
                 });
             }
         }
 
+        var particleColors = [
+            "#770810", // redish     0
+            "#140581", // dark blue  1
+            "#780568", // purplish   2
+            "#000000", // black      3
+            "#FFFFFF", // white      4
+            "#FF0000", // red        5
+        ];
+
+        if(GLITCH_MODE_STARTED){
+
+        }
+
         for (var i = 0; i < emitters.length; i++) {
             console.log(emitters[i].activeMultiplier);
-            emitters[i].activeMultiplier = db / 130;
+            emitters[i].activeMultiplier = db / 20;
             dbLevel.html(parseInt(db, 10));
             if (db >= 105) {
-                console.log(db, '> 105');
-                emitters[i].color.value[1].setStyle(particleColors[0]);
-                emitters[i].color.value[0].setStyle(particleColors[4]);
+//                console.log(db, '> 105');
+                emitters[i].color.value[0].setStyle(particleColors[5]);
+                emitters[i].color.value[1].setStyle(particleColors[1]);
                 emitters[i].acceleration.value = fast.accel;
+                emitters[i].acceleration.spread = fast.spread;
                 emitters[i].velocity.value = fast.velocity;
+                emitters[i].velocity.spread = fast.spread;
+                emitters[i].opacity.value[0] = fast.opacity;
+                emitters[i].opacity.value[1] = fast.opacity;
+                emitters[i].size.value = 4;
             } else if (db < 105 && db >= 80) {
                 console.log(db, '80 - 100');
+                emitters[i].color.value[0].setStyle(particleColors[2]);
                 emitters[i].color.value[1].setStyle(particleColors[1]);
-                emitters[i].color.value[0].setStyle(particleColors[3]);
                 emitters[i].acceleration.value = mid.accel;
+                emitters[i].acceleration.spread = mid.spread;
                 emitters[i].velocity.value = mid.velocity;
+                emitters[i].velocity.spread = mid.spread;
+                emitters[i].opacity.value[0] = mid.opacity;
+                emitters[i].opacity.value[1] = mid.opacity;
+                emitters[i].size.value = 3;
             } else {
                 console.log(db, 'below 80');
+                emitters[i].color.value[0].setStyle(particleColors[2]);
                 emitters[i].color.value[1].setStyle(particleColors[2]);
-                emitters[i].color.value[0].setStyle(particleColors[3]);
                 emitters[i].acceleration.value = slow.accel;
+                emitters[i].acceleration.spread = slow.spread;
+                emitters[i].velocity.value = slow.velocity;
+                emitters[i].velocity.spread = slow.spread;
+                emitters[i].opacity.value[0] = slow.opacity;
+                emitters[i].opacity.value[1] = slow.opacity;
+                emitters[i].size.value = 2.5;
             }
             emitters[i].acceleration.value = emitters[i].acceleration.value;
             emitters[i].velocity.value = emitters[i].velocity.value;
             emitters[i].color.value = emitters[i].color.value;
+            emitters[i].opacity.value = emitters[i].opacity.value;
+            emitters[i].size.value = emitters[i].size.value;
+
         }
     }, 1000);
 }
@@ -156,12 +197,8 @@ function createParticleGroups() {
         particleGroups.push(initParticles());
     }
 }
-
-function updateMaterial(groupNum) {
-    particleGroups[i].materialneedsUpdate = true;
-}
-
 function initParticles() {
+
     var pg = new SPE.Group({
         texture: {
             value: THREE.ImageUtils.loadTexture('./images/smoke_particle.png')
@@ -188,7 +225,7 @@ function initParticles() {
         },
 
         color: {
-            value: [new THREE.Color('red'), new THREE.Color('white')]
+            value: [new THREE.Color('white'), new THREE.Color('red')]
         },
 
         size: {
@@ -207,7 +244,7 @@ function initParticles() {
 
 function init() {
 
-    fb = new Firebase("https://sf-noise.firebaseio.com/freq");
+    fb_freq = new Firebase("https://sf-noise.firebaseio.com/freq");
     fb_start = new Firebase("https://sf-noise.firebaseio.com/start");
     fb_db = new Firebase("https://sf-noise.firebaseio.com/db");
     fb_riders = new Firebase("https://sf-noise.firebaseio.com/riders");
@@ -317,9 +354,11 @@ function render(dt) {
         theta += 0.1;
         camera.position.x = radius * Math.sin(THREE.Math.degToRad(theta));
         camera.position.z = radius * Math.cos(THREE.Math.degToRad(theta));
+
         var fr = analyser.getAverageFrequency() / 256;
+        console.log(fr);
         if (FB_ACTIVE) {
-            fb.transaction(function () {
+            fb_freq.transaction(function () {
                 return fr;
             });
         }
