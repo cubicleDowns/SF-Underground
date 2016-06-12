@@ -1,13 +1,13 @@
 var container;
 var theta = 0;
-var radius = 150;
+var radius = 120;
 var camera, scene, renderer, material;
 var mouseX = 0, mouseY = 0;
 var windowHalfX = window.innerWidth / 2;
 var windowHalfY = window.innerHeight / 2;
 var sound, analyser, listener;
 var obj;
-var fb, fb_db, fb_riders;
+var fb, fb_db, fb_riders, fb_start;
 var dbs;
 var level = 0;
 var attributes;
@@ -20,23 +20,36 @@ var axis = new THREE.Vector3();
 var up = new THREE.Vector3(0, 1, 0);
 var particle, delay;
 var PARTICLES_ACTIVE = false;
-var FB_ACTIVE = false;
+var FB_ACTIVE = true;
 var AXIS_HELPER = false;
 var BARTVR_ANIMATE = false;
 var currentMessage = 0;
-var emitter, particleGroups = [];
+var emitter, particleGroups = [], emitters = [];
 var clock = new THREE.Clock();
-var NUM_PARTICLES = 1000;
+var NUM_PARTICLES = 200;
+
+var SHOW_SUBWAY = false;
+
+var particleColors = [
+    "#750811",
+    "#140581",
+    "#780568",
+    "#000000",
+    "#FFFFFF"
+];
+
 
 var MESSAGES = [
     "SOUNDS OF THE SAN FRANCISCO UNDERGROUND",
     "A SOUND DISPLACEMENT MAP OF BART",
     " ",
     "150,000 SAMPLES. 35 HOURS",
-    "AVG 89 dB. MAX 129.7 dB",
+    "AVG 89 dB. MAX 129.8 dB",
     "125 dB === PAIN",
+    " ",
     "The transportation in Japan is so quiet...",
     "they ask you to turn off your phones",
+    " ",
     "Here in SF headphones are your only hope",
     "What a wonderful way to start and end a workday",
     " "];
@@ -68,18 +81,70 @@ function changeMessage() {
 
 
 function dbLevels() {
+    var db;
+    var dbLevel = $('#dbs');
+
+    var slow = {
+        accel: new THREE.Vector3(0, 0.1, 0),
+        velocity: new THREE.Vector3(1, 3, 1)
+    };
+
+    var mid = {
+        accel: new THREE.Vector3(0, 0.5, 0),
+        velocity: new THREE.Vector3(5, 10, 5)
+    };
+
+    var fast = {
+        accel: new THREE.Vector3(0, 1, 0),
+        velocity: new THREE.Vector3(10, 20, 10)
+    };
+
     dbs = setInterval(function () {
-        console.log(DB_LEVELS[level]);
         if (FB_ACTIVE) {
+            if (DB_LEVELS[level]) {
+                db = DB_LEVELS[level];
+                level++;
+            } else {
+                db = 0;
+            }
+
             fb_db.transaction(function () {
-                if (DB_LEVELS[level]) {
-                    dbs = DB_LEVELS[level];
-                    level++;
-                    return dbs;
-                } else {
-                    return 0;
-                }
+                return parseInt(db, 10);
             });
+
+            if (db === 76.666) {
+                fb_start.transaction(function () {
+                    return true;
+                });
+            }
+
+            for (var i = 0; i < emitters.length; i++) {
+                console.log(emitters[i].activeMultiplier);
+                emitters[i].activeMultiplier = db / 130;
+                dbLevel.html(parseInt(db, 10));
+                if (db > 100) {
+                    console.log(db, '> 100');
+                    emitters[i].color.value[1].setStyle(particleColors[0]);
+                    emitters[i].color.value[0].setStyle(particleColors[4]);
+                    emitters[i].acceleration.value = fast.accel;
+                    emitters[i].velocity.value = fast.velocity;
+                } else if (db < 100 && db > 80) {
+                    console.log(db, '80 - 100');
+                    emitters[i].color.value[1].setStyle(particleColors[1]);
+                    emitters[i].color.value[0].setStyle(particleColors[3]);
+                    emitters[i].color.value[0].setStyle(particleColors[3]);
+                    emitters[i].acceleration.value = mid.accel;
+                    emitters[i].velocity.value = mid.velocity;
+                } else {
+                    console.log(db, 'below 80');
+                    emitters[i].color.value[1].setStyle(particleColors[2]);
+                    emitters[i].color.value[0].setStyle(particleColors[3]);
+                    emitters[i].acceleration.value = slow.accel;
+                }
+                emitters[i].acceleration.value = emitters[i].acceleration.value;
+                emitters[i].velocity.value = emitters[i].velocity.value;
+                emitters[i].color.value = emitters[i].color.value;
+            }
         }
     }, 1000);
 }
@@ -91,6 +156,10 @@ function createParticleGroups() {
     }
 }
 
+function updateMaterial(groupNum) {
+    particleGroups[i].materialneedsUpdate = true;
+}
+
 function initParticles() {
     var pg = new SPE.Group({
         texture: {
@@ -100,34 +169,36 @@ function initParticles() {
 
     emitter = new SPE.Emitter({
         maxAge: {
-            value: 1
+            value: 2
         },
         position: {
-            value: new THREE.Vector3(0, 0.5, 0),
-            spread: new THREE.Vector3(0, 0, 0)
+            value: new THREE.Vector3(0, 0, 0),
+            spread: new THREE.Vector3(5, 5, 5)
         },
 
         acceleration: {
-            value: new THREE.Vector3(0, 5, 0),
-            spread: new THREE.Vector3(0, 10, 0)
+            value: new THREE.Vector3(0, 0.1, 0),
+            spread: new THREE.Vector3(0, 3, 0)
         },
 
         velocity: {
-            value: new THREE.Vector3(0, 10, 0),
-            spread: new THREE.Vector3(20, 7.5, 20)
+            value: new THREE.Vector3(1, 3, 1),
+            spread: new THREE.Vector3(25, 25, 25)
         },
 
         color: {
-            value: [ new THREE.Color('white'), new THREE.Color('red') ]
+            value: [ new THREE.Color('white'), new THREE.Color('red')]
         },
 
         size: {
-            value: 1
+            value: 4
         },
 
-        particleCount: NUM_PARTICLES
+        particleCount: NUM_PARTICLES,
+        activeMultiplier: 0
     });
 
+    emitters.push(emitter);
     pg.addEmitter(emitter);
     return pg;
 }
@@ -136,9 +207,15 @@ function initParticles() {
 function init() {
 
     fb = new Firebase("https://sf-noise.firebaseio.com/freq");
+    fb_start = new Firebase("https://sf-noise.firebaseio.com/start");
     fb_db = new Firebase("https://sf-noise.firebaseio.com/db");
     fb_riders = new Firebase("https://sf-noise.firebaseio.com/riders");
     numRiders = $('#numRiders');
+
+    fb_start.transaction(function () {
+        return false;
+    });
+
 
     if (FB_ACTIVE) {
         fb_riders.on('value', function (data) {
@@ -149,7 +226,7 @@ function init() {
     container = document.createElement('div');
     document.body.appendChild(container);
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 2000);
-    camera.position.set(0, 50, 150);
+    camera.position.set(0, 50, 120);
 
     // scene
     scene = new THREE.Scene();
@@ -242,7 +319,6 @@ function render(dt) {
         var fr = analyser.getAverageFrequency() / 256;
         if (FB_ACTIVE) {
             fb.transaction(function () {
-                console.log(fr);
                 return fr;
             });
         }
@@ -347,9 +423,12 @@ function createSplines(theSplines, numPoints, isSubway) {
         if (isSubway) {
             geometry = new THREE.BoxGeometry(1, 1, 1);
             var subwayMesh = new THREE.Mesh(geometry, material);
+
+            if (!SHOW_SUBWAY) {
+                subwayMesh.visible = false;
+            }
             group.add(subwayMesh);
             group.add(particleGroups[j].mesh);
-
             group.userData.normalizer = BART.longestRoute / route.routeLength;
             group.counter = 0;
             subways.push(group);
