@@ -23,6 +23,9 @@
             integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
             crossorigin="anonymous"></script>    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
     <script src="lib/three.min.js"></script>
+
+    <script src="lib/SPE.js"></script>
+
     <script src="lib/OBJLoader.js"></script>
     <script src="js/ks.js"></script>
     <script src="sound/db_levels.js"></script>
@@ -65,11 +68,25 @@
             z-index: 10000;
             width: 50px;
         }
+        body {
+            background-color: #CCCCCC;
+            font-family: Monospace;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        canvas {
+            position: absolute;
+            z-index: 1;
+            left: 0;
+            top: 0;
+        }
 
         .messages {
             position: absolute;
-            bottom: 2em;
-            width: 80%;
+            bottom: 1em;
+            width: 100%;
             margin: 0 auto;
             color: #DDDDDD;
             font-size: 3em;

@@ -24,21 +24,21 @@ var FB_ACTIVE = false;
 var AXIS_HELPER = false;
 var BARTVR_ANIMATE = false;
 var currentMessage = 0;
+var emitter, particleGroup;
+var clock = new THREE.Clock();
+var NUM_PARTICLES = 1000;
 
 var MESSAGES = [
     "SOUNDS OF THE SAN FRANCISCO UNDERGROUND",
-    "SOUND DISPLACEMENT MAP OF BART",
-    "150,000 SAMPLES, 35 HOURS",
-    "AVG ~89 dB, MAX 129.7 dB",
-    "125 dB == PAIN",
-    "CHAINSAWS ~123 dB",
-    "My sensor's sensor max is 130 dB @ 1 Hz",
+    "A SOUND DISPLACEMENT MAP OF BART",
+    "150,000 SAMPLES. 35 HOURS",
+    "AVG 89 dB. MAX 129.7 dB",
+    "125 dB === PAIN",
     "The transportation in Japan is so quiet...",
-    "They ask you to turn off your phones.",
-    "Enjoy being in my head on BART for a short moment",
-    "It is really fucking loud",
-    "Try headphones",
-    "..."];
+    "they ask you to turn off your phones",
+    "Here in SF headphones are your only hope",
+    "What a wonderful way to start and end a workday",
+    " "];
 
 
 function go() {
@@ -98,26 +98,47 @@ function generateSprite() {
     return canvas;
 }
 
+function initParticles() {
 
-function initParticle(particle, delay) {
-    particle = this instanceof THREE.Sprite ? this : particle;
-    delay = delay !== undefined ? delay : 0;
-    particle.position.set(0, 0, 0);
-    particle.scale.x = particle.scale.y = Math.random() * 32 + 16;
-    new TWEEN.Tween(particle)
-        .delay(delay)
-        .to({}, 10000)
-        .onComplete(initParticle)
-        .start();
-    new TWEEN.Tween(particle.position)
-        .delay(delay)
-        .to({ x: Math.random() * 4000 - 2000, y: Math.random() * 1000 - 500, z: Math.random() * 4000 - 2000 }, 10000)
-        .start();
-    new TWEEN.Tween(particle.scale)
-        .delay(delay)
-        .to({ x: 0.01, y: 0.01 }, 10000)
-        .start();
+    particleGroup = new SPE.Group({
+        texture: {
+            value: THREE.ImageUtils.loadTexture('./images/smoke_particle.png')
+        }
+    });
+
+    emitter = new SPE.Emitter({
+        maxAge: {
+            value: 1
+        },
+        position: {
+            value: new THREE.Vector3(0, 0.5, 0),
+            spread: new THREE.Vector3( 0, 0, 0 )
+        },
+
+        acceleration: {
+            value: new THREE.Vector3(0, 5, 0),
+            spread: new THREE.Vector3( 0, 10, 0)
+        },
+
+        velocity: {
+            value: new THREE.Vector3(0, 10, 0),
+            spread: new THREE.Vector3(20, 7.5, 20)
+        },
+
+        color: {
+            value: [ new THREE.Color('white'), new THREE.Color('red') ]
+        },
+
+        size: {
+            value: 1
+        },
+
+        particleCount: NUM_PARTICLES
+    });
+
+    particleGroup.addEmitter( emitter );
 }
+
 
 function init() {
 
@@ -147,6 +168,7 @@ function init() {
     scene.add(directionalLight);
 
     setupRoutes();
+    initParticles();
 
     material = new THREE.ShaderMaterial({
         vertexShader: document.getElementById('vertexShader').textContent,
@@ -190,18 +212,6 @@ function init() {
 
     }, onProgress, onError);
 
-    var spriteMat = new THREE.SpriteMaterial({
-        map: new THREE.CanvasTexture(generateSprite()),
-        blending: THREE.AdditiveBlending
-    });
-
-    if (PARTICLES_ACTIVE) {
-        for (var i = 0; i < 1000; i++) {
-            particle = new THREE.Sprite(spriteMat);
-            initParticle(particle, i * 10);
-            scene.add(particle);
-        }
-    }
 
     if (AXIS_HELPER) {
         var axisHelper = new THREE.AxisHelper(20);
@@ -228,10 +238,10 @@ function onWindowResize() {
 
 function animate() {
     requestAnimationFrame(animate);
-    render();
+    render(clock.getDelta());
 }
 
-function render() {
+function render(dt) {
     if (BARTVR_ANIMATE) {
         theta += 0.1;
         camera.position.x = radius * Math.sin(THREE.Math.degToRad(theta));
@@ -245,7 +255,8 @@ function render() {
         }
     }
 
-    TWEEN.update();
+    particleGroup.tick(dt);
+
     camera.lookAt(scene.position);
     renderer.render(scene, camera);
 }
@@ -342,6 +353,7 @@ function createSplines(theSplines, numPoints, isSubway) {
             geometry = new THREE.BoxGeometry(1, 1, 1);
             var subwayMesh = new THREE.Mesh(geometry, material);
             group.add(subwayMesh);
+            group.add(particleGroup.mesh);
 
             group.userData.normalizer = BART.longestRoute / route.routeLength;
             group.counter = 0;
@@ -360,12 +372,6 @@ function moveSubway() {
         if (subway.counter <= 1) {
             subway.position.copy(splines[i].getPointAt(subway.counter));
             tangent = splines[i].getTangentAt(subway.counter).normalize();
-
-            axis.crossVectors(up, tangent).normalize();
-
-            radians = Math.acos(up.dot(tangent));
-
-            subway.quaternion.setFromAxisAngle(axis, radians);
 
             /**
              * `normalizer` is the current track / longest track.
