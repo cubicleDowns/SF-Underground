@@ -19,9 +19,11 @@ var tangent = new THREE.Vector3();
 var axis = new THREE.Vector3();
 var up = new THREE.Vector3(0, 1, 0);
 var particle, delay;
+var clock = new THREE.Clock();
 var PARTICLES_ACTIVE = false;
 var FB_ACTIVE = false;
 var AXIS_HELPER = false;
+var emitter, particleGroup;
 
 
 function go() {
@@ -64,6 +66,51 @@ function generateSprite() {
     context.fillStyle = gradient;
     context.fillRect(0, 0, canvas.width, canvas.height);
     return canvas;
+}
+
+// Create particle group and emitter
+function initParticles() {
+    particleGroup = new SPE.Group({
+        texture: {
+            value: THREE.ImageUtils.loadTexture('smokeparticle.png')
+        }
+    });
+
+    emitter = new SPE.Emitter({
+        maxAge: {
+            value: 2
+        },
+        position: {
+            value: new THREE.Vector3(0, 0, -50),
+            spread: new THREE.Vector3( 0, 0, 0 )
+        },
+
+        acceleration: {
+            value: new THREE.Vector3(0, -10, 0),
+            spread: new THREE.Vector3( 10, 0, 10 )
+        },
+
+        velocity: {
+            value: new THREE.Vector3(0, 25, 0),
+            spread: new THREE.Vector3(10, 7.5, 10)
+        },
+
+        color: {
+            value: [ new THREE.Color('white'), new THREE.Color('red') ]
+        },
+
+        size: {
+            value: 1
+        },
+
+        particleCount: 2000
+    });
+
+    particleGroup.addEmitter( emitter );
+    scene.add( particleGroup.mesh );
+
+    document.querySelector('.numParticles').textContent =
+        'Total particles: ' + emitter.particleCount;
 }
 
 
@@ -169,6 +216,8 @@ function init() {
         }
     }
 
+    initParticles();
+
     if (AXIS_HELPER) {
         var axisHelper = new THREE.AxisHelper(20);
         scene.add(axisHelper);
@@ -194,11 +243,12 @@ function onWindowResize() {
 
 function animate() {
     requestAnimationFrame(animate);
-    render();
+    render(clock.getDelta());
 }
 
-function render() {
+function render(dt) {
     if (BARTVR_ANIMATE) {
+        particleGroup.tick( dt );
         theta += 0.1;
         camera.position.x = radius * Math.sin(THREE.Math.degToRad(theta));
         camera.position.z = radius * Math.cos(THREE.Math.degToRad(theta));
