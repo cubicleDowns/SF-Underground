@@ -23,6 +23,12 @@ export class BoilerVR {
     this.app = app;
     this.babylonMod = null;
     this.isNative = false;
+    this._platform  = platform;
+    this._isDesktop  = false;
+
+    if(_bartVR._platform.platforms()[0] == "core"){
+      this._isDesktop = true;
+    }
 
     this.pages = [
       { title: 'CardboardVR', component: IntroPage }
