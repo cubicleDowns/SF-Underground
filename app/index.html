@@ -93,7 +93,7 @@
 
         .messages {
             position: absolute;
-            bottom: 1em;
+            bottom: 10px;
             width: 100%;
             margin: 0 auto;
             color: #DDDDDD;
@@ -131,10 +131,8 @@
 </div>
 
 <script type="x-shader/x-vertex" id="vertexShader">
-varying vec2 vUv;
 varying vec3 a_position;
 void main() {
-   vUv = uv;
    a_position = position / vec3(20, 20, 20);
    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
 }
@@ -142,7 +140,6 @@ void main() {
 </script>
 
 <script type="x-shader/x-vertex" id="fragmentShader">
-varying vec2 vUv;
 varying vec3 a_position;
 void main() {
 

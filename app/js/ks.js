@@ -20,8 +20,10 @@ var axis = new THREE.Vector3();
 var up = new THREE.Vector3(0, 1, 0);
 var particle, delay;
 var PARTICLES_ACTIVE = false;
-var FB_ACTIVE = true;
+var FB_ACTIVE = false;
 var AXIS_HELPER = false;
+
+// starts the BART animation on 'play' click
 var BARTVR_ANIMATE = false;
 var currentMessage = 0;
 var emitter, particleGroups = [], emitters = [];
@@ -31,11 +33,11 @@ var NUM_PARTICLES = 200;
 var SHOW_SUBWAY = false;
 
 var particleColors = [
-    "#750811",
-    "#140581",
-    "#780568",
-    "#000000",
-    "#FFFFFF"
+    "#770810", // redish
+    "#140581", // dark blue
+    "#780568", // purplish
+    "#000000", // black
+    "#FFFFFF"  // white
 ];
 
 
@@ -47,7 +49,7 @@ var MESSAGES = [
     "AVG 89 dB. MAX 129.8 dB",
     "125 dB === PAIN",
     " ",
-    "The transportation in Japan is so quiet...",
+    "Trains in Japan are so quiet...",
     "they ask you to turn off your phones",
     " ",
     "Here in SF headphones are your only hope",
@@ -86,65 +88,64 @@ function dbLevels() {
 
     var slow = {
         accel: new THREE.Vector3(0, 0.1, 0),
-        velocity: new THREE.Vector3(1, 3, 1)
+        velocity: new THREE.Vector3(0.1, 0.1, 0.1)
     };
 
     var mid = {
-        accel: new THREE.Vector3(0, 0.5, 0),
-        velocity: new THREE.Vector3(5, 10, 5)
+        accel: new THREE.Vector3(0.5, 0.5, 0.5),
+        velocity: new THREE.Vector3(0.1, 0.3, 0.1)
     };
 
     var fast = {
-        accel: new THREE.Vector3(0, 1, 0),
-        velocity: new THREE.Vector3(10, 20, 10)
+        accel: new THREE.Vector3(1, 1, 1),
+        velocity: new THREE.Vector3(0.3, 0.3, 0.3)
     };
 
     dbs = setInterval(function () {
+
+        if (DB_LEVELS[level]) {
+            db = DB_LEVELS[level];
+            level++;
+        } else {
+            db = 0;
+        }
         if (FB_ACTIVE) {
-            if (DB_LEVELS[level]) {
-                db = DB_LEVELS[level];
-                level++;
-            } else {
-                db = 0;
-            }
 
             fb_db.transaction(function () {
                 return parseInt(db, 10);
             });
-
             if (db === 76.666) {
                 fb_start.transaction(function () {
                     return true;
                 });
             }
+        }
 
-            for (var i = 0; i < emitters.length; i++) {
-                console.log(emitters[i].activeMultiplier);
-                emitters[i].activeMultiplier = db / 130;
-                dbLevel.html(parseInt(db, 10));
-                if (db > 100) {
-                    console.log(db, '> 100');
-                    emitters[i].color.value[1].setStyle(particleColors[0]);
-                    emitters[i].color.value[0].setStyle(particleColors[4]);
-                    emitters[i].acceleration.value = fast.accel;
-                    emitters[i].velocity.value = fast.velocity;
-                } else if (db < 100 && db > 80) {
-                    console.log(db, '80 - 100');
-                    emitters[i].color.value[1].setStyle(particleColors[1]);
-                    emitters[i].color.value[0].setStyle(particleColors[3]);
-                    emitters[i].color.value[0].setStyle(particleColors[3]);
-                    emitters[i].acceleration.value = mid.accel;
-                    emitters[i].velocity.value = mid.velocity;
-                } else {
-                    console.log(db, 'below 80');
-                    emitters[i].color.value[1].setStyle(particleColors[2]);
-                    emitters[i].color.value[0].setStyle(particleColors[3]);
-                    emitters[i].acceleration.value = slow.accel;
-                }
-                emitters[i].acceleration.value = emitters[i].acceleration.value;
-                emitters[i].velocity.value = emitters[i].velocity.value;
-                emitters[i].color.value = emitters[i].color.value;
+        for (var i = 0; i < emitters.length; i++) {
+            console.log(emitters[i].activeMultiplier);
+            emitters[i].activeMultiplier = db / 130;
+            dbLevel.html(parseInt(db, 10));
+            if (db >= 105) {
+                console.log(db, '> 105');
+                emitters[i].color.value[1].setStyle(particleColors[0]);
+                emitters[i].color.value[0].setStyle(particleColors[4]);
+                emitters[i].acceleration.value = fast.accel;
+                emitters[i].velocity.value = fast.velocity;
+            } else if (db < 105 && db >= 80) {
+                console.log(db, '80 - 100');
+                emitters[i].color.value[1].setStyle(particleColors[1]);
+                emitters[i].color.value[0].setStyle(particleColors[3]);
+                emitters[i].acceleration.value = mid.accel;
+                emitters[i].velocity.value = mid.velocity;
+            } else {
+                console.log(db, 'below 80');
+                emitters[i].color.value[1].setStyle(particleColors[2]);
+                emitters[i].color.value[0].setStyle(particleColors[3]);
+                emitters[i].acceleration.value = slow.accel;
             }
+            emitters[i].acceleration.value = emitters[i].acceleration.value;
+            emitters[i].velocity.value = emitters[i].velocity.value;
+            emitters[i].color.value = emitters[i].color.value;
         }
     }, 1000);
 }
@@ -169,7 +170,7 @@ function initParticles() {
 
     emitter = new SPE.Emitter({
         maxAge: {
-            value: 2
+            value: 1.5
         },
         position: {
             value: new THREE.Vector3(0, 0, 0),
@@ -177,21 +178,21 @@ function initParticles() {
         },
 
         acceleration: {
-            value: new THREE.Vector3(0, 0.1, 0),
-            spread: new THREE.Vector3(0, 3, 0)
-        },
-
-        velocity: {
             value: new THREE.Vector3(1, 3, 1),
             spread: new THREE.Vector3(25, 25, 25)
         },
 
+        velocity: {
+            value: new THREE.Vector3(4, 4, 4),
+            spread: new THREE.Vector3(25, 25, 25)
+        },
+
         color: {
-            value: [ new THREE.Color('white'), new THREE.Color('red')]
+            value: [new THREE.Color('red'), new THREE.Color('white')]
         },
 
         size: {
-            value: 4
+            value: 3
         },
 
         particleCount: NUM_PARTICLES,
