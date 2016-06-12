@@ -158,6 +158,7 @@ var CardBoardData = exports.CardBoardData = function () {
     this.frequencyLevel = 0.0;
     this.dbLevel = 0;
     this.brartRoutes = ['Pittsburg / Bay Point', 'Richmond / Millbrae', 'Richmond / Fremont', 'Fremont / Daily City', 'Dublin Pleasanton / Daily City'];
+    this.spriteAnimations = [20, 40, 60, 80];
     this.init();
   }
 
@@ -293,7 +294,7 @@ var CardBoardData = exports.CardBoardData = function () {
         } catch (e) {
           alert('please allow local storage please disable private mode');
         }
-        this.user = { name: _username, position: _pos, rotation: _pos, sprite: this.randomArr(this.sprites), routeID: this.currentRouteID };
+        this.user = { name: _username, position: _pos, rotation: _pos, sprite: this.randomArr(this.sprites), routeID: this.currentRouteID, spriteID: this.randomArr(this.spriteAnimations) };
         this.users = this.users.push(this.user);
         this.currentUserKey = this.users.key();
         try {
@@ -305,9 +306,9 @@ var CardBoardData = exports.CardBoardData = function () {
     key: 'updateUser',
     value: function updateUser(position, rotation) {
       if (this.isCurrentlyUsingBart) {
-        this.userToUpdate.set({ name: this.user.name, position: position, rotation: rotation, sprite: this.user.sprite, routeID: this.currentRouteID });
+        this.userToUpdate.set({ name: this.user.name, position: position, rotation: rotation, sprite: this.user.sprite, routeID: this.currentRouteID, spriteID: this.user.spriteID });
       } else {
-        this.users.set({ name: this.user.name, position: position, rotation: rotation, sprite: this.user.sprite, routeID: this.currentRouteID });
+        this.users.set({ name: this.user.name, position: position, rotation: rotation, sprite: this.user.sprite, routeID: this.currentRouteID, spriteID: this.user.spriteID });
       }
     }
   }]);
@@ -413,7 +414,7 @@ var babylonMod = exports.babylonMod = function () {
                 this.spManager.layerMask = 3;
                 this.playerSprite = new BABYLON.Sprite("player", this.spManager);
                 this.playerSprite.isPickable = true;
-                this.playerSprite.playAnimation(0, 20, true, 100);
+                this.playerSprite.playAnimation(20 - this.Data.user.spriteID, this.Data.user.spriteID, true, 100);
                 //this.playerSprite.parent = this.vrCamera;
                 this.scene.activeCamera.position = new BABYLON.Vector3(this.Data.user.position.x, this.Data.user.position.y, this.Data.user.position.z);
                 this.playerSprite.position = new BABYLON.Vector3(this.Data.user.position.x, this.Data.user.position.y, this.Data.user.position.z);
@@ -535,7 +536,7 @@ var babylonMod = exports.babylonMod = function () {
             player.position = _data.data.position;
             player.rotation = _data.data.rotation;
             player.size = 14.0;
-            player.playAnimation(0, 20, true, 100);
+            player.playAnimation(Math.abs(20 - parseInt(_data.data.spriteID)), parseInt(_data.data.spriteID), true, 100);
             this.sprites.push({ sprite: player, key: _data.key });
         }
     }, {
@@ -1457,7 +1458,7 @@ var IntroPage = exports.IntroPage = (_dec = (0, _ionicAngular.Page)({
   }, {
     key: 'init',
     value: function init() {
-      console.log(this.bartVR._isDesktop);
+
       if (this.bartVR._isDesktop) {
         document.getElementById('desktopLaunch').style.display = "block";
         document.getElementById('desktopLaunch1').style.display = "block";

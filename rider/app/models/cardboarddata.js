@@ -23,6 +23,7 @@ export class CardBoardData{
       this.frequencyLevel = 0.0;
       this.dbLevel = 0;
       this.brartRoutes = ['Pittsburg / Bay Point', 'Richmond / Millbrae', 'Richmond / Fremont', 'Fremont / Daily City', 'Dublin Pleasanton / Daily City'];
+      this.spriteAnimations = [20,40,60,80];
       this.init();
     }
 
@@ -153,7 +154,7 @@ export class CardBoardData{
         }catch(e){
           alert('please allow local storage please disable private mode');
         }
-          this.user = {name:_username, position: _pos, rotation: _pos, sprite:this.randomArr(this.sprites), routeID:this.currentRouteID  };
+          this.user = {name:_username, position: _pos, rotation: _pos, sprite:this.randomArr(this.sprites), routeID:this.currentRouteID, spriteID: this.randomArr(this.spriteAnimations) };
           this.users = this.users.push( this.user);  
           this.currentUserKey = this.users.key();
           try{
@@ -168,9 +169,9 @@ export class CardBoardData{
 
   updateUser(position, rotation){
     if(this.isCurrentlyUsingBart){
-      this.userToUpdate.set({name: this.user.name, position: position, rotation: rotation, sprite: this.user.sprite,  routeID:this.currentRouteID });
+      this.userToUpdate.set({name: this.user.name, position: position, rotation: rotation, sprite: this.user.sprite,  routeID:this.currentRouteID, spriteID: this.user.spriteID });
     }else{
-      this.users.set({name: this.user.name, position: position, rotation: rotation, sprite: this.user.sprite,  routeID:this.currentRouteID });
+      this.users.set({name: this.user.name, position: position, rotation: rotation, sprite: this.user.sprite,  routeID:this.currentRouteID, spriteID: this.user.spriteID });
     }
   }
 

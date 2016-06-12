@@ -83,7 +83,7 @@ export class babylonMod {
             this.spManager  .layerMask = 3;
             this.playerSprite = new BABYLON.Sprite("player", this.spManager );
             this.playerSprite.isPickable = true;
-            this.playerSprite.playAnimation(0, 20, true, 100);
+            this.playerSprite.playAnimation(( 20 - this.Data.user.spriteID), this.Data.user.spriteID, true, 100);
             //this.playerSprite.parent = this.vrCamera;
             this.scene.activeCamera.position = new BABYLON.Vector3(this.Data.user.position.x, this.Data.user.position.y, this.Data.user.position.z);
             this.playerSprite.position = new BABYLON.Vector3(this.Data.user.position.x, this.Data.user.position.y, this.Data.user.position.z);
@@ -206,7 +206,7 @@ export class babylonMod {
         player.position = _data.data.position;
         player.rotation = _data.data.rotation;
         player.size = 14.0;
-        player.playAnimation(0, 20, true, 100);
+        player.playAnimation(Math.abs( 20 - parseInt(_data.data.spriteID)),  parseInt(_data.data.spriteID), true, 100);
         this.sprites.push({sprite:player, key:_data.key});
     }
 
