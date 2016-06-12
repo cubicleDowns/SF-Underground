@@ -24,6 +24,7 @@ export class babylonMod {
         this.Data.babylonMod = this;
         this.distortionLens = null;
         this.specialFXBart = null;
+        this.glitchEnabled = false;
         setTimeout(this.init.bind(this), 500);
     }
 
@@ -172,6 +173,15 @@ export class babylonMod {
     gameLoop(){
          this.scene.executeWhenReady(function() {
             this.engine.runRenderLoop(function() {
+                if(!this.glitchEnabled && this.Data.soundStart && this.hud.hasInitalized){
+                    this.glitchEnabled = true;
+                    this.enableDistotion();
+                }
+
+                if(this.glitchEnabled && !this.Data.soundStart){
+                    this.specialFXBart.disableAllCameraDistortion();
+                    this.specialFXBart.disableAllCameraDistortion();
+                }
                 document.getElementById("hudDBLevel").innerHTML = "DB:" + this.Data.dbLevel; 
                 for(let i=0; i < this.updateFunctionsInLoop.length; i++){
                     this.updateFunctionsInLoop[i]();
@@ -201,7 +211,6 @@ export class babylonMod {
                     }else{
                         this.sprites[i].sprite.playAnimation(Math.abs( 20 - parseInt(_data.data.spriteID)),  parseInt(_data.data.spriteID), true, 100);
                     }
-
                 this.sprites[i].sprite.position =  _data.data.position;
                 break;
             }
