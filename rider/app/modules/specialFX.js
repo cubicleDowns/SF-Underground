@@ -31,7 +31,6 @@ export class specialFX {
                  function() {
                    this.FilmPostProcessFX = new BABYLON.FilmPostProcess( "FilmPostProcessFX", null, new BABYLON.PassPostProcess("Scene copy", 1.0, this._babylonMod.scene.activeCameras[0]),  this._babylonMod.scene.activeCameras[0]);
                    this.FilmPostProcessFX._isRunning = true;
-                   //this.FilmPostProcessFX.grayscale = false;
                    this.fxArray.push(this.FilmPostProcessFX);
                    return this.FilmPostProcessFX;
         }.bind(this));
@@ -41,13 +40,13 @@ export class specialFX {
                  function() {
                     this.BadTVPostProcessFX = new BABYLON.BadTVPostProcess( "BadTVPostProcessFX", null, new BABYLON.PassPostProcess("Scene copy", 1.0, this._babylonMod.scene.activeCameras[0]),  this._babylonMod.scene.activeCameras[0]);
                     this.BadTVPostProcessFX._isRunning = true;
+                    this.BadTVPostProcessFX.rollSpeed = 0.0;
                     this.fxArray.push(this.BadTVPostProcessFX);
                     return this.BadTVPostProcessFX ;
         }.bind(this));
         this.BadTVPostProcess._isAttached = false;
 
         this.specialFXPipeline.addEffect(this.FilmPostProcess);
-
         this.specialFXPipeline.addEffect(this.BadTVPostProcess);
         this.specialFXPipeline.addEffect(this.RGBShift);
 
@@ -67,25 +66,32 @@ export class specialFX {
         this._babylonMod.scene.registerBeforeRender(function () {
             try{
 
-                
-                
+                this.RGBShiftFX.amount =  this._babylonMod.Data.frequencyLevel * 0.1;
+                this.FilmPostProcessFX.nIntensity =  this._babylonMod.Data.frequencyLevel  * 0.1;
 
-                if(this._babylonMod.Data.frequencyLevel > 0.2){
-                   this.FilmPostProcessFX.grayscale = true;
+                if(this._babylonMod.Data.frequencyLevel < 0.1){
+                   this.disableEffectInPipeline(this.FilmPostProcess);
+                   this.disableEffectInPipeline(this.BadTVPostProcess);
+                   this.disableEffectInPipeline(this.RGBShift); 
+                }
+
+                if(this._babylonMod.Data.frequencyLevel > 0.1){
+                   this.FilmPostProcessFX.grayscale = false;
                    this.disableEffectInPipeline(this.BadTVPostProcess);
                    this.disableEffectInPipeline(this.RGBShift);
                 }
 
-                if(this._babylonMod.Data.frequencyLevel > 0.35){
-                    this.FilmPostProcessFX.grayscale = false;
+                if(this._babylonMod.Data.frequencyLevel > 0.2){
+                    this.FilmPostProcessFX.grayscale = true;
                     this.enableEffectInPipeline(this.RGBShift);    
                     this.disableEffectInPipeline(this.BadTVPostProcess);
 
                 }
 
-                if(this._babylonMod.Data.frequencyLevel > 0.35){
+                if(this._babylonMod.Data.frequencyLevel > 0.25){
                         this.enableEffectInPipeline(this.BadTVPostProcess);
                         this.enableEffectInPipeline(this.RGBShift);
+                        this.BadTVPostProcessFX.rollSpeed = this._babylonMod.Data.frequencyLevel;
                 }
                 window.time += 0.01;
                 this.BadTVPostProcessFX.time =  this.FilmPostProcessFX.time  = window.time;

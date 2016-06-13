@@ -397,13 +397,15 @@ var babylonMod = exports.babylonMod = function () {
             BABYLON.SceneLoader.Load('', 'bartvr/scenes/subway3/bart_16.babylon?once=3665092109', this.engine, function (newScene) {
                 this.scene = newScene;
                 var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(100, 100, 0), this.scene);
-                if (_babylon.app.isNative) {
-                    BABYLON.SceneOptimizer.OptimizeAsync(this.scene, BABYLON.SceneOptimizerOptions.HighDegradationAllowed(), function () {
-                        console.log(this.engine.getFps());
-                    }.bind(this), function () {
-                        console.log(this.engine.getFps());
+                /*
+                if(!this.app._isDesktop){
+                    BABYLON.SceneOptimizer.OptimizeAsync(this.scene, BABYLON.SceneOptimizerOptions.HighDegradationAllowed(),
+                    function() {
+                     // console.log(this.engine.getFps());
+                    }.bind(this), function() {
+                       //console.log(this.engine.getFps());
                     }.bind(this));
-                }
+                }*/
                 document.getElementById('loadCover').style.display = "none";
                 this.vrCamera = new BABYLON.VRDeviceOrientationFreeCamera("Camera", BABYLON.Vector3.Zero(), this.scene, true);
                 this.vrCamera.rotation = new BABYLON.Vector3(newScene.cameras[0].rotation.x, newScene.cameras[0].rotation.y, newScene.cameras[0].rotation.z);
@@ -1297,7 +1299,6 @@ var specialFX = exports.specialFX = function () {
             this.FilmPostProcess = new BABYLON.PostProcessRenderEffect(this._babylonMod.scene.getEngine(), "FilmPostProcess", function () {
                 this.FilmPostProcessFX = new BABYLON.FilmPostProcess("FilmPostProcessFX", null, new BABYLON.PassPostProcess("Scene copy", 1.0, this._babylonMod.scene.activeCameras[0]), this._babylonMod.scene.activeCameras[0]);
                 this.FilmPostProcessFX._isRunning = true;
-                //this.FilmPostProcessFX.grayscale = false;
                 this.fxArray.push(this.FilmPostProcessFX);
                 return this.FilmPostProcessFX;
             }.bind(this));
@@ -1306,13 +1307,13 @@ var specialFX = exports.specialFX = function () {
             this.BadTVPostProcess = new BABYLON.PostProcessRenderEffect(this._babylonMod.scene.getEngine(), "BadTVPostProcess", function () {
                 this.BadTVPostProcessFX = new BABYLON.BadTVPostProcess("BadTVPostProcessFX", null, new BABYLON.PassPostProcess("Scene copy", 1.0, this._babylonMod.scene.activeCameras[0]), this._babylonMod.scene.activeCameras[0]);
                 this.BadTVPostProcessFX._isRunning = true;
+                this.BadTVPostProcessFX.rollSpeed = 0.0;
                 this.fxArray.push(this.BadTVPostProcessFX);
                 return this.BadTVPostProcessFX;
             }.bind(this));
             this.BadTVPostProcess._isAttached = false;
 
             this.specialFXPipeline.addEffect(this.FilmPostProcess);
-
             this.specialFXPipeline.addEffect(this.BadTVPostProcess);
             this.specialFXPipeline.addEffect(this.RGBShift);
 
@@ -1327,21 +1328,31 @@ var specialFX = exports.specialFX = function () {
             this._babylonMod.scene.registerBeforeRender(function () {
                 try {
 
-                    if (this._babylonMod.Data.frequencyLevel > 0.2) {
-                        this.FilmPostProcessFX.grayscale = true;
+                    this.RGBShiftFX.amount = this._babylonMod.Data.frequencyLevel * 0.1;
+                    this.FilmPostProcessFX.nIntensity = this._babylonMod.Data.frequencyLevel * 0.1;
+
+                    if (this._babylonMod.Data.frequencyLevel < 0.1) {
+                        this.disableEffectInPipeline(this.FilmPostProcess);
                         this.disableEffectInPipeline(this.BadTVPostProcess);
                         this.disableEffectInPipeline(this.RGBShift);
                     }
 
-                    if (this._babylonMod.Data.frequencyLevel > 0.35) {
+                    if (this._babylonMod.Data.frequencyLevel > 0.1) {
                         this.FilmPostProcessFX.grayscale = false;
+                        this.disableEffectInPipeline(this.BadTVPostProcess);
+                        this.disableEffectInPipeline(this.RGBShift);
+                    }
+
+                    if (this._babylonMod.Data.frequencyLevel > 0.2) {
+                        this.FilmPostProcessFX.grayscale = true;
                         this.enableEffectInPipeline(this.RGBShift);
                         this.disableEffectInPipeline(this.BadTVPostProcess);
                     }
 
-                    if (this._babylonMod.Data.frequencyLevel > 0.35) {
+                    if (this._babylonMod.Data.frequencyLevel > 0.25) {
                         this.enableEffectInPipeline(this.BadTVPostProcess);
                         this.enableEffectInPipeline(this.RGBShift);
+                        this.BadTVPostProcessFX.rollSpeed = this._babylonMod.Data.frequencyLevel;
                     }
                     window.time += 0.01;
                     this.BadTVPostProcessFX.time = this.FilmPostProcessFX.time = window.time;

@@ -44,14 +44,15 @@ export class babylonMod {
         BABYLON.SceneLoader.Load('', 'bartvr/scenes/subway3/bart_16.babylon?once=3665092109', this.engine, function(newScene) {
             this.scene = newScene;
             var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(100, 100, 0), this.scene );
-            if(_babylon.app.isNative){
+            /*
+            if(!this.app._isDesktop){
                 BABYLON.SceneOptimizer.OptimizeAsync(this.scene, BABYLON.SceneOptimizerOptions.HighDegradationAllowed(),
                 function() {
-                  console.log(this.engine.getFps());
+                 // console.log(this.engine.getFps());
                 }.bind(this), function() {
-                   console.log(this.engine.getFps());
+                   //console.log(this.engine.getFps());
                 }.bind(this));
-            }
+            }*/
             document.getElementById('loadCover').style.display = "none";
             this.vrCamera = new BABYLON.VRDeviceOrientationFreeCamera("Camera", BABYLON.Vector3.Zero(), this.scene, true);
             this.vrCamera.rotation = new BABYLON.Vector3(newScene.cameras[0].rotation.x, newScene.cameras[0].rotation.y, newScene.cameras[0].rotation.z)
