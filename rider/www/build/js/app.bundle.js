@@ -1312,31 +1312,36 @@ var specialFX = exports.specialFX = function () {
             this.BadTVPostProcess._isAttached = false;
 
             this.specialFXPipeline.addEffect(this.FilmPostProcess);
-            //this.specialFXPipeline.addEffect(this.BadTVPostProcess);
-            //this.specialFXPipeline.addEffect(this.RGBShift);
+
+            this.specialFXPipeline.addEffect(this.BadTVPostProcess);
+            this.specialFXPipeline.addEffect(this.RGBShift);
+
             this._babylonMod.scene.postProcessRenderPipelineManager.addPipeline(this.specialFXPipeline);
-            this._babylonMod.scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline("specialFXPipeline", this._babylonMod.scene.activeCameras[0]);
-            this._babylonMod.scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline("specialFXPipeline", this._babylonMod.nonVRCamera);
-            this._babylonMod.scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline("specialFXPipeline", this._babylonMod.vrCamera);
+
+            this._babylonMod.scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline(this.specialFXPipeline._name, this._babylonMod.scene.activeCameras[0]);
+            this._babylonMod.scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline(this.specialFXPipeline._name, this._babylonMod.nonVRCamera);
+            this._babylonMod.scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline(this.specialFXPipeline._name, this._babylonMod.vrCamera);
+            this.disableEffectInPipeline(this.BadTVPostProcess);
+            this.disableEffectInPipeline(this.RGBShift);
 
             this._babylonMod.scene.registerBeforeRender(function () {
                 try {
 
                     if (this._babylonMod.Data.frequencyLevel > 0.2) {
                         this.FilmPostProcessFX.grayscale = true;
-                    }
-
-                    if (this._babylonMod.Data.frequencyLevel > 0.3) {
-                        this.FilmPostProcessFX.grayscale = false;
-                        if (!this.RGBShift._isAttached) {
-                            this.RGBShift._isAttached = true;
-                        }
+                        this.disableEffectInPipeline(this.BadTVPostProcess);
+                        this.disableEffectInPipeline(this.RGBShift);
                     }
 
                     if (this._babylonMod.Data.frequencyLevel > 0.35) {
-                        if (!this.BadTVPostProcess._isAttached) {
-                            this.BadTVPostProcess._isAttached = true;
-                        }
+                        this.FilmPostProcessFX.grayscale = false;
+                        this.enableEffectInPipeline(this.RGBShift);
+                        this.disableEffectInPipeline(this.BadTVPostProcess);
+                    }
+
+                    if (this._babylonMod.Data.frequencyLevel > 0.35) {
+                        this.enableEffectInPipeline(this.BadTVPostProcess);
+                        this.enableEffectInPipeline(this.RGBShift);
                     }
                     window.time += 0.01;
                     this.BadTVPostProcessFX.time = this.FilmPostProcessFX.time = window.time;
@@ -1344,6 +1349,20 @@ var specialFX = exports.specialFX = function () {
                     // console.log(e);
                 }
             }.bind(this));
+        }
+    }, {
+        key: "enableEffectInPipeline",
+        value: function enableEffectInPipeline(_postProcess) {
+            this._babylonMod.scene.postProcessRenderPipelineManager.enableEffectInPipeline(this.specialFXPipeline._name, _postProcess._name, this._babylonMod.scene.activeCameras[0]);
+            this._babylonMod.scene.postProcessRenderPipelineManager.enableEffectInPipeline(this.specialFXPipeline._name, _postProcess._name, this._babylonMod.nonVRCamera);
+            this._babylonMod.scene.postProcessRenderPipelineManager.enableEffectInPipeline(this.specialFXPipeline._name, _postProcess._name, this._babylonMod.vrCamera);
+        }
+    }, {
+        key: "disableEffectInPipeline",
+        value: function disableEffectInPipeline(_postProcess) {
+            this._babylonMod.scene.postProcessRenderPipelineManager.disableEffectInPipeline(this.specialFXPipeline._name, _postProcess._name, this._babylonMod.scene.activeCameras[0]);
+            this._babylonMod.scene.postProcessRenderPipelineManager.disableEffectInPipeline(this.specialFXPipeline._name, _postProcess._name, this._babylonMod.nonVRCamera);
+            this._babylonMod.scene.postProcessRenderPipelineManager.disableEffectInPipeline(this.specialFXPipeline._name, _postProcess._name, this._babylonMod.vrCamera);
         }
     }, {
         key: "disableDistortion",
