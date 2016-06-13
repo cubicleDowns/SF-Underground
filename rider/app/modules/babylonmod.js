@@ -24,6 +24,7 @@ export class babylonMod {
         this.Data.babylonMod = this;
         this.distortionLens = null;
         this.specialFXBart = null;
+        this.glitchEnabled = false;
         setTimeout(this.init.bind(this), 500);
     }
 
@@ -43,14 +44,15 @@ export class babylonMod {
         BABYLON.SceneLoader.Load('', 'bartvr/scenes/subway3/bart_16.babylon?once=3665092109', this.engine, function(newScene) {
             this.scene = newScene;
             var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(100, 100, 0), this.scene );
-            if(_babylon.app.isNative){
+            /*
+            if(!this.app._isDesktop){
                 BABYLON.SceneOptimizer.OptimizeAsync(this.scene, BABYLON.SceneOptimizerOptions.HighDegradationAllowed(),
                 function() {
-                  console.log(this.engine.getFps());
+                 // console.log(this.engine.getFps());
                 }.bind(this), function() {
-                   console.log(this.engine.getFps());
+                   //console.log(this.engine.getFps());
                 }.bind(this));
-            }
+            }*/
             document.getElementById('loadCover').style.display = "none";
             this.vrCamera = new BABYLON.VRDeviceOrientationFreeCamera("Camera", BABYLON.Vector3.Zero(), this.scene, true);
             this.vrCamera.rotation = new BABYLON.Vector3(newScene.cameras[0].rotation.x, newScene.cameras[0].rotation.y, newScene.cameras[0].rotation.z)
@@ -83,11 +85,16 @@ export class babylonMod {
             this.spManager  .layerMask = 3;
             this.playerSprite = new BABYLON.Sprite("player", this.spManager );
             this.playerSprite.isPickable = true;
-            this.playerSprite.playAnimation(0, 20, true, 100);
+            if(this.Data.zombieMode){
+                this.playerSprite.playAnimation( 80,  100, true, 100);
+            }else{
+                this.playerSprite.playAnimation(Math.abs( 20 - this.Data.user.spriteID),  parseInt(this.Data.user.spriteID), true, 100);
+            }
             //this.playerSprite.parent = this.vrCamera;
             this.scene.activeCamera.position = new BABYLON.Vector3(this.Data.user.position.x, this.Data.user.position.y, this.Data.user.position.z);
             this.playerSprite.position = new BABYLON.Vector3(this.Data.user.position.x, this.Data.user.position.y, this.Data.user.position.z);
-            this.scene.activeCamera.rotation = new BABYLON.Vector3(this.Data.user.rotation.x, this.Data.user.rotation.y, this.Data.user.rotation.z);
+            
+           // this.scene.activeCamera.rotation = new BABYLON.Vector3(this.Data.user.rotation.x, this.Data.user.rotation.y, this.Data.user.rotation.z);
             this.sprites.push({sprite:this.playerSprite, key:this.Data.currentUserKey});
             this.skyBox('oakland');
 
@@ -167,6 +174,15 @@ export class babylonMod {
     gameLoop(){
          this.scene.executeWhenReady(function() {
             this.engine.runRenderLoop(function() {
+                if(!this.glitchEnabled && this.Data.soundStart && this.hud.hasInitalized){
+                    this.glitchEnabled = true;
+                    this.enableDistotion();
+                }
+
+                if(this.glitchEnabled && !this.Data.soundStart){
+                    this.specialFXBart.disableAllCameraDistortion();
+                    this.specialFXBart.disableAllCameraDistortion();
+                }
                 document.getElementById("hudDBLevel").innerHTML = "DB:" + this.Data.dbLevel; 
                 for(let i=0; i < this.updateFunctionsInLoop.length; i++){
                     this.updateFunctionsInLoop[i]();
@@ -191,6 +207,11 @@ export class babylonMod {
     updateUserSprites(_data){
         for(var i = 0; i < this.sprites.length; i++) {
             if (_data.key == this.sprites[i].key) {
+                if(this.Data.zombieMode){
+                        this.sprites[i].sprite.playAnimation( 80,  100, true, 100);
+                    }else{
+                        this.sprites[i].sprite.playAnimation(Math.abs( 20 - parseInt(_data.data.spriteID)),  parseInt(_data.data.spriteID), true, 100);
+                    }
                 this.sprites[i].sprite.position =  _data.data.position;
                 break;
             }
@@ -206,7 +227,13 @@ export class babylonMod {
         player.position = _data.data.position;
         player.rotation = _data.data.rotation;
         player.size = 14.0;
-        player.playAnimation(0, 20, true, 100);
+        if(this.Data.zombieMode){
+
+            player.playAnimation( 80,  100, true, 100);
+        }else{
+            player.playAnimation(Math.abs( 20 - parseInt(_data.data.spriteID)),  parseInt(_data.data.spriteID), true, 100);
+        }
+        
         this.sprites.push({sprite:player, key:_data.key});
     }
 

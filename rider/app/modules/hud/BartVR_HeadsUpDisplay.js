@@ -20,6 +20,7 @@ export class BartVR_HeadsUpDisplay {
         this.camTargetObjRight;
         this.textGroupDB = null;
         this.dbLevelText = null;
+        this.hasInitalized = false;
 
 
         this.toLoad = [
@@ -81,18 +82,13 @@ export class BartVR_HeadsUpDisplay {
             var gui = new HUDSystem(this._scene, this.engine.getRenderWidth(), this.engine.getRenderHeight());
             this.logo = new HUDPanel("logo", this.assets["logo"], this.assets["logo"], gui);
             this.logo.guiposition(new BABYLON.Vector3(120, 100, 0));
- 
-           
             gui.updateCamera();
             this.hudsystem = gui;
-
+            this.hasInitalized = true;
             /* 
             this.createGUIText();
             diabled due to performance
             */
-
-
-
 
         }.bind(this), 200);
     }

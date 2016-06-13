@@ -155,9 +155,14 @@ var CardBoardData = exports.CardBoardData = function () {
     this.userToUpdate = 'https://sf-noise.firebaseio.com/riders/';
     this.dbLevelIO = new Firebase(this.firebaseRef + 'db');
     this.frequencyIO = new Firebase(this.firebaseRef + 'freq');
+    this.sound = new Firebase(this.firebaseRef + 'start');
+    this.soundVal = null;
+    this.soundStart = false;
     this.frequencyLevel = 0.0;
     this.dbLevel = 0;
     this.brartRoutes = ['Pittsburg / Bay Point', 'Richmond / Millbrae', 'Richmond / Fremont', 'Fremont / Daily City', 'Dublin Pleasanton / Daily City'];
+    this.spriteAnimations = [20, 40, 60, 80];
+    this.zombieMode = false;
     this.init();
   }
 
@@ -202,6 +207,20 @@ var CardBoardData = exports.CardBoardData = function () {
 
       this.dbLevelIO.on("value", function (data) {
         this.dbLevel = data.val();
+        if (parseInt(this.dbLevel) >= 105) {
+          this.zombieMode = true;
+        } else {
+          this.zombieMode = false;
+        }
+      }.bind(this));
+
+      this.sound.on("value", function (data) {
+        this.soundVal = data.val();
+        if (this.soundVal == true) {
+          this.soundStart = true;
+        } else {
+          this.soundStart = false;
+        }
       }.bind(this));
 
       /*
@@ -293,7 +312,7 @@ var CardBoardData = exports.CardBoardData = function () {
         } catch (e) {
           alert('please allow local storage please disable private mode');
         }
-        this.user = { name: _username, position: _pos, rotation: _pos, sprite: this.randomArr(this.sprites), routeID: this.currentRouteID };
+        this.user = { name: _username, position: _pos, rotation: _pos, sprite: this.randomArr(this.sprites), routeID: this.currentRouteID, spriteID: this.randomArr(this.spriteAnimations) };
         this.users = this.users.push(this.user);
         this.currentUserKey = this.users.key();
         try {
@@ -305,9 +324,9 @@ var CardBoardData = exports.CardBoardData = function () {
     key: 'updateUser',
     value: function updateUser(position, rotation) {
       if (this.isCurrentlyUsingBart) {
-        this.userToUpdate.set({ name: this.user.name, position: position, rotation: rotation, sprite: this.user.sprite, routeID: this.currentRouteID });
+        this.userToUpdate.set({ name: this.user.name, position: position, rotation: rotation, sprite: this.user.sprite, routeID: this.currentRouteID, spriteID: this.user.spriteID });
       } else {
-        this.users.set({ name: this.user.name, position: position, rotation: rotation, sprite: this.user.sprite, routeID: this.currentRouteID });
+        this.users.set({ name: this.user.name, position: position, rotation: rotation, sprite: this.user.sprite, routeID: this.currentRouteID, spriteID: this.user.spriteID });
       }
     }
   }]);
@@ -356,6 +375,7 @@ var babylonMod = exports.babylonMod = function () {
         this.Data.babylonMod = this;
         this.distortionLens = null;
         this.specialFXBart = null;
+        this.glitchEnabled = false;
         setTimeout(this.init.bind(this), 500);
     }
 
@@ -377,13 +397,15 @@ var babylonMod = exports.babylonMod = function () {
             BABYLON.SceneLoader.Load('', 'bartvr/scenes/subway3/bart_16.babylon?once=3665092109', this.engine, function (newScene) {
                 this.scene = newScene;
                 var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(100, 100, 0), this.scene);
-                if (_babylon.app.isNative) {
-                    BABYLON.SceneOptimizer.OptimizeAsync(this.scene, BABYLON.SceneOptimizerOptions.HighDegradationAllowed(), function () {
-                        console.log(this.engine.getFps());
-                    }.bind(this), function () {
-                        console.log(this.engine.getFps());
+                /*
+                if(!this.app._isDesktop){
+                    BABYLON.SceneOptimizer.OptimizeAsync(this.scene, BABYLON.SceneOptimizerOptions.HighDegradationAllowed(),
+                    function() {
+                     // console.log(this.engine.getFps());
+                    }.bind(this), function() {
+                       //console.log(this.engine.getFps());
                     }.bind(this));
-                }
+                }*/
                 document.getElementById('loadCover').style.display = "none";
                 this.vrCamera = new BABYLON.VRDeviceOrientationFreeCamera("Camera", BABYLON.Vector3.Zero(), this.scene, true);
                 this.vrCamera.rotation = new BABYLON.Vector3(newScene.cameras[0].rotation.x, newScene.cameras[0].rotation.y, newScene.cameras[0].rotation.z);
@@ -413,11 +435,16 @@ var babylonMod = exports.babylonMod = function () {
                 this.spManager.layerMask = 3;
                 this.playerSprite = new BABYLON.Sprite("player", this.spManager);
                 this.playerSprite.isPickable = true;
-                this.playerSprite.playAnimation(0, 20, true, 100);
+                if (this.Data.zombieMode) {
+                    this.playerSprite.playAnimation(80, 100, true, 100);
+                } else {
+                    this.playerSprite.playAnimation(Math.abs(20 - this.Data.user.spriteID), parseInt(this.Data.user.spriteID), true, 100);
+                }
                 //this.playerSprite.parent = this.vrCamera;
                 this.scene.activeCamera.position = new BABYLON.Vector3(this.Data.user.position.x, this.Data.user.position.y, this.Data.user.position.z);
                 this.playerSprite.position = new BABYLON.Vector3(this.Data.user.position.x, this.Data.user.position.y, this.Data.user.position.z);
-                this.scene.activeCamera.rotation = new BABYLON.Vector3(this.Data.user.rotation.x, this.Data.user.rotation.y, this.Data.user.rotation.z);
+
+                // this.scene.activeCamera.rotation = new BABYLON.Vector3(this.Data.user.rotation.x, this.Data.user.rotation.y, this.Data.user.rotation.z);
                 this.sprites.push({ sprite: this.playerSprite, key: this.Data.currentUserKey });
                 this.skyBox('oakland');
 
@@ -494,6 +521,15 @@ var babylonMod = exports.babylonMod = function () {
         value: function gameLoop() {
             this.scene.executeWhenReady(function () {
                 this.engine.runRenderLoop(function () {
+                    if (!this.glitchEnabled && this.Data.soundStart && this.hud.hasInitalized) {
+                        this.glitchEnabled = true;
+                        this.enableDistotion();
+                    }
+
+                    if (this.glitchEnabled && !this.Data.soundStart) {
+                        this.specialFXBart.disableAllCameraDistortion();
+                        this.specialFXBart.disableAllCameraDistortion();
+                    }
                     document.getElementById("hudDBLevel").innerHTML = "DB:" + this.Data.dbLevel;
                     for (var i = 0; i < this.updateFunctionsInLoop.length; i++) {
                         this.updateFunctionsInLoop[i]();
@@ -519,6 +555,11 @@ var babylonMod = exports.babylonMod = function () {
         value: function updateUserSprites(_data) {
             for (var i = 0; i < this.sprites.length; i++) {
                 if (_data.key == this.sprites[i].key) {
+                    if (this.Data.zombieMode) {
+                        this.sprites[i].sprite.playAnimation(80, 100, true, 100);
+                    } else {
+                        this.sprites[i].sprite.playAnimation(Math.abs(20 - parseInt(_data.data.spriteID)), parseInt(_data.data.spriteID), true, 100);
+                    }
                     this.sprites[i].sprite.position = _data.data.position;
                     break;
                 }
@@ -535,7 +576,13 @@ var babylonMod = exports.babylonMod = function () {
             player.position = _data.data.position;
             player.rotation = _data.data.rotation;
             player.size = 14.0;
-            player.playAnimation(0, 20, true, 100);
+            if (this.Data.zombieMode) {
+
+                player.playAnimation(80, 100, true, 100);
+            } else {
+                player.playAnimation(Math.abs(20 - parseInt(_data.data.spriteID)), parseInt(_data.data.spriteID), true, 100);
+            }
+
             this.sprites.push({ sprite: player, key: _data.key });
         }
     }, {
@@ -685,6 +732,7 @@ var BartVR_HeadsUpDisplay = exports.BartVR_HeadsUpDisplay = function () {
         this.camTargetObjRight;
         this.textGroupDB = null;
         this.dbLevelText = null;
+        this.hasInitalized = false;
 
         this.toLoad = [{ name: "logo", src: "bartvr/img/bartVRLogo_b.png" }, { name: "targetCam", src: "bartvr/img/target_sm.png" }];
         this.toLoad.forEach(function (obj) {
@@ -753,10 +801,9 @@ var BartVR_HeadsUpDisplay = exports.BartVR_HeadsUpDisplay = function () {
                 var gui = new _hudsystem.HUDSystem(this._scene, this.engine.getRenderWidth(), this.engine.getRenderHeight());
                 this.logo = new _hudpanel.HUDPanel("logo", this.assets["logo"], this.assets["logo"], gui);
                 this.logo.guiposition(new BABYLON.Vector3(120, 100, 0));
-
                 gui.updateCamera();
                 this.hudsystem = gui;
-
+                this.hasInitalized = true;
                 /* 
                 this.createGUIText();
                 diabled due to performance
@@ -1229,7 +1276,10 @@ var specialFX = exports.specialFX = function () {
         this.RGBShift = null;
         this.RGBShiftFX = null;
         this.FilmPostProcess = null;
+        this.FilmPostProcessFX = null;
+        this.BadTVPostProcessFX = null;
         this.BadTVPostProcess = null;
+        this.fxArray = [];
         this.init();
     }
 
@@ -1240,38 +1290,124 @@ var specialFX = exports.specialFX = function () {
 
             this.RGBShift = new BABYLON.PostProcessRenderEffect(this._babylonMod.scene.getEngine(), "RGBShift", function () {
                 this.RGBShiftFX = new BABYLON.RGBShiftPostProcess("RGBShiftFX", null, this._babylonMod.scene.activeCameras[0]);
+                this.RGBShiftFX._isRunning = true;
+                this.fxArray.push(this.RGBShiftFX);
                 return this.RGBShiftFX;
             }.bind(this));
+            this.RGBShift._isAttached = false;
 
             this.FilmPostProcess = new BABYLON.PostProcessRenderEffect(this._babylonMod.scene.getEngine(), "FilmPostProcess", function () {
-                return new BABYLON.FilmPostProcess("FilmPostProcessFX", null, new BABYLON.PassPostProcess("Scene copy", 1.0, this._babylonMod.scene.activeCameras[0]), this._babylonMod.scene.activeCameras[0]);
+                this.FilmPostProcessFX = new BABYLON.FilmPostProcess("FilmPostProcessFX", null, new BABYLON.PassPostProcess("Scene copy", 1.0, this._babylonMod.scene.activeCameras[0]), this._babylonMod.scene.activeCameras[0]);
+                this.FilmPostProcessFX._isRunning = true;
+                this.fxArray.push(this.FilmPostProcessFX);
+                return this.FilmPostProcessFX;
             }.bind(this));
+            this.FilmPostProcess._isAttached = true;
 
             this.BadTVPostProcess = new BABYLON.PostProcessRenderEffect(this._babylonMod.scene.getEngine(), "BadTVPostProcess", function () {
-                return new BABYLON.BadTVPostProcess("BadTVPostProcessFX", null, new BABYLON.PassPostProcess("Scene copy", 1.0, this._babylonMod.scene.activeCameras[0]), this._babylonMod.scene.activeCameras[0]);
+                this.BadTVPostProcessFX = new BABYLON.BadTVPostProcess("BadTVPostProcessFX", null, new BABYLON.PassPostProcess("Scene copy", 1.0, this._babylonMod.scene.activeCameras[0]), this._babylonMod.scene.activeCameras[0]);
+                this.BadTVPostProcessFX._isRunning = true;
+                this.BadTVPostProcessFX.rollSpeed = 0.0;
+                this.fxArray.push(this.BadTVPostProcessFX);
+                return this.BadTVPostProcessFX;
             }.bind(this));
+            this.BadTVPostProcess._isAttached = false;
 
             this.specialFXPipeline.addEffect(this.FilmPostProcess);
             this.specialFXPipeline.addEffect(this.BadTVPostProcess);
             this.specialFXPipeline.addEffect(this.RGBShift);
+
             this._babylonMod.scene.postProcessRenderPipelineManager.addPipeline(this.specialFXPipeline);
-            this._babylonMod.scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline("specialFXPipeline", this._babylonMod.scene.activeCameras[0]);
-            this._babylonMod.scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline("specialFXPipeline", this._babylonMod.nonVRCamera);
-            this._babylonMod.scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline("specialFXPipeline", this._babylonMod.vrCamera);
+
+            this._babylonMod.scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline(this.specialFXPipeline._name, this._babylonMod.scene.activeCameras[0]);
+            this._babylonMod.scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline(this.specialFXPipeline._name, this._babylonMod.nonVRCamera);
+            this._babylonMod.scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline(this.specialFXPipeline._name, this._babylonMod.vrCamera);
+            this.disableEffectInPipeline(this.BadTVPostProcess);
+            this.disableEffectInPipeline(this.RGBShift);
 
             this._babylonMod.scene.registerBeforeRender(function () {
                 try {
+
+                    this.RGBShiftFX.amount = this._babylonMod.Data.frequencyLevel * 0.1;
+                    this.FilmPostProcessFX.nIntensity = this._babylonMod.Data.frequencyLevel * 0.1;
+
+                    if (this._babylonMod.Data.frequencyLevel < 0.1) {
+                        this.disableEffectInPipeline(this.FilmPostProcess);
+                        this.disableEffectInPipeline(this.BadTVPostProcess);
+                        this.disableEffectInPipeline(this.RGBShift);
+                    }
+
+                    if (this._babylonMod.Data.frequencyLevel > 0.1) {
+                        this.FilmPostProcessFX.grayscale = false;
+                        this.disableEffectInPipeline(this.BadTVPostProcess);
+                        this.disableEffectInPipeline(this.RGBShift);
+                    }
+
+                    if (this._babylonMod.Data.frequencyLevel > 0.2) {
+                        this.FilmPostProcessFX.grayscale = true;
+                        this.enableEffectInPipeline(this.RGBShift);
+                        this.disableEffectInPipeline(this.BadTVPostProcess);
+                    }
+
+                    if (this._babylonMod.Data.frequencyLevel > 0.25) {
+                        this.enableEffectInPipeline(this.BadTVPostProcess);
+                        this.enableEffectInPipeline(this.RGBShift);
+                        this.BadTVPostProcessFX.rollSpeed = this._babylonMod.Data.frequencyLevel;
+                    }
                     window.time += 0.01;
-                    this.BadTVPostProcess._postProcesses[0].time = this.FilmPostProcess._postProcesses[0].time = window.time;
-                } catch (e) {}
+                    this.BadTVPostProcessFX.time = this.FilmPostProcessFX.time = window.time;
+                } catch (e) {
+                    // console.log(e);
+                }
             }.bind(this));
         }
     }, {
+        key: "enableEffectInPipeline",
+        value: function enableEffectInPipeline(_postProcess) {
+            this._babylonMod.scene.postProcessRenderPipelineManager.enableEffectInPipeline(this.specialFXPipeline._name, _postProcess._name, this._babylonMod.scene.activeCameras[0]);
+            this._babylonMod.scene.postProcessRenderPipelineManager.enableEffectInPipeline(this.specialFXPipeline._name, _postProcess._name, this._babylonMod.nonVRCamera);
+            this._babylonMod.scene.postProcessRenderPipelineManager.enableEffectInPipeline(this.specialFXPipeline._name, _postProcess._name, this._babylonMod.vrCamera);
+        }
+    }, {
+        key: "disableEffectInPipeline",
+        value: function disableEffectInPipeline(_postProcess) {
+            this._babylonMod.scene.postProcessRenderPipelineManager.disableEffectInPipeline(this.specialFXPipeline._name, _postProcess._name, this._babylonMod.scene.activeCameras[0]);
+            this._babylonMod.scene.postProcessRenderPipelineManager.disableEffectInPipeline(this.specialFXPipeline._name, _postProcess._name, this._babylonMod.nonVRCamera);
+            this._babylonMod.scene.postProcessRenderPipelineManager.disableEffectInPipeline(this.specialFXPipeline._name, _postProcess._name, this._babylonMod.vrCamera);
+        }
+    }, {
+        key: "disableDistortion",
+        value: function disableDistortion(camera) {
+            try {
+                for (var i = 0; i < camera._postProcesses.length; i++) {
+                    camera.detachPostProcess(camera._postProcesses[i]);
+                }
+            } catch (e) {
+                console.log(e);
+            }
+        }
+    }, {
+        key: "disableAllCameraDistortion",
+        value: function disableAllCameraDistortion() {
+            this.disableDistortion(this._babylonMod.scene.activeCameras[0]);
+            this.disableDistortion(this._babylonMod.nonVRCamera);
+            this.disableDistortion(this._babylonMod.vrCamera);
+        }
+    }, {
         key: "disableEffect",
-        value: function disableEffect(_porcess) {}
+        value: function disableEffect(_porcess) {
+            _porcess._isRunning = false;
+            this._babylonMod.scene.activeCameras[0].detachPostProcess(_porcess);
+            this._babylonMod.nonVRCamera.detachPostProcess(_porcess);
+            this._babylonMod.vrCamera.detachPostProcess(_porcess);
+        }
     }, {
         key: "enableEffect",
-        value: function enableEffect(_porcess) {}
+        value: function enableEffect(_porcess) {
+            this._babylonMod.scene.activeCameras[0].attachPostProcess(_porcess);
+            this._babylonMod.nonVRCamera.attachPostProcess(_porcess);
+            this._babylonMod.vrCamera.attachPostProcess(_porcess);
+        }
     }, {
         key: "soundFX",
         value: function soundFX() {}
@@ -1457,7 +1593,7 @@ var IntroPage = exports.IntroPage = (_dec = (0, _ionicAngular.Page)({
   }, {
     key: 'init',
     value: function init() {
-      console.log(this.bartVR._isDesktop);
+
       if (this.bartVR._isDesktop) {
         document.getElementById('desktopLaunch').style.display = "block";
         document.getElementById('desktopLaunch1').style.display = "block";
