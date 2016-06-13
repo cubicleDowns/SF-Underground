@@ -9,42 +9,17 @@ dependencies:
     - npm install
     - bower install
 
-  post:
-    - ./node_modules/protractor/bin/webdriver-manager update
-#    - sudo apt-get install -y x11vnc
-#    - x11vnc -forever -nopw:
-#        background: true
-#
-#test:
-#  pre:
-#    - grunt build:
-#        environment:
-#          LOCAL: "1"
-#    - grunt serve:
-#        background: true
-#    - ./node_modules/protractor/bin/webdriver-manager start:
-#        background: true
-#  override:
-#    - ./node_modules/protractor/bin/protractor testing/conf.js
-
 # Example of how to skip tests.
-#test:
-#  override:
-#    - echo "test"
-
 test:
-  pre:
-    - grunt serve:
-        background: true
-    - ./node_modules/protractor/bin/webdriver-manager start:
-        background: true
   override:
-    - ./node_modules/protractor/bin/protractor testing/conf.js
+    - echo "test"
+
 
 # Deploying to Surge
 deployment:
   production:
-    branch: master
+    branch: present
     commands:
       - npm install -g surge
-      - surge ./app raspy-ocean.surge.sh
+      - surge ./rider/www m.morlocksf.com
+      - surge ./app control.morlocksf.com
