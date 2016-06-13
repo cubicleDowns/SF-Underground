@@ -260,7 +260,10 @@ export class babylonMod {
         if (this.mode == 'normal') {
             this.mode = 'vr';
             if (this.scene != null) {
+                //this.specialFXBart.enableVR();
                 this.scene.activeCameras[0] = this.vrCamera;
+                this.specialFXBart.enableVR();
+
                 //this.hud.onVRPointers();
             }
         } else {

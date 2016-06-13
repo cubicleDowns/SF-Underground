@@ -132,6 +132,10 @@ export class specialFX {
         this.disableDistortion(this._babylonMod.vrCamera);
     }
 
+    enableVR(){
+        this.disableDistortion(this._babylonMod.vrCamera);
+    }
+
     disableEffect(_porcess){
         _porcess._isRunning = false;
         this._babylonMod.scene.activeCameras[0].detachPostProcess(_porcess);

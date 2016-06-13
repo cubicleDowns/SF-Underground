@@ -613,7 +613,10 @@ var babylonMod = exports.babylonMod = function () {
             if (this.mode == 'normal') {
                 this.mode = 'vr';
                 if (this.scene != null) {
+                    //this.specialFXBart.enableVR();
                     this.scene.activeCameras[0] = this.vrCamera;
+                    this.specialFXBart.enableVR();
+
                     //this.hud.onVRPointers();
                 }
             } else {
@@ -1391,6 +1394,11 @@ var specialFX = exports.specialFX = function () {
         value: function disableAllCameraDistortion() {
             this.disableDistortion(this._babylonMod.scene.activeCameras[0]);
             this.disableDistortion(this._babylonMod.nonVRCamera);
+            this.disableDistortion(this._babylonMod.vrCamera);
+        }
+    }, {
+        key: "enableVR",
+        value: function enableVR() {
             this.disableDistortion(this._babylonMod.vrCamera);
         }
     }, {
