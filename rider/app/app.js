@@ -1,4 +1,4 @@
-import {App, IonicApp, Platform, NavController} from 'ionic-angular';
+import {App, IonicApp, Platform, NavController, Toast} from 'ionic-angular';
 import {Component, View, bootstrap, NgFor, enableProdMode, NgZone} from '@angular/core';
 import {CardBoardData} from './models/cardboarddata';
 import {IntroPage} from './pages/intro/intro';
@@ -23,9 +23,11 @@ export class BoilerVR {
     this.Data = new CardBoardData( this.firebaseio  , this);
     this.app = app;
     this.babylonMod = null;
+    this._nav = null;
     this.isNative = false;
     this._platform  = platform;
     this._isDesktop  = false;
+    this._toast = Toast;
     
 
     if(this._platform.platforms()[0] == "core"){
@@ -44,7 +46,7 @@ export class BoilerVR {
         cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
         cordova.plugins.Keyboard.disableScroll(true);
       }
-      //platform.fullScreen();
+
       if (window.StatusBar) {
         return StatusBar.hide();
       }

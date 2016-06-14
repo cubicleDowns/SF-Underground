@@ -43,9 +43,11 @@ var BoilerVR = exports.BoilerVR = (_dec = (0, _ionicAngular.App)({
     this.Data = new _cardboarddata.CardBoardData(this.firebaseio, this);
     this.app = app;
     this.babylonMod = null;
+    this._nav = null;
     this.isNative = false;
     this._platform = platform;
     this._isDesktop = false;
+    this._toast = _ionicAngular.Toast;
 
     if (this._platform.platforms()[0] == "core") {
       this._isDesktop = true;
@@ -60,7 +62,7 @@ var BoilerVR = exports.BoilerVR = (_dec = (0, _ionicAngular.App)({
         cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
         cordova.plugins.Keyboard.disableScroll(true);
       }
-      //platform.fullScreen();
+
       if (window.StatusBar) {
         return StatusBar.hide();
       }
@@ -218,7 +220,7 @@ var CardBoardData = exports.CardBoardData = function () {
 
           this.dbLevelIO.on("value", function (data) {
             this.dbLevel = data.val();
-            if (parseInt(this.dbLevel) >= 105) {
+            if (parseInt(this.dbLevel) >= 105 && this.soundStart) {
               this.zombieMode = true;
             } else {
               this.zombieMode = false;
@@ -252,8 +254,6 @@ var CardBoardData = exports.CardBoardData = function () {
     value: function deleteUser(_dkey) {
       var userRef = new Firebase(this.firebaseRef + 'riders/' + _dkey);
       userRef.once("value", function (_data) {
-        console.log(_data.val());
-        console.log('pass');
         var fountain = BABYLON.Mesh.CreateBox("foutain", 1.0, this.babylonMod.scene);
         fountain.isVisible = false;
         fountain.position = new BABYLON.Vector3(_data.val().position.x, _data.val().position.y, _data.val().position.z);
@@ -380,6 +380,7 @@ var babylonMod = exports.babylonMod = function () {
         this.glitchEnabled = false;
         this.inertiaSpeed = null;
         this.rotationSpeed = null;
+        this.initZombie = false;
         setTimeout(this.init.bind(this), 500);
     }
 
@@ -516,6 +517,16 @@ var babylonMod = exports.babylonMod = function () {
                     this.nonVRCamera.position = this.scene.activeCamera.position;
                     this.playerSprite.position = this.scene.activeCamera.position;
                     this.Data.updateUser(this.scene.activeCamera.position, this.scene.activeCamera.rotation);
+
+                    if (!this.initZombie && this.Data.zombieMode) {
+                        this.initZombie = true;
+                        var toast = this.app._toast.create({
+                            message: 'Zombie Mode Init..',
+                            duration: 1500
+                        });
+                        this.app._nav.present(toast);
+                    }
+
                     for (var _i = 0; _i < this.Data.currentRiders.length; _i++) {
                         if (this.Data.currentRouteID == parseInt(this.Data.currentRiders[_i].data.routeID)) {
                             if (this.Data.currentRiders[_i].key != this.Data.currentUserKey) {
@@ -1642,6 +1653,7 @@ var IntroPage = exports.IntroPage = (_dec = (0, _ionicAngular.Page)({
     this.hasInit = false;
     this.bartVR = _BoilerVR;
     this.Data = _BoilerVR.Data;
+    this.bartVR._nav = nav;
 
     var infoReady = Promise.resolve(document.getElementById('userReg'));
     infoReady.then(function () {

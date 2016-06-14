@@ -76,7 +76,7 @@ export class CardBoardData{
 
             this.dbLevelIO.on("value", function(data) {
                this.dbLevel =  data.val();
-               if(parseInt(this.dbLevel) >= 105){
+               if(parseInt(this.dbLevel) >= 105 && this.soundStart){
                   this.zombieMode = true;
                }else{
                   this.zombieMode = false;
@@ -111,8 +111,6 @@ export class CardBoardData{
   deleteUser(_dkey){
       var userRef = new Firebase(this.firebaseRef + 'riders/'  + _dkey);
       userRef.once("value", function(_data) {
-        console.log(_data.val());
-        console.log('pass');
         var fountain = BABYLON.Mesh.CreateBox("foutain", 1.0, this.babylonMod.scene);
         fountain.isVisible = false;
         fountain.position = new BABYLON.Vector3(_data.val().position.x, _data.val().position.y, _data.val().position.z)
@@ -188,9 +186,6 @@ export class CardBoardData{
       this.users.set({name: this.user.name, position: position, rotation: rotation, sprite: this.user.sprite,  routeID:this.currentRouteID, spriteID: this.user.spriteID });
     }
   }
-
-  
-
 
 
 }
