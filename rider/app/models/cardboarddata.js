@@ -1,6 +1,6 @@
 export class CardBoardData{
   
-  constructor(fbURL =  "https://loadtester.firebaseio.com/", _boilerVR){
+  constructor(fbURL =  null, _boilerVR){
       this.boilerVR = _boilerVR;
       this.stereoEffect = false;
       this.landscapeMode = false;

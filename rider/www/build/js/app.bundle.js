@@ -39,7 +39,7 @@ var BoilerVR = exports.BoilerVR = (_dec = (0, _ionicAngular.App)({
     _classCallCheck(this, BoilerVR);
 
     this._ngZone = NgZone;
-    this.Data = new _cardboarddata.CardBoardData("https://sf-noise.firebaseio.com/", this);
+    this.Data = new _cardboarddata.CardBoardData("https://loadtester.firebaseio.com/", this);
     this.app = app;
     this.babylonMod = null;
     this.isNative = false;
@@ -136,7 +136,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var CardBoardData = exports.CardBoardData = function () {
   function CardBoardData() {
-    var fbURL = arguments.length <= 0 || arguments[0] === undefined ? "https://loadtester.firebaseio.com/" : arguments[0];
+    var fbURL = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
     var _boilerVR = arguments[1];
 
     _classCallCheck(this, CardBoardData);
