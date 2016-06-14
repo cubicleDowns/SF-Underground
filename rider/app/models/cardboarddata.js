@@ -1,6 +1,7 @@
 export class CardBoardData{
   
-  constructor(fbURL =  "https://sf-noise.firebaseio.com/"){
+  constructor(fbURL =  "https://sf-noise.firebaseio.com/", _boilerVR){
+      this.boilerVR = _boilerVR;
       this.stereoEffect = false;
       this.landscapeMode = false;
       this.firebaseRef = fbURL;
@@ -42,74 +43,68 @@ export class CardBoardData{
 
 
   init(){
-    this.bartAlerts.on("child_added", function(alertData) {
-      this.currentAlerts.push(alertData.val());
-    }.bind(this));
+
+     this.boilerVR._ngZone.runOutsideAngular(function(){
+       window.requestAnimationFrame(function(){
 
 
-    this.bartAlerts.once("value", function(alertData) {
-      alertData.forEach(function(data) {
-        this.currentAlerts.push(data.val());
-      }.bind(this));
-    }.bind(this));
+            this.bartAlerts.on("child_added", function(alertData) {
+              this.currentAlerts.push(alertData.val());
+            }.bind(this));
 
-    this.users.on("child_added", function(userData) {
-       this.currentRiders.push({data:userData.val(), key: userData.key()});
-    }.bind(this));
+            this.bartAlerts.once("value", function(alertData) {
+              alertData.forEach(function(data) {
+                this.currentAlerts.push(data.val());
+              }.bind(this));
+            }.bind(this));
 
-    this.users.on("child_changed", function(userData) {
-        for(let i = 0; i < this.currentRiders.length; i++){
-            if(userData.key() == this.currentRiders[i].key){
-               this.currentRiders[i].data =  userData.val();
-            }
-        }
-    }.bind(this));
+            this.users.on("child_added", function(userData) {
+               this.currentRiders.push({data:userData.val(), key: userData.key()});
+            }.bind(this));
 
-    this.frequencyIO.on("value", function(data) {
-       this.frequencyLevel =  data.val();
-    }.bind(this));
+            this.users.on("child_changed", function(userData) {
+                for(let i = 0; i < this.currentRiders.length; i++){
+                    if(userData.key() == this.currentRiders[i].key){
+                       this.currentRiders[i].data =  userData.val();
+                    }
+                }
+            }.bind(this));
+
+            this.frequencyIO.on("value", function(data) {
+               this.frequencyLevel =  data.val();
+            }.bind(this));
+            
+            this.dbLevelIO.on("value", function(data) {
+               this.dbLevel =  data.val();
+               if(parseInt(this.dbLevel) >= 105){
+                  this.zombieMode = true;
+               }else{
+                  this.zombieMode = false;
+               }
+            }.bind(this));
+             this.sound.on("value", function(data) {
+               this.soundVal =  data.val();
+               if(this.soundVal == true){
+                  this.soundStart = true;
+               }else{
+                  this.soundStart = false;
+               }
+            }.bind(this));
+
+            this.users.once("value", function(userData) {
+              userData.forEach(function(data) {
+                if(window.localStorage.getItem("bart_vr_user_key") != null && data.key() == window.localStorage.getItem("bart_vr_user_key") ){
+                  this.user = data.val();
+                  this.currentUserKey = data.key();
+                  this.userToUpdate +=  data.key();
+                  this.userToUpdate = new Firebase(this.userToUpdate);
+                  this.isCurrentlyUsingBart = true;
+                } 
+              }.bind(this));
+            }.bind(this));
 
 
-    this.dbLevelIO.on("value", function(data) {
-       this.dbLevel =  data.val();
-       if(parseInt(this.dbLevel) >= 105){
-          this.zombieMode = true;
-       }else{
-          this.zombieMode = false;
-       }
-    }.bind(this));
-
-
-     this.sound.on("value", function(data) {
-       this.soundVal =  data.val();
-       if(this.soundVal == true){
-          this.soundStart = true;
-       }else{
-          this.soundStart = false;
-       }
-    }.bind(this));
-
-
-    /*
-    this.users.on("value", function(userData) {
-      this.currentRiders = [];
-      userData.forEach(function(data) {
-         this.currentRiders.push({data:data.val(), key: data.key()});
-      }.bind(this));
-    }.bind(this));
-    */
-
-    this.users.once("value", function(userData) {
-      userData.forEach(function(data) {
-        if(window.localStorage.getItem("bart_vr_user_key") != null && data.key() == window.localStorage.getItem("bart_vr_user_key") ){
-          this.user = data.val();
-          this.currentUserKey = data.key();
-          this.userToUpdate +=  data.key();
-          this.userToUpdate = new Firebase(this.userToUpdate);
-          this.isCurrentlyUsingBart = true;
-        } 
-        // this.currentRiders.push({data:data.val(), key: data.key()});
-      }.bind(this));
+       }.bind(this));
     }.bind(this));
   }
 

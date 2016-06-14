@@ -1,10 +1,10 @@
 import {App, IonicApp, Platform, NavController} from 'ionic-angular';
-import {Component, View, bootstrap, NgFor} from '@angular/core';
+import {Component, View, bootstrap, NgFor, enableProdMode, NgZone} from '@angular/core';
 import {CardBoardData} from './models/cardboarddata';
 import {IntroPage} from './pages/intro/intro';
 import {SettingsModal} from './pages/settings/settings';
 
-
+enableProdMode();
 
 @App({
   template: '<ion-nav [root]="rootPage"></ion-nav>',
@@ -14,19 +14,20 @@ import {SettingsModal} from './pages/settings/settings';
 export class BoilerVR {
 
   static get parameters() {
-    return [[IonicApp], [Platform]];
+    return [[IonicApp], [Platform], [NgZone]];
   }
 
-  constructor(app, platform) {
-    window._bartVR = this;
-    this.Data = new CardBoardData();
+  constructor(app, platform, NgZone) {
+    this._ngZone = NgZone;
+    this.Data = new CardBoardData( "https://sf-noise.firebaseio.com/" , this);
     this.app = app;
     this.babylonMod = null;
     this.isNative = false;
     this._platform  = platform;
     this._isDesktop  = false;
+    
 
-    if(_bartVR._platform.platforms()[0] == "core"){
+    if(this._platform.platforms()[0] == "core"){
       this._isDesktop = true;
     }
 
