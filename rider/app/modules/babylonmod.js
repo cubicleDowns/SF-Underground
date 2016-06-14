@@ -107,20 +107,47 @@ export class babylonMod {
             this.ground.isVisible = false;
             this.ground.position.y = 8;
             this.ground.checkCollisions = true;
-            //this.colliderCap =  BABYLON.Mesh.CreateSphere("sphere1", 16, 8, this.scene);
-            //this.colliderCap.checkCollisions = true;
-            //this.colliderCap.parent = this.nonVRCamera;
-            //this.colliderCap.position.y = -2;
             this.scene.collisionsEnabled = true;
             this.scene.gravity = new BABYLON.Vector3(0, -0.9, 0);
+            // take that all you bart jumpers next time go find a bridge
+            var groundColliderVert1 = BABYLON.Mesh.CreateGround("groundColliderVert1", 10, 10, 2, this.scene);
+            groundColliderVert1.rotation.z = 1.556;
+            groundColliderVert1.position = new BABYLON.Vector3(0, 10, 4.5);
+            groundColliderVert1.scaling = new BABYLON.Vector3(4, 11, 5);
+            groundColliderVert1.backFaceCulling = false;
+            groundColliderVert1.checkCollisions = true;
+            groundColliderVert1.isVisible = false;
 
-            window.boxContainer = BABYLON.Mesh.CreateBox("boxContainer", 10.0, this.scene);
-            boxContainer.scaling = new BABYLON.Vector3(11.5, 1.8, 2.3); 
-            boxContainer.position = new BABYLON.Vector3(-50.5, 10, 4.5);  
-            //boxContainer.isVisible = true;
-            //boxContainer.checkCollisions = true;
-            boxContainer.backFaceCulling = false;
 
+            var groundColliderVert2 = BABYLON.Mesh.CreateGround("groundColliderVert2", 10, 10, 2, this.scene);
+            groundColliderVert2.rotation.z = 1.556;
+            groundColliderVert2.rotation.y = 3.14159;
+            groundColliderVert2.position = new BABYLON.Vector3(-110, 10, 4.5);
+            groundColliderVert2.scaling = new BABYLON.Vector3(4, 11, 5);
+            groundColliderVert2.backFaceCulling = false;
+            groundColliderVert2.checkCollisions = true;
+            groundColliderVert2.isVisible = false;
+
+
+            var groundColliderVert3 = BABYLON.Mesh.CreateGround("groundColliderVert3", 10, 10, 2, this.scene);
+            groundColliderVert3.rotation.z = 1.556;
+            groundColliderVert3.rotation.y = 1.556;
+            groundColliderVert3.position = new BABYLON.Vector3(-40, 10, -9);
+            groundColliderVert3.scaling = new BABYLON.Vector3(4, 11, 20);
+            groundColliderVert3.backFaceCulling = false;
+            groundColliderVert3.checkCollisions = true;
+            groundColliderVert3.isVisible = false;
+          
+            var groundColliderVert4 = BABYLON.Mesh.CreateGround("groundColliderVert4", 10, 10, 2, this.scene);
+            groundColliderVert4.rotation.z = 1.556;
+            groundColliderVert4.rotation.y = -1.556;
+            groundColliderVert4.position = new BABYLON.Vector3(-40, 10, 18);
+            groundColliderVert4.scaling = new BABYLON.Vector3(4, 11, 20);
+            groundColliderVert4.backFaceCulling = false;
+            groundColliderVert4.checkCollisions = true;
+            groundColliderVert4.isVisible = false;
+
+           
 
             //this.nonVRCamera.ellipsoid =  new BABYLON.Vector3(6, 6, 6);
             this.nonVRCamera.applyGravity = true;
