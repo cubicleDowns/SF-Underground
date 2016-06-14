@@ -22,6 +22,8 @@ var _settings = require('./pages/settings/settings');
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+(0, _core.enableProdMode)();
+
 // http://ionicframework.com/docs/v2/api/config/Config/
 var BoilerVR = exports.BoilerVR = (_dec = (0, _ionicAngular.App)({
   template: '<ion-nav [root]="rootPage"></ion-nav>',
@@ -29,22 +31,22 @@ var BoilerVR = exports.BoilerVR = (_dec = (0, _ionicAngular.App)({
   _createClass(BoilerVR, null, [{
     key: 'parameters',
     get: function get() {
-      return [[_ionicAngular.IonicApp], [_ionicAngular.Platform]];
+      return [[_ionicAngular.IonicApp], [_ionicAngular.Platform], [_core.NgZone]];
     }
   }]);
 
-  function BoilerVR(app, platform) {
+  function BoilerVR(app, platform, NgZone) {
     _classCallCheck(this, BoilerVR);
 
-    window._bartVR = this;
-    this.Data = new _cardboarddata.CardBoardData();
+    this._ngZone = NgZone;
+    this.Data = new _cardboarddata.CardBoardData("https://sf-noise.firebaseio.com/", this);
     this.app = app;
     this.babylonMod = null;
     this.isNative = false;
     this._platform = platform;
     this._isDesktop = false;
 
-    if (_bartVR._platform.platforms()[0] == "core") {
+    if (this._platform.platforms()[0] == "core") {
       this._isDesktop = true;
     }
 
@@ -93,14 +95,16 @@ var BoilerVR = exports.BoilerVR = (_dec = (0, _ionicAngular.App)({
     value: function launchIntoFullscreen() {
       var element = arguments.length <= 0 || arguments[0] === undefined ? document.documentElement : arguments[0];
 
-      if (typeof element.requestFullscreen != 'undefined') {
-        element.requestFullscreen();
-      } else if (typeof element.mozRequestFullScreen != 'undefined') {
-        element.mozRequestFullScreen();
-      } else if (typeof element.webkitRequestFullscreen != 'undefined') {
-        element.webkitRequestFullscreen();
-      } else if (typeof element.msRequestFullscreen != 'undefined') {
-        element.msRequestFullscreen();
+      if (!this._isDesktop) {
+        if (typeof element.requestFullscreen != 'undefined') {
+          element.requestFullscreen();
+        } else if (typeof element.mozRequestFullScreen != 'undefined') {
+          element.mozRequestFullScreen();
+        } else if (typeof element.webkitRequestFullscreen != 'undefined') {
+          element.webkitRequestFullscreen();
+        } else if (typeof element.msRequestFullscreen != 'undefined') {
+          element.msRequestFullscreen();
+        }
       }
     }
   }, {
@@ -133,9 +137,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 var CardBoardData = exports.CardBoardData = function () {
   function CardBoardData() {
     var fbURL = arguments.length <= 0 || arguments[0] === undefined ? "https://sf-noise.firebaseio.com/" : arguments[0];
+    var _boilerVR = arguments[1];
 
     _classCallCheck(this, CardBoardData);
 
+    this.boilerVR = _boilerVR;
     this.stereoEffect = false;
     this.landscapeMode = false;
     this.firebaseRef = fbURL;
@@ -179,69 +185,64 @@ var CardBoardData = exports.CardBoardData = function () {
   }, {
     key: 'init',
     value: function init() {
-      this.bartAlerts.on("child_added", function (alertData) {
-        this.currentAlerts.push(alertData.val());
-      }.bind(this));
 
-      this.bartAlerts.once("value", function (alertData) {
-        alertData.forEach(function (data) {
-          this.currentAlerts.push(data.val());
-        }.bind(this));
-      }.bind(this));
+      this.boilerVR._ngZone.runOutsideAngular(function () {
+        window.requestAnimationFrame(function () {
 
-      this.users.on("child_added", function (userData) {
-        this.currentRiders.push({ data: userData.val(), key: userData.key() });
-      }.bind(this));
+          this.bartAlerts.on("child_added", function (alertData) {
+            this.currentAlerts.push(alertData.val());
+          }.bind(this));
 
-      this.users.on("child_changed", function (userData) {
-        for (var i = 0; i < this.currentRiders.length; i++) {
-          if (userData.key() == this.currentRiders[i].key) {
-            this.currentRiders[i].data = userData.val();
-          }
-        }
-      }.bind(this));
+          this.bartAlerts.once("value", function (alertData) {
+            alertData.forEach(function (data) {
+              this.currentAlerts.push(data.val());
+            }.bind(this));
+          }.bind(this));
 
-      this.frequencyIO.on("value", function (data) {
-        this.frequencyLevel = data.val();
-      }.bind(this));
+          this.users.on("child_added", function (userData) {
+            this.currentRiders.push({ data: userData.val(), key: userData.key() });
+          }.bind(this));
 
-      this.dbLevelIO.on("value", function (data) {
-        this.dbLevel = data.val();
-        if (parseInt(this.dbLevel) >= 105) {
-          this.zombieMode = true;
-        } else {
-          this.zombieMode = false;
-        }
-      }.bind(this));
+          this.users.on("child_changed", function (userData) {
+            for (var i = 0; i < this.currentRiders.length; i++) {
+              if (userData.key() == this.currentRiders[i].key) {
+                this.currentRiders[i].data = userData.val();
+              }
+            }
+          }.bind(this));
 
-      this.sound.on("value", function (data) {
-        this.soundVal = data.val();
-        if (this.soundVal == true) {
-          this.soundStart = true;
-        } else {
-          this.soundStart = false;
-        }
-      }.bind(this));
+          this.frequencyIO.on("value", function (data) {
+            this.frequencyLevel = data.val();
+          }.bind(this));
 
-      /*
-      this.users.on("value", function(userData) {
-        this.currentRiders = [];
-        userData.forEach(function(data) {
-           this.currentRiders.push({data:data.val(), key: data.key()});
-        }.bind(this));
-      }.bind(this));
-      */
+          this.dbLevelIO.on("value", function (data) {
+            this.dbLevel = data.val();
+            if (parseInt(this.dbLevel) >= 105) {
+              this.zombieMode = true;
+            } else {
+              this.zombieMode = false;
+            }
+          }.bind(this));
+          this.sound.on("value", function (data) {
+            this.soundVal = data.val();
+            if (this.soundVal == true) {
+              this.soundStart = true;
+            } else {
+              this.soundStart = false;
+            }
+          }.bind(this));
 
-      this.users.once("value", function (userData) {
-        userData.forEach(function (data) {
-          if (window.localStorage.getItem("bart_vr_user_key") != null && data.key() == window.localStorage.getItem("bart_vr_user_key")) {
-            this.user = data.val();
-            this.currentUserKey = data.key();
-            this.userToUpdate += data.key();
-            this.userToUpdate = new Firebase(this.userToUpdate);
-            this.isCurrentlyUsingBart = true;
-          }
-          // this.currentRiders.push({data:data.val(), key: data.key()});
+          this.users.once("value", function (userData) {
+            userData.forEach(function (data) {
+              if (window.localStorage.getItem("bart_vr_user_key") != null && data.key() == window.localStorage.getItem("bart_vr_user_key")) {
+                this.user = data.val();
+                this.currentUserKey = data.key();
+                this.userToUpdate += data.key();
+                this.userToUpdate = new Firebase(this.userToUpdate);
+                this.isCurrentlyUsingBart = true;
+              }
+            }.bind(this));
+          }.bind(this));
         }.bind(this));
       }.bind(this));
     }
@@ -299,7 +300,7 @@ var CardBoardData = exports.CardBoardData = function () {
 
       if (window.localStorage.getItem("bart_vr_user") == null) {
         _pos.x = this.randomPos(-85, 2);
-        _pos.y = 10;
+        _pos.y = 11;
         _pos.z = this.randomPos(5, 15);
         var _username = null;
         if (this.user.name == null) {
@@ -376,6 +377,8 @@ var babylonMod = exports.babylonMod = function () {
         this.distortionLens = null;
         this.specialFXBart = null;
         this.glitchEnabled = false;
+        this.inertiaSpeed = null;
+        this.rotationSpeed = null;
         setTimeout(this.init.bind(this), 500);
     }
 
@@ -397,15 +400,11 @@ var babylonMod = exports.babylonMod = function () {
             BABYLON.SceneLoader.Load('', 'bartvr/scenes/subway3/bart_16.babylon?once=3665092109', this.engine, function (newScene) {
                 this.scene = newScene;
                 var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(100, 100, 0), this.scene);
-                /*
-                if(!this.app._isDesktop){
-                    BABYLON.SceneOptimizer.OptimizeAsync(this.scene, BABYLON.SceneOptimizerOptions.HighDegradationAllowed(),
-                    function() {
-                     // console.log(this.engine.getFps());
-                    }.bind(this), function() {
-                       //console.log(this.engine.getFps());
-                    }.bind(this));
-                }*/
+
+                if (!this.app._isDesktop && this.app._platform.is('android')) {
+                    BABYLON.SceneOptimizer.OptimizeAsync(this.scene, BABYLON.SceneOptimizerOptions.ModerateDegradationAllowed(), function () {}.bind(this), function () {}.bind(this));
+                }
+
                 document.getElementById('loadCover').style.display = "none";
                 this.vrCamera = new BABYLON.VRDeviceOrientationFreeCamera("Camera", BABYLON.Vector3.Zero(), this.scene, true);
                 this.vrCamera.rotation = new BABYLON.Vector3(newScene.cameras[0].rotation.x, newScene.cameras[0].rotation.y, newScene.cameras[0].rotation.z);
@@ -417,50 +416,89 @@ var babylonMod = exports.babylonMod = function () {
                 this.nonVRCamera.checkCollisions = this.scene.activeCamera.checkCollisions;
                 this.nonVRCamera.applyGravity = this.scene.activeCamera.applyGravity;
                 this.nonVRCamera.attachControl(this.canvas, false);
-
+                this.inertiaSpeed = this.app._platform.is('android') ? 0.6 : 0.7;
+                this.rotationSpeed = this.app._platform.is('android') ? 4 : 2;
                 this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick.reverseUpDown = true;
                 this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._rotateOnAxisRelativeToMesh = true;
 
-                this.nonVRCamera.inputs.attached.virtualJoystick.camera.inertia = 0.8;
-                this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._inverseRotationSpeed = 2;
-                this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._rotationSpeed = 2;
+                this.nonVRCamera.inputs.attached.virtualJoystick.camera.inertia = this.inertiaSpeed;
+                this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._inverseRotationSpeed = this.rotationSpeed;
+                this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._rotationSpeed = this.rotationSpeed;
 
                 this.scene.activeCamera = this.nonVRCamera;
                 this.vrCamera.position.x = 7;
                 this.Data.setUser(null, this.vrCamera.position);
                 this.nonVRCamera.position = this.vrCamera.position;
-                this.hud = new _BartVR_HeadsUpDisplay.BartVR_HeadsUpDisplay(this.scene, this);
+
+                if (!this.app._platform.is('android')) {
+                    this.hud = new _BartVR_HeadsUpDisplay.BartVR_HeadsUpDisplay(this.scene, this);
+                }
 
                 this.spManager = new BABYLON.SpriteManager("userManager", this.Data.user.sprite, 1000, 128, this.scene);
                 this.spManager.layerMask = 3;
                 this.playerSprite = new BABYLON.Sprite("player", this.spManager);
                 this.playerSprite.isPickable = true;
+
                 if (this.Data.zombieMode) {
                     this.playerSprite.playAnimation(80, 100, true, 100);
                 } else {
                     this.playerSprite.playAnimation(Math.abs(20 - this.Data.user.spriteID), parseInt(this.Data.user.spriteID), true, 100);
                 }
-                //this.playerSprite.parent = this.vrCamera;
                 this.scene.activeCamera.position = new BABYLON.Vector3(this.Data.user.position.x, this.Data.user.position.y, this.Data.user.position.z);
                 this.playerSprite.position = new BABYLON.Vector3(this.Data.user.position.x, this.Data.user.position.y, this.Data.user.position.z);
-
                 // this.scene.activeCamera.rotation = new BABYLON.Vector3(this.Data.user.rotation.x, this.Data.user.rotation.y, this.Data.user.rotation.z);
                 this.sprites.push({ sprite: this.playerSprite, key: this.Data.currentUserKey });
                 this.skyBox('oakland');
 
                 this.ground = BABYLON.Mesh.CreateGround("ground1", 300, 300, 10, this.scene);
                 this.ground.isVisible = false;
-                this.ground.position.y = 5;
+                this.ground.position.y = 8;
                 this.ground.checkCollisions = true;
-                this.colliderCap = BABYLON.Mesh.CreateSphere("sphere1", 16, 8, this.scene);
-                this.colliderCap.checkCollisions = true;
-                this.colliderCap.parent = this.nonVRCamera;
-                this.colliderCap.position.y = -2;
                 this.scene.collisionsEnabled = true;
                 this.scene.gravity = new BABYLON.Vector3(0, -0.9, 0);
+                // take that all you bart jumpers next time go find a bridge
+                var groundColliderVert1 = BABYLON.Mesh.CreateGround("groundColliderVert1", 10, 10, 2, this.scene);
+                groundColliderVert1.rotation.z = 1.556;
+                groundColliderVert1.position = new BABYLON.Vector3(0, 10, 4.5);
+                groundColliderVert1.scaling = new BABYLON.Vector3(4, 11, 5);
+                groundColliderVert1.backFaceCulling = false;
+                groundColliderVert1.checkCollisions = true;
+                groundColliderVert1.isVisible = false;
+
+                var groundColliderVert2 = BABYLON.Mesh.CreateGround("groundColliderVert2", 10, 10, 2, this.scene);
+                groundColliderVert2.rotation.z = 1.556;
+                groundColliderVert2.rotation.y = 3.14159;
+                groundColliderVert2.position = new BABYLON.Vector3(-110, 10, 4.5);
+                groundColliderVert2.scaling = new BABYLON.Vector3(4, 11, 5);
+                groundColliderVert2.backFaceCulling = false;
+                groundColliderVert2.checkCollisions = true;
+                groundColliderVert2.isVisible = false;
+
+                var groundColliderVert3 = BABYLON.Mesh.CreateGround("groundColliderVert3", 10, 10, 2, this.scene);
+                groundColliderVert3.rotation.z = 1.556;
+                groundColliderVert3.rotation.y = 1.556;
+                groundColliderVert3.position = new BABYLON.Vector3(-40, 10, -9);
+                groundColliderVert3.scaling = new BABYLON.Vector3(4, 11, 20);
+                groundColliderVert3.backFaceCulling = false;
+                groundColliderVert3.checkCollisions = true;
+                groundColliderVert3.isVisible = false;
+
+                var groundColliderVert4 = BABYLON.Mesh.CreateGround("groundColliderVert4", 10, 10, 2, this.scene);
+                groundColliderVert4.rotation.z = 1.556;
+                groundColliderVert4.rotation.y = -1.556;
+                groundColliderVert4.position = new BABYLON.Vector3(-40, 10, 18);
+                groundColliderVert4.scaling = new BABYLON.Vector3(4, 11, 20);
+                groundColliderVert4.backFaceCulling = false;
+                groundColliderVert4.checkCollisions = true;
+                groundColliderVert4.isVisible = false;
 
                 //this.nonVRCamera.ellipsoid =  new BABYLON.Vector3(6, 6, 6);
                 this.nonVRCamera.applyGravity = true;
+                /*
+                for (let m = 0; m < this.scene.meshes.length; m++) {
+                    this.scene.meshes[m].checkCollisions = true;
+                }
+                */
 
                 for (var i = 0; i < this.Data.currentRiders.length; i++) {
                     if (this.Data.currentRouteID == parseInt(this.Data.currentRiders[i].data.routeID)) {
@@ -507,9 +545,9 @@ var babylonMod = exports.babylonMod = function () {
             this.nonVRCamera.attachControl(this.canvas);
             this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick.reverseUpDown = true;
             this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._rotateOnAxisRelativeToMesh = true;
-            this.nonVRCamera.inputs.attached.virtualJoystick.camera.inertia = 0.8;
-            this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._inverseRotationSpeed = 5;
-            this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._rotationSpeed = 5;
+            this.nonVRCamera.inputs.attached.virtualJoystick.camera.inertia = this.inertiaSpeed;
+            this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._inverseRotationSpeed = this.rotationSpeed;
+            this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._rotationSpeed = this.rotationSpeed;
         }
     }, {
         key: 'enableDistotion',
@@ -521,7 +559,7 @@ var babylonMod = exports.babylonMod = function () {
         value: function gameLoop() {
             this.scene.executeWhenReady(function () {
                 this.engine.runRenderLoop(function () {
-                    if (!this.glitchEnabled && this.Data.soundStart && this.hud.hasInitalized) {
+                    if (!this.glitchEnabled && this.Data.soundStart && this.hud == null || !this.glitchEnabled && this.Data.soundStart && this.hud.hasInitalized) {
                         this.glitchEnabled = true;
                         this.enableDistotion();
                     }
@@ -574,10 +612,9 @@ var babylonMod = exports.babylonMod = function () {
             var player = new BABYLON.Sprite(_data.key, spriteManagerRider);
             player.isPickable = true;
             player.position = _data.data.position;
-            player.rotation = _data.data.rotation;
+            //player.rotation = _data.data.rotation;
             player.size = 14.0;
             if (this.Data.zombieMode) {
-
                 player.playAnimation(80, 100, true, 100);
             } else {
                 player.playAnimation(Math.abs(20 - parseInt(_data.data.spriteID)), parseInt(_data.data.spriteID), true, 100);
@@ -613,19 +650,23 @@ var babylonMod = exports.babylonMod = function () {
             if (this.mode == 'normal') {
                 this.mode = 'vr';
                 if (this.scene != null) {
-                    //this.specialFXBart.enableVR();
-                    this.scene.activeCameras[0] = this.vrCamera;
-                    this.specialFXBart.enableVR();
-
-                    //this.hud.onVRPointers();
-                }
-            } else {
-                    this.mode = 'normal';
-                    if (this.scene != null) {
-                        this.scene.activeCameras[0] = this.nonVRCamera;
-                        // this.hud.onVRDisableDisplay();
+                    if (this.hud != null) {
+                        this.scene.activeCameras[0] = this.vrCamera;
+                        this.specialFXBart.enableVR();
+                    } else {
+                        this.scene.activeCamera = this.vrCamera;
                     }
                 }
+            } else {
+                this.mode = 'normal';
+                if (this.scene != null) {
+                    if (this.hud != null) {
+                        this.scene.activeCameras[0] = this.nonVRCamera;
+                    } else {
+                        this.scene.activeCamera = this.nonVRCamera;
+                    }
+                }
+            }
         }
     }]);
 
@@ -1283,16 +1324,18 @@ var specialFX = exports.specialFX = function () {
         this.BadTVPostProcessFX = null;
         this.BadTVPostProcess = null;
         this.fxArray = [];
+        this.copyPass = null;
         this.init();
     }
 
     _createClass(specialFX, [{
         key: "init",
         value: function init() {
-            this.specialFXPipeline = new BABYLON.PostProcessRenderPipeline(this._babylonMod.scene.getEngine(), "specialFXPipeline");
 
+            this.copyPass = new BABYLON.PassPostProcess("Scene copy", 1.0, this._babylonMod.hud != null ? this._babylonMod.scene.activeCameras[0] : this._babylonMod.scene.activeCamera);
+            this.specialFXPipeline = new BABYLON.PostProcessRenderPipeline(this._babylonMod.scene.getEngine(), "specialFXPipeline");
             this.RGBShift = new BABYLON.PostProcessRenderEffect(this._babylonMod.scene.getEngine(), "RGBShift", function () {
-                this.RGBShiftFX = new BABYLON.RGBShiftPostProcess("RGBShiftFX", null, this._babylonMod.scene.activeCameras[0]);
+                this.RGBShiftFX = new BABYLON.RGBShiftPostProcess("RGBShiftFX", null, this._babylonMod.hud != null ? this._babylonMod.scene.activeCameras[0] : this._babylonMod.scene.activeCamera);
                 this.RGBShiftFX._isRunning = true;
                 this.fxArray.push(this.RGBShiftFX);
                 return this.RGBShiftFX;
@@ -1300,29 +1343,31 @@ var specialFX = exports.specialFX = function () {
             this.RGBShift._isAttached = false;
 
             this.FilmPostProcess = new BABYLON.PostProcessRenderEffect(this._babylonMod.scene.getEngine(), "FilmPostProcess", function () {
-                this.FilmPostProcessFX = new BABYLON.FilmPostProcess("FilmPostProcessFX", null, new BABYLON.PassPostProcess("Scene copy", 1.0, this._babylonMod.scene.activeCameras[0]), this._babylonMod.scene.activeCameras[0]);
+                this.FilmPostProcessFX = new BABYLON.FilmPostProcess("FilmPostProcessFX", null, this.copyPass, this._babylonMod.hud != null ? this._babylonMod.scene.activeCameras[0] : this._babylonMod.scene.activeCamera);
                 this.FilmPostProcessFX._isRunning = true;
                 this.fxArray.push(this.FilmPostProcessFX);
                 return this.FilmPostProcessFX;
             }.bind(this));
-            this.FilmPostProcess._isAttached = true;
 
+            this.FilmPostProcess._isAttached = true;
             this.BadTVPostProcess = new BABYLON.PostProcessRenderEffect(this._babylonMod.scene.getEngine(), "BadTVPostProcess", function () {
-                this.BadTVPostProcessFX = new BABYLON.BadTVPostProcess("BadTVPostProcessFX", null, new BABYLON.PassPostProcess("Scene copy", 1.0, this._babylonMod.scene.activeCameras[0]), this._babylonMod.scene.activeCameras[0]);
+                this.BadTVPostProcessFX = new BABYLON.BadTVPostProcess("BadTVPostProcessFX", null, this.copyPass, this._babylonMod.hud != null ? this._babylonMod.scene.activeCameras[0] : this._babylonMod.scene.activeCamera);
                 this.BadTVPostProcessFX._isRunning = true;
-                this.BadTVPostProcessFX.rollSpeed = 0.0;
+                //this.BadTVPostProcessFX.rollSpeed = 0.0;
                 this.fxArray.push(this.BadTVPostProcessFX);
                 return this.BadTVPostProcessFX;
             }.bind(this));
             this.BadTVPostProcess._isAttached = false;
-
             this.specialFXPipeline.addEffect(this.FilmPostProcess);
             this.specialFXPipeline.addEffect(this.BadTVPostProcess);
             this.specialFXPipeline.addEffect(this.RGBShift);
 
             this._babylonMod.scene.postProcessRenderPipelineManager.addPipeline(this.specialFXPipeline);
 
-            this._babylonMod.scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline(this.specialFXPipeline._name, this._babylonMod.scene.activeCameras[0]);
+            if (this._babylonMod.hud != null) {
+                this._babylonMod.scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline(this.specialFXPipeline._name, this._babylonMod.scene.activeCameras[0]);
+            }
+
             this._babylonMod.scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline(this.specialFXPipeline._name, this._babylonMod.nonVRCamera);
             this._babylonMod.scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline(this.specialFXPipeline._name, this._babylonMod.vrCamera);
             this.disableEffectInPipeline(this.BadTVPostProcess);
@@ -1357,6 +1402,7 @@ var specialFX = exports.specialFX = function () {
                         this.enableEffectInPipeline(this.RGBShift);
                         this.BadTVPostProcessFX.rollSpeed = this._babylonMod.Data.frequencyLevel;
                     }
+
                     window.time += 0.01;
                     this.BadTVPostProcessFX.time = this.FilmPostProcessFX.time = window.time;
                 } catch (e) {
@@ -1367,14 +1413,18 @@ var specialFX = exports.specialFX = function () {
     }, {
         key: "enableEffectInPipeline",
         value: function enableEffectInPipeline(_postProcess) {
-            this._babylonMod.scene.postProcessRenderPipelineManager.enableEffectInPipeline(this.specialFXPipeline._name, _postProcess._name, this._babylonMod.scene.activeCameras[0]);
+            if (this._babylonMod.hud != null) {
+                this._babylonMod.scene.postProcessRenderPipelineManager.enableEffectInPipeline(this.specialFXPipeline._name, _postProcess._name, this._babylonMod.scene.activeCameras[0]);
+            }
             this._babylonMod.scene.postProcessRenderPipelineManager.enableEffectInPipeline(this.specialFXPipeline._name, _postProcess._name, this._babylonMod.nonVRCamera);
             this._babylonMod.scene.postProcessRenderPipelineManager.enableEffectInPipeline(this.specialFXPipeline._name, _postProcess._name, this._babylonMod.vrCamera);
         }
     }, {
         key: "disableEffectInPipeline",
         value: function disableEffectInPipeline(_postProcess) {
-            this._babylonMod.scene.postProcessRenderPipelineManager.disableEffectInPipeline(this.specialFXPipeline._name, _postProcess._name, this._babylonMod.scene.activeCameras[0]);
+            if (this._babylonMod.hud != null) {
+                this._babylonMod.scene.postProcessRenderPipelineManager.disableEffectInPipeline(this.specialFXPipeline._name, _postProcess._name, this._babylonMod.scene.activeCameras[0]);
+            }
             this._babylonMod.scene.postProcessRenderPipelineManager.disableEffectInPipeline(this.specialFXPipeline._name, _postProcess._name, this._babylonMod.nonVRCamera);
             this._babylonMod.scene.postProcessRenderPipelineManager.disableEffectInPipeline(this.specialFXPipeline._name, _postProcess._name, this._babylonMod.vrCamera);
         }
@@ -1392,7 +1442,10 @@ var specialFX = exports.specialFX = function () {
     }, {
         key: "disableAllCameraDistortion",
         value: function disableAllCameraDistortion() {
-            this.disableDistortion(this._babylonMod.scene.activeCameras[0]);
+            if (this._babylonMod.hud != null) {
+                this.disableDistortion(this._babylonMod.scene.activeCameras[0]);
+            }
+
             this.disableDistortion(this._babylonMod.nonVRCamera);
             this.disableDistortion(this._babylonMod.vrCamera);
         }
@@ -1405,14 +1458,19 @@ var specialFX = exports.specialFX = function () {
         key: "disableEffect",
         value: function disableEffect(_porcess) {
             _porcess._isRunning = false;
-            this._babylonMod.scene.activeCameras[0].detachPostProcess(_porcess);
+            if (this._babylonMod.hud != null) {
+                this._babylonMod.scene.activeCameras[0].detachPostProcess(_porcess);
+            }
+
             this._babylonMod.nonVRCamera.detachPostProcess(_porcess);
             this._babylonMod.vrCamera.detachPostProcess(_porcess);
         }
     }, {
         key: "enableEffect",
         value: function enableEffect(_porcess) {
-            this._babylonMod.scene.activeCameras[0].attachPostProcess(_porcess);
+            if (this._babylonMod.hud != null) {
+                this._babylonMod.scene.activeCameras[0].attachPostProcess(_porcess);
+            }
             this._babylonMod.nonVRCamera.attachPostProcess(_porcess);
             this._babylonMod.vrCamera.attachPostProcess(_porcess);
         }
@@ -1455,11 +1513,11 @@ var CardboardGl = exports.CardboardGl = (_dec = (0, _core.Component)({
   _createClass(CardboardGl, null, [{
     key: 'parameters',
     get: function get() {
-      return [[_core.ElementRef], [_app.BoilerVR], [_ionicAngular.NavController], [_ionicAngular.NavParams]];
+      return [[_core.ElementRef], [_app.BoilerVR], [_ionicAngular.NavController], [_ionicAngular.NavParams], [_core.NgZone]];
     }
   }]);
 
-  function CardboardGl(_element, _boilerVR, nav, navParams) {
+  function CardboardGl(_element, _boilerVR, nav, navParams, NgZone) {
     _classCallCheck(this, CardboardGl);
 
     this._element = _element;
@@ -1472,6 +1530,7 @@ var CardboardGl = exports.CardboardGl = (_dec = (0, _core.Component)({
     this.hasInit = false;
     this.init();
     this.boilerVR = _boilerVR;
+    this.boilerVR._ngZone = NgZone;
   }
 
   _createClass(CardboardGl, [{
@@ -1494,6 +1553,7 @@ var CardboardGl = exports.CardboardGl = (_dec = (0, _core.Component)({
   }, {
     key: 'init',
     value: function init() {
+
       function readDeviceOrientation() {
         if (Math.abs(window.orientation) === 90) {
 
@@ -1508,8 +1568,11 @@ var CardboardGl = exports.CardboardGl = (_dec = (0, _core.Component)({
           this.Data.stereoEffect = false;
           if (this.hasInit == false) {
             this.hasInit = true;
-            this._babylon = new _babylonmod.babylonMod(this._element.nativeElement, this.Data, this.app);
-            this.boilerVR.babylonMod = this._babylon;
+
+            this.boilerVR._ngZone.runOutsideAngular(function () {
+              this._babylon = new _babylonmod.babylonMod(this._element.nativeElement, this.Data, this.app);
+              this.boilerVR.babylonMod = this._babylon;
+            }.bind(this));
           }
         } else {
           this.Data.landscapeMode = false;
@@ -1593,8 +1656,7 @@ var IntroPage = exports.IntroPage = (_dec = (0, _ionicAngular.Page)({
 
       if (this.hasInit == false) {
         this.hasInit = true;
-
-        this._babylon = new _babylonmod.babylonMod(document.getElementById("cardBoardView"), this.Data, this.app);
+        this._babylon = new _babylonmod.babylonMod(document.getElementById("cardBoardView"), this.Data, this.bartVR);
         this.bartVR.babylonMod = this._babylon;
       }
     }

@@ -1,5 +1,5 @@
 import {App, IonicApp, Page, NavController, NavParams, Template,  Modal} from 'ionic-angular';
-import {Directive, Component, ElementRef} from '@angular/core';
+import {Directive, Component, ElementRef, NgZone} from '@angular/core';
 import {SettingsModal} from '../settings/settings';
 import {babylonMod} from '../../modules/babylonmod'; 
 import {BoilerVR} from '../../app';
@@ -14,10 +14,10 @@ import {BoilerVR} from '../../app';
 export class CardboardGl{
   
   static get parameters() {
-    return [[ElementRef], [BoilerVR], [NavController], [NavParams]];
+    return [[ElementRef], [BoilerVR], [NavController], [NavParams], [NgZone]];
   }
 
-  constructor (_element, _boilerVR, nav, navParams) {
+  constructor (_element, _boilerVR, nav, navParams, NgZone) {
     this._element = _element;
     this.nav = nav;
     this._babylon = null;
@@ -28,6 +28,7 @@ export class CardboardGl{
     this.hasInit = false;
     this.init();
     this.boilerVR = _boilerVR;
+    this.boilerVR._ngZone = NgZone;
   }
 
   openSettingsModal() {
@@ -48,6 +49,7 @@ export class CardboardGl{
 
 
    init(){
+
     function readDeviceOrientation() {
       if (Math.abs(window.orientation) === 90) {
       
@@ -58,15 +60,15 @@ export class CardboardGl{
           document.querySelector("scroll-content").style.willChange = 'auto';
           document.querySelector("scroll-content").style.zIndex = 'auto';
 
-        
-   
-
         this.Data.landscapeMode = true;
         this.Data.stereoEffect = false;
         if(this.hasInit  == false){
           this.hasInit = true;
-          this._babylon = new babylonMod(this._element.nativeElement, this.Data, this.app);
-          this.boilerVR.babylonMod = this._babylon;
+
+         this.boilerVR._ngZone.runOutsideAngular(function(){
+              this._babylon = new babylonMod(this._element.nativeElement, this.Data, this.app);
+              this.boilerVR.babylonMod = this._babylon;
+           }.bind(this)); 
         }
       } else {
         this.Data.landscapeMode = false;

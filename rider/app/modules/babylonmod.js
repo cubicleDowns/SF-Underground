@@ -25,6 +25,8 @@ export class babylonMod {
         this.distortionLens = null;
         this.specialFXBart = null;
         this.glitchEnabled = false;
+        this.inertiaSpeed = null;
+        this.rotationSpeed = null;
         setTimeout(this.init.bind(this), 500);
     }
 
@@ -44,15 +46,14 @@ export class babylonMod {
         BABYLON.SceneLoader.Load('', 'bartvr/scenes/subway3/bart_16.babylon?once=3665092109', this.engine, function(newScene) {
             this.scene = newScene;
             var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(100, 100, 0), this.scene );
-            /*
-            if(!this.app._isDesktop){
-                BABYLON.SceneOptimizer.OptimizeAsync(this.scene, BABYLON.SceneOptimizerOptions.HighDegradationAllowed(),
+
+            if(!this.app._isDesktop && this.app._platform.is('android')){
+                BABYLON.SceneOptimizer.OptimizeAsync(this.scene, BABYLON.SceneOptimizerOptions.ModerateDegradationAllowed(),
                 function() {
-                 // console.log(this.engine.getFps());
                 }.bind(this), function() {
-                   //console.log(this.engine.getFps());
                 }.bind(this));
-            }*/
+            }
+
             document.getElementById('loadCover').style.display = "none";
             this.vrCamera = new BABYLON.VRDeviceOrientationFreeCamera("Camera", BABYLON.Vector3.Zero(), this.scene, true);
             this.vrCamera.rotation = new BABYLON.Vector3(newScene.cameras[0].rotation.x, newScene.cameras[0].rotation.y, newScene.cameras[0].rotation.z)
@@ -64,36 +65,39 @@ export class babylonMod {
             this.nonVRCamera.checkCollisions = this.scene.activeCamera.checkCollisions;
             this.nonVRCamera.applyGravity = this.scene.activeCamera.applyGravity;
             this.nonVRCamera.attachControl(this.canvas, false);
-          
+            this.inertiaSpeed  = this.app._platform.is('android') ? 0.6 : 0.7;
+            this.rotationSpeed  = this.app._platform.is('android') ? 4 : 2;
             this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick.reverseUpDown = true;
             this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._rotateOnAxisRelativeToMesh = true;
             
-            this.nonVRCamera.inputs.attached.virtualJoystick.camera.inertia = 0.8;
-            this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._inverseRotationSpeed = 2;
-            this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._rotationSpeed = 2;
+            this.nonVRCamera.inputs.attached.virtualJoystick.camera.inertia = this.inertiaSpeed;
+            this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._inverseRotationSpeed = this.rotationSpeed;
+            this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._rotationSpeed = this.rotationSpeed ;
 
           
             this.scene.activeCamera = this.nonVRCamera;
             this.vrCamera.position.x = 7;
             this.Data.setUser(null, this.vrCamera.position);
             this.nonVRCamera.position =  this.vrCamera.position;
-            this.hud = new BartVR_HeadsUpDisplay(this.scene, this);
 
-
+            if( ! this.app._platform.is('android') ){
+                this.hud = new BartVR_HeadsUpDisplay(this.scene, this);
+            }
             
             this.spManager  = new BABYLON.SpriteManager("userManager", this.Data.user.sprite, 1000, 128, this.scene);
-            this.spManager  .layerMask = 3;
+            this.spManager.layerMask = 3;
             this.playerSprite = new BABYLON.Sprite("player", this.spManager );
             this.playerSprite.isPickable = true;
+
+            
+
             if(this.Data.zombieMode){
                 this.playerSprite.playAnimation( 80,  100, true, 100);
             }else{
                 this.playerSprite.playAnimation(Math.abs( 20 - this.Data.user.spriteID),  parseInt(this.Data.user.spriteID), true, 100);
             }
-            //this.playerSprite.parent = this.vrCamera;
             this.scene.activeCamera.position = new BABYLON.Vector3(this.Data.user.position.x, this.Data.user.position.y, this.Data.user.position.z);
             this.playerSprite.position = new BABYLON.Vector3(this.Data.user.position.x, this.Data.user.position.y, this.Data.user.position.z);
-            
            // this.scene.activeCamera.rotation = new BABYLON.Vector3(this.Data.user.rotation.x, this.Data.user.rotation.y, this.Data.user.rotation.z);
             this.sprites.push({sprite:this.playerSprite, key:this.Data.currentUserKey});
             this.skyBox('oakland');
@@ -101,17 +105,54 @@ export class babylonMod {
 
             this.ground = BABYLON.Mesh.CreateGround("ground1", 300, 300, 10, this.scene);
             this.ground.isVisible = false;
-            this.ground.position.y = 5;
+            this.ground.position.y = 8;
             this.ground.checkCollisions = true;
-            this.colliderCap =  BABYLON.Mesh.CreateSphere("sphere1", 16, 8, this.scene);
-            this.colliderCap.checkCollisions = true;
-            this.colliderCap.parent = this.nonVRCamera;
-            this.colliderCap.position.y = -2;
             this.scene.collisionsEnabled = true;
             this.scene.gravity = new BABYLON.Vector3(0, -0.9, 0);
+            // take that all you bart jumpers next time go find a bridge
+            var groundColliderVert1 = BABYLON.Mesh.CreateGround("groundColliderVert1", 10, 10, 2, this.scene);
+            groundColliderVert1.rotation.z = 1.556;
+            groundColliderVert1.position = new BABYLON.Vector3(0, 10, 4.5);
+            groundColliderVert1.scaling = new BABYLON.Vector3(4, 11, 5);
+            groundColliderVert1.backFaceCulling = false;
+            groundColliderVert1.checkCollisions = true;
+            groundColliderVert1.isVisible = false;
+
+            var groundColliderVert2 = BABYLON.Mesh.CreateGround("groundColliderVert2", 10, 10, 2, this.scene);
+            groundColliderVert2.rotation.z = 1.556;
+            groundColliderVert2.rotation.y = 3.14159;
+            groundColliderVert2.position = new BABYLON.Vector3(-110, 10, 4.5);
+            groundColliderVert2.scaling = new BABYLON.Vector3(4, 11, 5);
+            groundColliderVert2.backFaceCulling = false;
+            groundColliderVert2.checkCollisions = true;
+            groundColliderVert2.isVisible = false;
+
+
+            var groundColliderVert3 = BABYLON.Mesh.CreateGround("groundColliderVert3", 10, 10, 2, this.scene);
+            groundColliderVert3.rotation.z = 1.556;
+            groundColliderVert3.rotation.y = 1.556;
+            groundColliderVert3.position = new BABYLON.Vector3(-40, 10, -9);
+            groundColliderVert3.scaling = new BABYLON.Vector3(4, 11, 20);
+            groundColliderVert3.backFaceCulling = false;
+            groundColliderVert3.checkCollisions = true;
+            groundColliderVert3.isVisible = false;
+          
+            var groundColliderVert4 = BABYLON.Mesh.CreateGround("groundColliderVert4", 10, 10, 2, this.scene);
+            groundColliderVert4.rotation.z = 1.556;
+            groundColliderVert4.rotation.y = -1.556;
+            groundColliderVert4.position = new BABYLON.Vector3(-40, 10, 18);
+            groundColliderVert4.scaling = new BABYLON.Vector3(4, 11, 20);
+            groundColliderVert4.backFaceCulling = false;
+            groundColliderVert4.checkCollisions = true;
+            groundColliderVert4.isVisible = false;
 
             //this.nonVRCamera.ellipsoid =  new BABYLON.Vector3(6, 6, 6);
             this.nonVRCamera.applyGravity = true;
+            /*
+            for (let m = 0; m < this.scene.meshes.length; m++) {
+                this.scene.meshes[m].checkCollisions = true;
+            }
+            */
         
             for(let i = 0; i < this.Data.currentRiders.length; i++){
                 if(this.Data.currentRouteID == parseInt(this.Data.currentRiders[i].data.routeID)){
@@ -161,10 +202,9 @@ export class babylonMod {
             this.nonVRCamera.attachControl(this.canvas);
             this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick.reverseUpDown = true;
             this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._rotateOnAxisRelativeToMesh = true;
-            this.nonVRCamera.inputs.attached.virtualJoystick.camera.inertia = 0.8;
-            this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._inverseRotationSpeed = 5;
-            this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._rotationSpeed = 5;
-
+            this.nonVRCamera.inputs.attached.virtualJoystick.camera.inertia = this.inertiaSpeed;
+            this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._inverseRotationSpeed = this.rotationSpeed ;
+            this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._rotationSpeed = this.rotationSpeed;
     }
 
     enableDistotion(){
@@ -174,7 +214,7 @@ export class babylonMod {
     gameLoop(){
          this.scene.executeWhenReady(function() {
             this.engine.runRenderLoop(function() {
-                if(!this.glitchEnabled && this.Data.soundStart && this.hud.hasInitalized){
+                if((!this.glitchEnabled && this.Data.soundStart && this.hud == null) || (!this.glitchEnabled && this.Data.soundStart && this.hud.hasInitalized)){
                     this.glitchEnabled = true;
                     this.enableDistotion();
                 }
@@ -225,10 +265,9 @@ export class babylonMod {
         let player = new BABYLON.Sprite(_data.key, spriteManagerRider );
         player.isPickable = true;
         player.position = _data.data.position;
-        player.rotation = _data.data.rotation;
+        //player.rotation = _data.data.rotation;
         player.size = 14.0;
         if(this.Data.zombieMode){
-
             player.playAnimation( 80,  100, true, 100);
         }else{
             player.playAnimation(Math.abs( 20 - parseInt(_data.data.spriteID)),  parseInt(_data.data.spriteID), true, 100);
@@ -260,17 +299,21 @@ export class babylonMod {
         if (this.mode == 'normal') {
             this.mode = 'vr';
             if (this.scene != null) {
-                //this.specialFXBart.enableVR();
-                this.scene.activeCameras[0] = this.vrCamera;
-                this.specialFXBart.enableVR();
-
-                //this.hud.onVRPointers();
+                if(this.hud != null){
+                   this.scene.activeCameras[0] = this.vrCamera;
+                    this.specialFXBart.enableVR();  
+                }else{
+                    this.scene.activeCamera = this.vrCamera;
+                }
             }
         } else {
             this.mode = 'normal';
             if (this.scene != null) {
-                this.scene.activeCameras[0] = this.nonVRCamera;
-               // this.hud.onVRDisableDisplay();  
+                if(this.hud != null){
+                   this.scene.activeCameras[0] = this.nonVRCamera;
+                }else{
+                    this.scene.activeCamera = this.nonVRCamera;
+                }
             }
         }
     }
