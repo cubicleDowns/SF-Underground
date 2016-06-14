@@ -118,7 +118,6 @@ export class babylonMod {
             groundColliderVert1.checkCollisions = true;
             groundColliderVert1.isVisible = false;
 
-
             var groundColliderVert2 = BABYLON.Mesh.CreateGround("groundColliderVert2", 10, 10, 2, this.scene);
             groundColliderVert2.rotation.z = 1.556;
             groundColliderVert2.rotation.y = 3.14159;
@@ -146,8 +145,6 @@ export class babylonMod {
             groundColliderVert4.backFaceCulling = false;
             groundColliderVert4.checkCollisions = true;
             groundColliderVert4.isVisible = false;
-
-           
 
             //this.nonVRCamera.ellipsoid =  new BABYLON.Vector3(6, 6, 6);
             this.nonVRCamera.applyGravity = true;
