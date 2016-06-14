@@ -40,8 +40,7 @@ export class IntroPage {
        
         if(this.hasInit  == false){
           this.hasInit = true;
-
-          this._babylon = new babylonMod(document.getElementById("cardBoardView"), this.Data, this.app);
+          this._babylon = new babylonMod(document.getElementById("cardBoardView"), this.Data, this.bartVR);
           this.bartVR.babylonMod = this._babylon;
         }
   }

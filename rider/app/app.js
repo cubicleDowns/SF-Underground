@@ -75,15 +75,17 @@ export class BoilerVR {
   }
 
   launchIntoFullscreen(element = document.documentElement) {
-    if(typeof element.requestFullscreen != 'undefined') {
-      element.requestFullscreen();
-    } else if(typeof element.mozRequestFullScreen != 'undefined') {
-      element.mozRequestFullScreen();
-    } else if(typeof element.webkitRequestFullscreen != 'undefined') {
-      element.webkitRequestFullscreen();
-    } else if(typeof element.msRequestFullscreen != 'undefined') {
-      element.msRequestFullscreen();
-    }
+      if(!this._isDesktop){
+          if(typeof element.requestFullscreen != 'undefined') {
+            element.requestFullscreen();
+          } else if(typeof element.mozRequestFullScreen != 'undefined') {
+            element.mozRequestFullScreen();
+          } else if(typeof element.webkitRequestFullscreen != 'undefined') {
+            element.webkitRequestFullscreen();
+          } else if(typeof element.msRequestFullscreen != 'undefined') {
+            element.msRequestFullscreen();
+          }
+      }
   }
 
   exitFullscreen() {

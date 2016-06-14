@@ -47,12 +47,13 @@ export class babylonMod {
             this.scene = newScene;
             var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(100, 100, 0), this.scene );
 
-            if(!this.app._isDesktop && _babylon.app._platform.is('android')){
+            if(!this.app._isDesktop && this.app._platform.is('android')){
                 BABYLON.SceneOptimizer.OptimizeAsync(this.scene, BABYLON.SceneOptimizerOptions.ModerateDegradationAllowed(),
                 function() {
                 }.bind(this), function() {
                 }.bind(this));
             }
+
             document.getElementById('loadCover').style.display = "none";
             this.vrCamera = new BABYLON.VRDeviceOrientationFreeCamera("Camera", BABYLON.Vector3.Zero(), this.scene, true);
             this.vrCamera.rotation = new BABYLON.Vector3(newScene.cameras[0].rotation.x, newScene.cameras[0].rotation.y, newScene.cameras[0].rotation.z)
@@ -64,8 +65,8 @@ export class babylonMod {
             this.nonVRCamera.checkCollisions = this.scene.activeCamera.checkCollisions;
             this.nonVRCamera.applyGravity = this.scene.activeCamera.applyGravity;
             this.nonVRCamera.attachControl(this.canvas, false);
-            this.inertiaSpeed  = _babylon.app._platform.is('android') ? 0.6 : 0.7;
-            this.rotationSpeed  = _babylon.app._platform.is('android') ? 4 : 2;
+            this.inertiaSpeed  = this.app._platform.is('android') ? 0.6 : 0.7;
+            this.rotationSpeed  = this.app._platform.is('android') ? 4 : 2;
             this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick.reverseUpDown = true;
             this.nonVRCamera.inputs.attached.virtualJoystick._rightjoystick._rotateOnAxisRelativeToMesh = true;
             
@@ -79,7 +80,7 @@ export class babylonMod {
             this.Data.setUser(null, this.vrCamera.position);
             this.nonVRCamera.position =  this.vrCamera.position;
 
-            if( !_babylon.app._platform.is('android') ){
+            if( ! this.app._platform.is('android') ){
                 this.hud = new BartVR_HeadsUpDisplay(this.scene, this);
             }
             
@@ -104,14 +105,23 @@ export class babylonMod {
 
             this.ground = BABYLON.Mesh.CreateGround("ground1", 300, 300, 10, this.scene);
             this.ground.isVisible = false;
-            this.ground.position.y = 5;
+            this.ground.position.y = 8;
             this.ground.checkCollisions = true;
-            this.colliderCap =  BABYLON.Mesh.CreateSphere("sphere1", 16, 8, this.scene);
-            this.colliderCap.checkCollisions = true;
-            this.colliderCap.parent = this.nonVRCamera;
-            this.colliderCap.position.y = -2;
+            //this.colliderCap =  BABYLON.Mesh.CreateSphere("sphere1", 16, 8, this.scene);
+            //this.colliderCap.checkCollisions = true;
+            //this.colliderCap.parent = this.nonVRCamera;
+            //this.colliderCap.position.y = -2;
             this.scene.collisionsEnabled = true;
             this.scene.gravity = new BABYLON.Vector3(0, -0.9, 0);
+
+            window.boxContainer = BABYLON.Mesh.CreateBox("boxContainer", 10.0, this.scene);
+            boxContainer.scaling = new BABYLON.Vector3(11.5, 1.8, 2.3); 
+            boxContainer.position = new BABYLON.Vector3(-50.5, 10, 4.5);  
+            //boxContainer.isVisible = true;
+            //boxContainer.checkCollisions = true;
+            boxContainer.backFaceCulling = false;
+
+
             //this.nonVRCamera.ellipsoid =  new BABYLON.Vector3(6, 6, 6);
             this.nonVRCamera.applyGravity = true;
             /*

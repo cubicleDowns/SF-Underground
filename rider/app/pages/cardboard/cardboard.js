@@ -68,13 +68,7 @@ export class CardboardGl{
          this.boilerVR._ngZone.runOutsideAngular(function(){
               this._babylon = new babylonMod(this._element.nativeElement, this.Data, this.app);
               this.boilerVR.babylonMod = this._babylon;
-           }.bind(this));
-
-              
-   
-
-
-          
+           }.bind(this)); 
         }
       } else {
         this.Data.landscapeMode = false;

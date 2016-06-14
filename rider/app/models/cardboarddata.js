@@ -73,7 +73,7 @@ export class CardBoardData{
             this.frequencyIO.on("value", function(data) {
                this.frequencyLevel =  data.val();
             }.bind(this));
-            
+
             this.dbLevelIO.on("value", function(data) {
                this.dbLevel =  data.val();
                if(parseInt(this.dbLevel) >= 105){
@@ -155,7 +155,7 @@ export class CardBoardData{
   setUser(_user = {name: 'userName', position: {x:0, y:0, z:0}}, _pos = {} ){
       if(window.localStorage.getItem("bart_vr_user") == null){
         _pos.x = this.randomPos(-85, 2);
-        _pos.y = 10;
+        _pos.y = 11;
         _pos.z = this.randomPos(5, 15);
         var _username = null;
         if(this.user.name == null){

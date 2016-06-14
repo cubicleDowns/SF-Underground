@@ -17,6 +17,7 @@ export class specialFX {
     }
 
     init(){
+
         this.copyPass = new BABYLON.PassPostProcess("Scene copy", 1.0, (this._babylonMod.hud != null?  this._babylonMod.scene.activeCameras[0] : this._babylonMod.scene.activeCamera));
         this.specialFXPipeline = new BABYLON.PostProcessRenderPipeline(this._babylonMod.scene.getEngine(), "specialFXPipeline");
         this.RGBShift = new BABYLON.PostProcessRenderEffect(this._babylonMod.scene.getEngine(), "RGBShift",
@@ -27,6 +28,7 @@ export class specialFX {
                   return this.RGBShiftFX ;
         }.bind(this));
         this.RGBShift._isAttached = false;
+
         this.FilmPostProcess = new BABYLON.PostProcessRenderEffect(this._babylonMod.scene.getEngine(), "FilmPostProcess",
                  function() {
                    this.FilmPostProcessFX = new BABYLON.FilmPostProcess( "FilmPostProcessFX", null, this.copyPass, this._babylonMod.hud != null?  this._babylonMod.scene.activeCameras[0] : this._babylonMod.scene.activeCamera);
@@ -34,8 +36,8 @@ export class specialFX {
                    this.fxArray.push(this.FilmPostProcessFX);
                    return this.FilmPostProcessFX;
         }.bind(this));
-        this.FilmPostProcess._isAttached = true;
 
+        this.FilmPostProcess._isAttached = true;
         this.BadTVPostProcess = new BABYLON.PostProcessRenderEffect(this._babylonMod.scene.getEngine(), "BadTVPostProcess",
                  function() {
                     this.BadTVPostProcessFX = new BABYLON.BadTVPostProcess( "BadTVPostProcessFX", null, this.copyPass,  this._babylonMod.hud != null?  this._babylonMod.scene.activeCameras[0] : this._babylonMod.scene.activeCamera);
@@ -61,8 +63,6 @@ export class specialFX {
         this._babylonMod.scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline(this.specialFXPipeline._name, this._babylonMod.vrCamera);
         this.disableEffectInPipeline(this.BadTVPostProcess);
         this.disableEffectInPipeline(this.RGBShift);
-        
-
 
         this._babylonMod.scene.registerBeforeRender(function () {
             try{
@@ -86,7 +86,6 @@ export class specialFX {
                     this.FilmPostProcessFX.grayscale = true;
                     this.enableEffectInPipeline(this.RGBShift);    
                     this.disableEffectInPipeline(this.BadTVPostProcess);
-
                 }
 
                 if(this._babylonMod.Data.frequencyLevel > 0.25){
@@ -94,6 +93,7 @@ export class specialFX {
                         this.enableEffectInPipeline(this.RGBShift);
                         this.BadTVPostProcessFX.rollSpeed = this._babylonMod.Data.frequencyLevel;
                 }
+
                 window.time += 0.01;
                 this.BadTVPostProcessFX.time =  this.FilmPostProcessFX.time  = window.time;
 
@@ -105,7 +105,6 @@ export class specialFX {
     }
 
     enableEffectInPipeline(_postProcess){
-
         if(this._babylonMod.hud != null){
             this._babylonMod.scene.postProcessRenderPipelineManager.enableEffectInPipeline(this.specialFXPipeline._name, _postProcess._name, this._babylonMod.scene.activeCameras[0]);
         }
