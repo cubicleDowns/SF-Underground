@@ -10,22 +10,14 @@
   <link md-href="build/css/app.md.css" rel="stylesheet">
   <link wp-href="build/css/app.wp.css" rel="stylesheet">  
   <link href="bartvr/css/cardboard.css" rel="stylesheet">
+  <script src="build/js/zone.js"></script>
   <script src="https://code.jquery.com/pep/0.4.1/pep.js"></script>
+  <script src="build/js/es6-shim.min.js"></script>
+  <script src="build/js/Reflect.js"></script>
 </head>
 <body>
-
-  <!-- this Ionic's root component and where the app will load -->
   <ion-app scroll="false" padding="false" id="ionicApp"></ion-app>
   <script src="https://cdn.firebase.com/js/client/2.3.0/firebase.js"></script>
-  <!-- cordova.js required for cordova apps -->
-
-  <!-- Polyfill needed for platforms without Promise and Collection support -->
-  <script src="build/js/es6-shim.min.js"></script>
-  <!-- Zone.js and Reflect-metadata  -->
-  <script src="build/js/Reflect.js"></script>
-  <script src="build/js/zone.js"></script>
-  <!-- the bundle which is built from the app's source code -->
-
   <script src="bartvr/vendor/babylonjs/cannon.js"></script>
   <script src="bartvr/vendor/babylonjs/oimo.js"></script>
   <script src="bartvr/vendor/babylonjs/babylon_alpha.js"></script>
