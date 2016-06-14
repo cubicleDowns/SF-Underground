@@ -19,7 +19,8 @@ export class BoilerVR {
 
   constructor(app, platform, NgZone) {
     this._ngZone = NgZone;
-    this.Data = new CardBoardData( "https://sf-noise.firebaseio.com/" , this);
+    this.firebaseio = "https://sf-noise.firebaseio.com/";
+    this.Data = new CardBoardData( this.firebaseio  , this);
     this.app = app;
     this.babylonMod = null;
     this.isNative = false;

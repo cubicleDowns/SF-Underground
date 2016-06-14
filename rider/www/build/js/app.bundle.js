@@ -39,7 +39,8 @@ var BoilerVR = exports.BoilerVR = (_dec = (0, _ionicAngular.App)({
     _classCallCheck(this, BoilerVR);
 
     this._ngZone = NgZone;
-    this.Data = new _cardboarddata.CardBoardData("https://sf-noise.firebaseio.com/", this);
+    this.firebaseio = "https://sf-noise.firebaseio.com/";
+    this.Data = new _cardboarddata.CardBoardData(this.firebaseio, this);
     this.app = app;
     this.babylonMod = null;
     this.isNative = false;
@@ -136,7 +137,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var CardBoardData = exports.CardBoardData = function () {
   function CardBoardData() {
-    var fbURL = arguments.length <= 0 || arguments[0] === undefined ? "https://sf-noise.firebaseio.com/" : arguments[0];
+    var fbURL = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
     var _boilerVR = arguments[1];
 
     _classCallCheck(this, CardBoardData);
@@ -158,7 +159,7 @@ var CardBoardData = exports.CardBoardData = function () {
     this.currentUserKey = null;
     this.isCurrentlyUsingBart = false;
     this.executeUserRemoval = null;
-    this.userToUpdate = 'https://sf-noise.firebaseio.com/riders/';
+    this.userToUpdate = this.firebaseRef + 'riders/';
     this.dbLevelIO = new Firebase(this.firebaseRef + 'db');
     this.frequencyIO = new Firebase(this.firebaseRef + 'freq');
     this.sound = new Firebase(this.firebaseRef + 'start');
@@ -249,7 +250,7 @@ var CardBoardData = exports.CardBoardData = function () {
   }, {
     key: 'deleteUser',
     value: function deleteUser(_dkey) {
-      var userRef = new Firebase('https://sf-noise.firebaseio.com/riders/' + _dkey);
+      var userRef = new Firebase(this.firebaseRef + 'riders/' + _dkey);
       userRef.once("value", function (_data) {
         console.log(_data.val());
         console.log('pass');

@@ -1,6 +1,6 @@
 export class CardBoardData{
   
-  constructor(fbURL =  "https://sf-noise.firebaseio.com/", _boilerVR){
+  constructor(fbURL =  null, _boilerVR){
       this.boilerVR = _boilerVR;
       this.stereoEffect = false;
       this.landscapeMode = false;
@@ -18,7 +18,7 @@ export class CardBoardData{
       this.currentUserKey = null;
       this.isCurrentlyUsingBart = false;
       this.executeUserRemoval = null;
-      this.userToUpdate = 'https://sf-noise.firebaseio.com/riders/';
+      this.userToUpdate =  this.firebaseRef+ 'riders/';
       this.dbLevelIO = new Firebase(this.firebaseRef + 'db');
       this.frequencyIO = new Firebase(this.firebaseRef + 'freq');
       this.sound = new Firebase(this.firebaseRef + 'start');
@@ -109,7 +109,7 @@ export class CardBoardData{
   }
 
   deleteUser(_dkey){
-      var userRef = new Firebase('https://sf-noise.firebaseio.com/riders/'  + _dkey);
+      var userRef = new Firebase(this.firebaseRef + 'riders/'  + _dkey);
       userRef.once("value", function(_data) {
         console.log(_data.val());
         console.log('pass');
