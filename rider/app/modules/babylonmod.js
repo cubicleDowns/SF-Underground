@@ -80,6 +80,8 @@ export class babylonMod {
           
             this.scene.activeCamera = this.nonVRCamera;
             this.vrCamera.position.x = 7;
+            this.vrCamera.applyGravity = true;
+            this.vrCamera.checkCollisions = true;
             this.Data.setUser(null, this.vrCamera.position);
             this.nonVRCamera.position =  this.vrCamera.position;
 
@@ -315,7 +317,10 @@ export class babylonMod {
             if (this.scene != null) {
                 if(this.hud != null){
                    this.scene.activeCameras[0] = this.vrCamera;
-                    this.specialFXBart.enableVR();  
+                    if(this.glitchEnabled){
+                        this.specialFXBart.enableVR();  
+                    }
+                    
                 }else{
                     this.scene.activeCamera = this.vrCamera;
                 }
