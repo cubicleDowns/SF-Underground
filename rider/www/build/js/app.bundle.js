@@ -1382,6 +1382,7 @@ var specialFX = exports.specialFX = function () {
                 this.PixelatePostProcessFX = new BABYLON.PixelatePostProcess("PixelatePostProcessFX", null, this.copyPass, this._babylonMod.hud != null ? this._babylonMod.scene.activeCameras[0] : this._babylonMod.scene.activeCamera);
                 this.PixelatePostProcessFX._isRunning = true;
                 this.PixelatePostProcessFX.dimensions = new BABYLON.Vector4(this._babylonMod.scene.getEngine().getRenderWidth(), this._babylonMod.scene.getEngine().getRenderHeight(), 0.0, 0.0);
+                this.PixelatePostProcessFX.pixelSize = new BABYLON.Vector2(60.0, 60.0);
                 this.fxArray.push(this.PixelatePostProcessFX);
                 window.onresize = function () {
                     try {
@@ -1395,7 +1396,7 @@ var specialFX = exports.specialFX = function () {
             this.specialFXPipeline.addEffect(this.FilmPostProcess);
             this.specialFXPipeline.addEffect(this.BadTVPostProcess);
             this.specialFXPipeline.addEffect(this.RGBShift);
-            //this.specialFXPipeline.addEffect(this.pixelatePostProcessScreen);
+            this.specialFXPipeline.addEffect(this.pixelatePostProcessScreen);
 
             this._babylonMod.scene.postProcessRenderPipelineManager.addPipeline(this.specialFXPipeline);
 
@@ -1410,6 +1411,14 @@ var specialFX = exports.specialFX = function () {
 
             this._babylonMod.scene.registerBeforeRender(function () {
                 try {
+
+                    window.time += 0.01;
+                    if (window.time < 2.5) {
+                        var meh = window.time * 0.1 * 1;
+                        this.PixelatePostProcessFX.pixelSize = new BABYLON.Vector2(60.0 - meh, 60.0 - meh);
+                    } else {
+                        this.disableEffectInPipeline(this.pixelatePostProcessScreen);
+                    }
 
                     this.RGBShiftFX.amount = this._babylonMod.Data.frequencyLevel * 0.1;
                     this.FilmPostProcessFX.nIntensity = this._babylonMod.Data.frequencyLevel * 0.1;
@@ -1438,7 +1447,6 @@ var specialFX = exports.specialFX = function () {
                         this.BadTVPostProcessFX.rollSpeed = this._babylonMod.Data.frequencyLevel;
                     }
 
-                    window.time += 0.01;
                     this.BadTVPostProcessFX.time = this.FilmPostProcessFX.time = window.time;
                 } catch (e) {
                     console.log(e);
