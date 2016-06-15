@@ -1390,7 +1390,7 @@ var specialFX = exports.specialFX = function () {
             this.specialFXPipeline.addEffect(this.FilmPostProcess);
             this.specialFXPipeline.addEffect(this.BadTVPostProcess);
             this.specialFXPipeline.addEffect(this.RGBShift);
-            this.specialFXPipeline.addEffect(this.pixelatePostProcessScreen);
+            //this.specialFXPipeline.addEffect(this.pixelatePostProcessScreen);
 
             this._babylonMod.scene.postProcessRenderPipelineManager.addPipeline(this.specialFXPipeline);
 
