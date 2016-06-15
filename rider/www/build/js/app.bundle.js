@@ -381,6 +381,7 @@ var babylonMod = exports.babylonMod = function () {
         this.inertiaSpeed = null;
         this.rotationSpeed = null;
         this.initZombie = false;
+        this.barTripping = false;
         setTimeout(this.init.bind(this), 500);
     }
 
@@ -525,13 +526,22 @@ var babylonMod = exports.babylonMod = function () {
                     this.playerSprite.position = this.scene.activeCamera.position;
                     this.Data.updateUser(this.scene.activeCamera.position, this.scene.activeCamera.rotation);
 
-                    if (!this.initZombie && this.Data.zombieMode) {
-                        this.initZombie = true;
+                    if (this.glitchEnabled && !this.barTripping) {
+                        this.barTripping = true;
                         var toast = this.app._toast.create({
-                            message: 'Zombie Mode Unlocked',
+                            message: 'BarTripping Unlocked',
                             duration: 1500
                         });
                         this.app._nav.present(toast);
+                    }
+
+                    if (!this.initZombie && this.Data.zombieMode) {
+                        this.initZombie = true;
+                        var _toast = this.app._toast.create({
+                            message: 'Zombie Mode Unlocked',
+                            duration: 1500
+                        });
+                        this.app._nav.present(_toast);
                     }
 
                     for (var _i = 0; _i < this.Data.currentRiders.length; _i++) {

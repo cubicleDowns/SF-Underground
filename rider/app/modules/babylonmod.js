@@ -28,6 +28,7 @@ export class babylonMod {
         this.inertiaSpeed = null;
         this.rotationSpeed = null;
         this.initZombie = false;
+        this.barTripping = false;
         setTimeout(this.init.bind(this), 500);
     }
 
@@ -175,6 +176,17 @@ export class babylonMod {
                 this.nonVRCamera.position = this.scene.activeCamera.position;
                 this.playerSprite.position =  this.scene.activeCamera.position;
                 this.Data.updateUser(this.scene.activeCamera.position, this.scene.activeCamera.rotation);
+
+                if(this.glitchEnabled && !this.barTripping){
+                    this.barTripping = true;
+                    let toast = this.app._toast.create({
+                        message: 'BarTripping Unlocked',
+                        duration: 1500
+                    });
+                    this.app._nav.present(toast);
+
+                }
+
 
                 if(!this.initZombie && this.Data.zombieMode){
                     this.initZombie = true;
