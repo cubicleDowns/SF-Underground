@@ -24,6 +24,7 @@ export class IntroPage {
     this.hasInit = false;
     this.bartVR = _BoilerVR;
     this.Data = _BoilerVR.Data;
+    this.bartVR._nav = nav;
 
     
 

@@ -39,12 +39,15 @@ var BoilerVR = exports.BoilerVR = (_dec = (0, _ionicAngular.App)({
     _classCallCheck(this, BoilerVR);
 
     this._ngZone = NgZone;
-    this.Data = new _cardboarddata.CardBoardData("https://sf-noise.firebaseio.com/", this);
+    this.firebaseio = "https://sf-noise.firebaseio.com/";
+    this.Data = new _cardboarddata.CardBoardData(this.firebaseio, this);
     this.app = app;
     this.babylonMod = null;
+    this._nav = null;
     this.isNative = false;
     this._platform = platform;
     this._isDesktop = false;
+    this._toast = _ionicAngular.Toast;
 
     if (this._platform.platforms()[0] == "core") {
       this._isDesktop = true;
@@ -59,7 +62,7 @@ var BoilerVR = exports.BoilerVR = (_dec = (0, _ionicAngular.App)({
         cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
         cordova.plugins.Keyboard.disableScroll(true);
       }
-      //platform.fullScreen();
+
       if (window.StatusBar) {
         return StatusBar.hide();
       }
@@ -136,7 +139,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var CardBoardData = exports.CardBoardData = function () {
   function CardBoardData() {
-    var fbURL = arguments.length <= 0 || arguments[0] === undefined ? "https://sf-noise.firebaseio.com/" : arguments[0];
+    var fbURL = arguments.length <= 0 || arguments[0] === undefined ? null : arguments[0];
     var _boilerVR = arguments[1];
 
     _classCallCheck(this, CardBoardData);
@@ -158,7 +161,7 @@ var CardBoardData = exports.CardBoardData = function () {
     this.currentUserKey = null;
     this.isCurrentlyUsingBart = false;
     this.executeUserRemoval = null;
-    this.userToUpdate = 'https://sf-noise.firebaseio.com/riders/';
+    this.userToUpdate = this.firebaseRef + 'riders/';
     this.dbLevelIO = new Firebase(this.firebaseRef + 'db');
     this.frequencyIO = new Firebase(this.firebaseRef + 'freq');
     this.sound = new Firebase(this.firebaseRef + 'start');
@@ -217,7 +220,7 @@ var CardBoardData = exports.CardBoardData = function () {
 
           this.dbLevelIO.on("value", function (data) {
             this.dbLevel = data.val();
-            if (parseInt(this.dbLevel) >= 105) {
+            if (parseInt(this.dbLevel) >= 105 && this.soundStart) {
               this.zombieMode = true;
             } else {
               this.zombieMode = false;
@@ -249,10 +252,8 @@ var CardBoardData = exports.CardBoardData = function () {
   }, {
     key: 'deleteUser',
     value: function deleteUser(_dkey) {
-      var userRef = new Firebase('https://sf-noise.firebaseio.com/riders/' + _dkey);
+      var userRef = new Firebase(this.firebaseRef + 'riders/' + _dkey);
       userRef.once("value", function (_data) {
-        console.log(_data.val());
-        console.log('pass');
         var fountain = BABYLON.Mesh.CreateBox("foutain", 1.0, this.babylonMod.scene);
         fountain.isVisible = false;
         fountain.position = new BABYLON.Vector3(_data.val().position.x, _data.val().position.y, _data.val().position.z);
@@ -379,6 +380,7 @@ var babylonMod = exports.babylonMod = function () {
         this.glitchEnabled = false;
         this.inertiaSpeed = null;
         this.rotationSpeed = null;
+        this.initZombie = false;
         setTimeout(this.init.bind(this), 500);
     }
 
@@ -515,6 +517,16 @@ var babylonMod = exports.babylonMod = function () {
                     this.nonVRCamera.position = this.scene.activeCamera.position;
                     this.playerSprite.position = this.scene.activeCamera.position;
                     this.Data.updateUser(this.scene.activeCamera.position, this.scene.activeCamera.rotation);
+
+                    if (!this.initZombie && this.Data.zombieMode) {
+                        this.initZombie = true;
+                        var toast = this.app._toast.create({
+                            message: 'Zombie Mode Unlocked',
+                            duration: 1500
+                        });
+                        this.app._nav.present(toast);
+                    }
+
                     for (var _i = 0; _i < this.Data.currentRiders.length; _i++) {
                         if (this.Data.currentRouteID == parseInt(this.Data.currentRiders[_i].data.routeID)) {
                             if (this.Data.currentRiders[_i].key != this.Data.currentUserKey) {
@@ -1323,6 +1335,8 @@ var specialFX = exports.specialFX = function () {
         this.FilmPostProcessFX = null;
         this.BadTVPostProcessFX = null;
         this.BadTVPostProcess = null;
+        this.pixelatePostProcessScreen = null;
+        this.pixelatePostProcessFX = null;
         this.fxArray = [];
         this.copyPass = null;
         this.init();
@@ -1350,6 +1364,7 @@ var specialFX = exports.specialFX = function () {
             }.bind(this));
 
             this.FilmPostProcess._isAttached = true;
+
             this.BadTVPostProcess = new BABYLON.PostProcessRenderEffect(this._babylonMod.scene.getEngine(), "BadTVPostProcess", function () {
                 this.BadTVPostProcessFX = new BABYLON.BadTVPostProcess("BadTVPostProcessFX", null, this.copyPass, this._babylonMod.hud != null ? this._babylonMod.scene.activeCameras[0] : this._babylonMod.scene.activeCamera);
                 this.BadTVPostProcessFX._isRunning = true;
@@ -1357,10 +1372,25 @@ var specialFX = exports.specialFX = function () {
                 this.fxArray.push(this.BadTVPostProcessFX);
                 return this.BadTVPostProcessFX;
             }.bind(this));
-            this.BadTVPostProcess._isAttached = false;
+
+            this.pixelatePostProcessScreen = new BABYLON.PostProcessRenderEffect(this._babylonMod.scene.getEngine(), "pixelatePostProcessScreen", function () {
+                this.PixelatePostProcessFX = new BABYLON.PixelatePostProcess("PixelatePostProcessFX", null, this.copyPass, this._babylonMod.hud != null ? this._babylonMod.scene.activeCameras[0] : this._babylonMod.scene.activeCamera);
+                this.PixelatePostProcessFX._isRunning = true;
+                this.PixelatePostProcessFX.dimensions = new BABYLON.Vector4(this._babylonMod.scene.getEngine().getRenderWidth(), this._babylonMod.scene.getEngine().getRenderHeight(), 0.0, 0.0);
+                this.fxArray.push(this.PixelatePostProcessFX);
+                window.onresize = function () {
+                    try {
+                        this.PixelatePostProcessFX.dimensions = new BABYLON.Vector4(this._babylonMod.scene.getEngine().getRenderWidth(), this._babylonMod.scene.getEngine().getRenderHeight(), 0.0, 0.0);
+                    } catch (e) {}
+                }.bind(this);
+                return this.PixelatePostProcessFX;
+            }.bind(this));
+
+            //this.BadTVPostProcess._isAttached = false;
             this.specialFXPipeline.addEffect(this.FilmPostProcess);
             this.specialFXPipeline.addEffect(this.BadTVPostProcess);
             this.specialFXPipeline.addEffect(this.RGBShift);
+            this.specialFXPipeline.addEffect(this.pixelatePostProcessScreen);
 
             this._babylonMod.scene.postProcessRenderPipelineManager.addPipeline(this.specialFXPipeline);
 
@@ -1406,7 +1436,7 @@ var specialFX = exports.specialFX = function () {
                     window.time += 0.01;
                     this.BadTVPostProcessFX.time = this.FilmPostProcessFX.time = window.time;
                 } catch (e) {
-                    // console.log(e);
+                    console.log(e);
                 }
             }.bind(this));
         }
@@ -1577,7 +1607,6 @@ var CardboardGl = exports.CardboardGl = (_dec = (0, _core.Component)({
         } else {
           this.Data.landscapeMode = false;
           this.Data.stereoEffect = false;
-
           document.getElementById("slidesView").style.visibility = "visible";
           document.getElementById("cardBoardView").style.display = "none";
           document.querySelector("ion-page").style.zIndex = '100';
@@ -1641,6 +1670,7 @@ var IntroPage = exports.IntroPage = (_dec = (0, _ionicAngular.Page)({
     this.hasInit = false;
     this.bartVR = _BoilerVR;
     this.Data = _BoilerVR.Data;
+    this.bartVR._nav = nav;
 
     var infoReady = Promise.resolve(document.getElementById('userReg'));
     infoReady.then(function () {
