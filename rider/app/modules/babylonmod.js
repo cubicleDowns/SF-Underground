@@ -175,7 +175,7 @@ export class babylonMod {
                 if(!this.initZombie && this.Data.zombieMode){
                     this.initZombie = true;
                     let toast = this.app._toast.create({
-                        message: 'Zombie Mode Init..',
+                        message: 'Zombie Mode Unlocked',
                         duration: 1500
                     });
                     this.app._nav.present(toast);

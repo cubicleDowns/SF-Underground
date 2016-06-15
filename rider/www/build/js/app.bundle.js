@@ -521,7 +521,7 @@ var babylonMod = exports.babylonMod = function () {
                     if (!this.initZombie && this.Data.zombieMode) {
                         this.initZombie = true;
                         var toast = this.app._toast.create({
-                            message: 'Zombie Mode Init..',
+                            message: 'Zombie Mode Unlocked',
                             duration: 1500
                         });
                         this.app._nav.present(toast);
@@ -1335,6 +1335,8 @@ var specialFX = exports.specialFX = function () {
         this.FilmPostProcessFX = null;
         this.BadTVPostProcessFX = null;
         this.BadTVPostProcess = null;
+        this.pixelatePostProcessScreen = null;
+        this.pixelatePostProcessFX = null;
         this.fxArray = [];
         this.copyPass = null;
         this.init();
@@ -1362,6 +1364,7 @@ var specialFX = exports.specialFX = function () {
             }.bind(this));
 
             this.FilmPostProcess._isAttached = true;
+
             this.BadTVPostProcess = new BABYLON.PostProcessRenderEffect(this._babylonMod.scene.getEngine(), "BadTVPostProcess", function () {
                 this.BadTVPostProcessFX = new BABYLON.BadTVPostProcess("BadTVPostProcessFX", null, this.copyPass, this._babylonMod.hud != null ? this._babylonMod.scene.activeCameras[0] : this._babylonMod.scene.activeCamera);
                 this.BadTVPostProcessFX._isRunning = true;
@@ -1369,10 +1372,25 @@ var specialFX = exports.specialFX = function () {
                 this.fxArray.push(this.BadTVPostProcessFX);
                 return this.BadTVPostProcessFX;
             }.bind(this));
-            this.BadTVPostProcess._isAttached = false;
+
+            this.pixelatePostProcessScreen = new BABYLON.PostProcessRenderEffect(this._babylonMod.scene.getEngine(), "pixelatePostProcessScreen", function () {
+                this.PixelatePostProcessFX = new BABYLON.PixelatePostProcess("PixelatePostProcessFX", null, this.copyPass, this._babylonMod.hud != null ? this._babylonMod.scene.activeCameras[0] : this._babylonMod.scene.activeCamera);
+                this.PixelatePostProcessFX._isRunning = true;
+                this.PixelatePostProcessFX.dimensions = new BABYLON.Vector4(this._babylonMod.scene.getEngine().getRenderWidth(), this._babylonMod.scene.getEngine().getRenderHeight(), 0.0, 0.0);
+                this.fxArray.push(this.PixelatePostProcessFX);
+                window.onresize = function () {
+                    try {
+                        this.PixelatePostProcessFX.dimensions = new BABYLON.Vector4(this._babylonMod.scene.getEngine().getRenderWidth(), this._babylonMod.scene.getEngine().getRenderHeight(), 0.0, 0.0);
+                    } catch (e) {}
+                }.bind(this);
+                return this.PixelatePostProcessFX;
+            }.bind(this));
+
+            //this.BadTVPostProcess._isAttached = false;
             this.specialFXPipeline.addEffect(this.FilmPostProcess);
             this.specialFXPipeline.addEffect(this.BadTVPostProcess);
             this.specialFXPipeline.addEffect(this.RGBShift);
+            this.specialFXPipeline.addEffect(this.pixelatePostProcessScreen);
 
             this._babylonMod.scene.postProcessRenderPipelineManager.addPipeline(this.specialFXPipeline);
 
@@ -1418,7 +1436,7 @@ var specialFX = exports.specialFX = function () {
                     window.time += 0.01;
                     this.BadTVPostProcessFX.time = this.FilmPostProcessFX.time = window.time;
                 } catch (e) {
-                    // console.log(e);
+                    console.log(e);
                 }
             }.bind(this));
         }
@@ -1589,7 +1607,6 @@ var CardboardGl = exports.CardboardGl = (_dec = (0, _core.Component)({
         } else {
           this.Data.landscapeMode = false;
           this.Data.stereoEffect = false;
-
           document.getElementById("slidesView").style.visibility = "visible";
           document.getElementById("cardBoardView").style.display = "none";
           document.querySelector("ion-page").style.zIndex = '100';

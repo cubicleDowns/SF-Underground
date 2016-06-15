@@ -11,6 +11,8 @@ export class specialFX {
         this.FilmPostProcessFX = null;
         this.BadTVPostProcessFX = null;
         this.BadTVPostProcess = null;
+        this.pixelatePostProcessScreen = null;
+        this.pixelatePostProcessFX = null;
         this.fxArray = [];
         this.copyPass = null;
         this.init();
@@ -38,6 +40,7 @@ export class specialFX {
         }.bind(this));
 
         this.FilmPostProcess._isAttached = true;
+
         this.BadTVPostProcess = new BABYLON.PostProcessRenderEffect(this._babylonMod.scene.getEngine(), "BadTVPostProcess",
                  function() {
                     this.BadTVPostProcessFX = new BABYLON.BadTVPostProcess( "BadTVPostProcessFX", null, this.copyPass,  this._babylonMod.hud != null?  this._babylonMod.scene.activeCameras[0] : this._babylonMod.scene.activeCamera);
@@ -46,10 +49,29 @@ export class specialFX {
                     this.fxArray.push(this.BadTVPostProcessFX);
                     return this.BadTVPostProcessFX ;
         }.bind(this));
-        this.BadTVPostProcess._isAttached = false;
+
+
+        this.pixelatePostProcessScreen = new BABYLON.PostProcessRenderEffect(this._babylonMod.scene.getEngine(), "pixelatePostProcessScreen",
+                 function() {
+                    this.PixelatePostProcessFX = new BABYLON.PixelatePostProcess( "PixelatePostProcessFX", null, this.copyPass,  this._babylonMod.hud != null?  this._babylonMod.scene.activeCameras[0] : this._babylonMod.scene.activeCamera);
+                    this.PixelatePostProcessFX._isRunning = true;
+                    this.PixelatePostProcessFX.dimensions = new BABYLON.Vector4(this._babylonMod.scene.getEngine().getRenderWidth(), this._babylonMod.scene.getEngine().getRenderHeight(), 0.0, 0.0);
+                    this.fxArray.push(this.PixelatePostProcessFX);
+                    window.onresize = function(){
+                        try{
+                            this.PixelatePostProcessFX.dimensions = new BABYLON.Vector4(this._babylonMod.scene.getEngine().getRenderWidth(), this._babylonMod.scene.getEngine().getRenderHeight(), 0.0, 0.0);
+                        }catch(e){}
+                    }.bind(this);
+                    return this.PixelatePostProcessFX ;
+        }.bind(this));
+
+
+        //this.BadTVPostProcess._isAttached = false;
         this.specialFXPipeline.addEffect(this.FilmPostProcess);
         this.specialFXPipeline.addEffect(this.BadTVPostProcess);
         this.specialFXPipeline.addEffect(this.RGBShift);
+        this.specialFXPipeline.addEffect(this.pixelatePostProcessScreen);
+
 
         
 
@@ -67,6 +89,7 @@ export class specialFX {
         this._babylonMod.scene.registerBeforeRender(function () {
             try{
 
+                
                 this.RGBShiftFX.amount =  this._babylonMod.Data.frequencyLevel * 0.1;
                 this.FilmPostProcessFX.nIntensity =  this._babylonMod.Data.frequencyLevel  * 0.1;
 
@@ -93,12 +116,12 @@ export class specialFX {
                         this.enableEffectInPipeline(this.RGBShift);
                         this.BadTVPostProcessFX.rollSpeed = this._babylonMod.Data.frequencyLevel;
                 }
-
+                
                 window.time += 0.01;
                 this.BadTVPostProcessFX.time =  this.FilmPostProcessFX.time  = window.time;
 
             }catch(e){
-               // console.log(e);
+                console.log(e);
             }
         }.bind(this));
 
