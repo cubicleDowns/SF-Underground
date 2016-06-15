@@ -27,6 +27,7 @@ export class babylonMod {
         this.glitchEnabled = false;
         this.inertiaSpeed = null;
         this.rotationSpeed = null;
+        this.initZombie = false;
         setTimeout(this.init.bind(this), 500);
     }
 
@@ -170,6 +171,17 @@ export class babylonMod {
                 this.nonVRCamera.position = this.scene.activeCamera.position;
                 this.playerSprite.position =  this.scene.activeCamera.position;
                 this.Data.updateUser(this.scene.activeCamera.position, this.scene.activeCamera.rotation);
+
+                if(!this.initZombie && this.Data.zombieMode){
+                    this.initZombie = true;
+                    let toast = this.app._toast.create({
+                        message: 'Zombie Mode Unlocked',
+                        duration: 1500
+                    });
+                    this.app._nav.present(toast);
+
+                }
+
                 for(let i = 0; i < this.Data.currentRiders.length; i++){
                     if(this.Data.currentRouteID == parseInt(this.Data.currentRiders[i].data.routeID)){
                         if(this.Data.currentRiders[i].key != this.Data.currentUserKey){
