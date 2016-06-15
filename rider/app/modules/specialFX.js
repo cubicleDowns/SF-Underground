@@ -56,6 +56,7 @@ export class specialFX {
                     this.PixelatePostProcessFX = new BABYLON.PixelatePostProcess( "PixelatePostProcessFX", null, this.copyPass,  this._babylonMod.hud != null?  this._babylonMod.scene.activeCameras[0] : this._babylonMod.scene.activeCamera);
                     this.PixelatePostProcessFX._isRunning = true;
                     this.PixelatePostProcessFX.dimensions = new BABYLON.Vector4(this._babylonMod.scene.getEngine().getRenderWidth(), this._babylonMod.scene.getEngine().getRenderHeight(), 0.0, 0.0);
+                    this.PixelatePostProcessFX.pixelSize = new BABYLON.Vector2(60.0, 60.0); 
                     this.fxArray.push(this.PixelatePostProcessFX);
                     window.onresize = function(){
                         try{
@@ -70,7 +71,7 @@ export class specialFX {
         this.specialFXPipeline.addEffect(this.FilmPostProcess);
         this.specialFXPipeline.addEffect(this.BadTVPostProcess);
         this.specialFXPipeline.addEffect(this.RGBShift);
-        //this.specialFXPipeline.addEffect(this.pixelatePostProcessScreen);
+        this.specialFXPipeline.addEffect(this.pixelatePostProcessScreen);
 
 
         
@@ -89,7 +90,14 @@ export class specialFX {
         this._babylonMod.scene.registerBeforeRender(function () {
             try{
 
-                
+                window.time += 0.01;
+                if(window.time < 2.5){
+                    let meh = window.time * 0.1 * 1;
+                    this.PixelatePostProcessFX.pixelSize = new BABYLON.Vector2(60.0 - meh, 60.0 - meh); 
+                }else{
+                    this.disableEffectInPipeline(this.pixelatePostProcessScreen);
+                }
+
                 this.RGBShiftFX.amount =  this._babylonMod.Data.frequencyLevel * 0.1;
                 this.FilmPostProcessFX.nIntensity =  this._babylonMod.Data.frequencyLevel  * 0.1;
 
@@ -117,7 +125,7 @@ export class specialFX {
                         this.BadTVPostProcessFX.rollSpeed = this._babylonMod.Data.frequencyLevel;
                 }
                 
-                window.time += 0.01;
+                
                 this.BadTVPostProcessFX.time =  this.FilmPostProcessFX.time  = window.time;
 
             }catch(e){
