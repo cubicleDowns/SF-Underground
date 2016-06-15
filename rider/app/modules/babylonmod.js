@@ -44,7 +44,7 @@ export class babylonMod {
         this.canvas.style.width = '100%';
         this.canvas.style.height = '100%';
         BABYLON.SceneLoader.ShowLoadingScreen = false;
-        BABYLON.SceneLoader.Load('', 'bartvr/scenes/subway3/bart_16.babylon?once=3665092109', this.engine, function(newScene) {
+        BABYLON.SceneLoader.Load('', 'bartvr/scenes/subway3/bart_17.babylon?once=3665092109', this.engine, function(newScene) {
             this.scene = newScene;
             var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(100, 100, 0), this.scene );
 
