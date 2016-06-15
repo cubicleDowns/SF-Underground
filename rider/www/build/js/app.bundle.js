@@ -39,7 +39,7 @@ var BoilerVR = exports.BoilerVR = (_dec = (0, _ionicAngular.App)({
     _classCallCheck(this, BoilerVR);
 
     this._ngZone = NgZone;
-    this.firebaseio = "https://sf-noise.firebaseio.com/";
+    this.firebaseio = "https://testloader.firebaseio.com/";
     this.Data = new _cardboarddata.CardBoardData(this.firebaseio, this);
     this.app = app;
     this.babylonMod = null;
