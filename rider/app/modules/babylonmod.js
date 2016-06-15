@@ -48,12 +48,14 @@ export class babylonMod {
             this.scene = newScene;
             var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(100, 100, 0), this.scene );
 
+            /*
             if(!this.app._isDesktop && this.app._platform.is('android')){
                 BABYLON.SceneOptimizer.OptimizeAsync(this.scene, BABYLON.SceneOptimizerOptions.ModerateDegradationAllowed(),
                 function() {
                 }.bind(this), function() {
                 }.bind(this));
             }
+            */
 
             document.getElementById('loadCover').style.display = "none";
             this.vrCamera = new BABYLON.VRDeviceOrientationFreeCamera("Camera", BABYLON.Vector3.Zero(), this.scene, true);
