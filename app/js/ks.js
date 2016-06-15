@@ -23,6 +23,9 @@ var PARTICLES_ACTIVE = false;
 var FB_ACTIVE = true;
 var AXIS_HELPER = false;
 
+var FB_URL = "https://testloader.firebaseio.com/";
+
+
 // starts the BART animation on 'play' click
 var BARTVR_ANIMATE = false;
 var currentMessage = 0;
@@ -36,29 +39,28 @@ var SHOW_SUBWAY = false;
 
 
 var MESSAGES = [
-    "SOUNDS OF THE SAN FRANCISCO UNDERGROUND",
-    "A dB LEVEL  MAP OF BART",
+    "Sounds of the San Francisco Underground",
+    "a sound level map of BART",
     " ",
-    "150,000 SAMPLES. ~35 HOURS",
-    "AVG 89 dB. MAX 129.8 dB",
+    "100,000 sound samples",
+    "AVG 89 dB      MAX ~129 dB",
     "125 dB === PAIN",
     " ",
-    "Trains in Japan are so quiet,",
-    "they request you turn off your phones",
-    "so you won't disturb anyone",
     " ",
-    "on BART, headphones are your only hope",
-    "What a wonderful way to start and end a workday",
+    "What a wonderful way to bookend a workday",
     " ",
     " ",
-    "Don't worry, we'll all be deaf soon",
-    "¯\_(ツ)_/¯"];
+    " "];
 
 
 function go() {
     BARTVR_ANIMATE = true;
     document.getElementById('BART').play();
+    document.getElementById('phones').style.visibility = "hidden";
     document.getElementById('go').style.visibility = "hidden";
+    document.getElementById('numRiders').style.visibility = "hidden";
+    document.getElementById('dbs').style.visibility = "hidden";
+
     sound.play();
 
     dbLevels();
@@ -145,7 +147,7 @@ function dbLevels() {
 
         for (var i = 0; i < emitters.length; i++) {
             console.log(emitters[i].activeMultiplier);
-            emitters[i].activeMultiplier = db / 20;
+            emitters[i].activeMultiplier = db / 60;
             dbLevel.html(parseInt(db, 10));
             if (db >= 105) {
 //                console.log(db, '> 105');
@@ -244,10 +246,10 @@ function initParticles() {
 
 function init() {
 
-    fb_freq = new Firebase("https://sf-noise.firebaseio.com/freq");
-    fb_start = new Firebase("https://sf-noise.firebaseio.com/start");
-    fb_db = new Firebase("https://sf-noise.firebaseio.com/db");
-    fb_riders = new Firebase("https://sf-noise.firebaseio.com/riders");
+    fb_freq = new Firebase(FB_URL);
+    fb_start = new Firebase(FB_URL);
+    fb_db = new Firebase(FB_URL);
+    fb_riders = new Firebase(FB_URL);
     numRiders = $('#numRiders');
 
     fb_start.transaction(function () {
