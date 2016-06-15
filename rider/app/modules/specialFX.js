@@ -70,7 +70,7 @@ export class specialFX {
         this.specialFXPipeline.addEffect(this.FilmPostProcess);
         this.specialFXPipeline.addEffect(this.BadTVPostProcess);
         this.specialFXPipeline.addEffect(this.RGBShift);
-        this.specialFXPipeline.addEffect(this.pixelatePostProcessScreen);
+        //this.specialFXPipeline.addEffect(this.pixelatePostProcessScreen);
 
 
         
