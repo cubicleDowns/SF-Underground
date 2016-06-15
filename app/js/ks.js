@@ -23,7 +23,7 @@ var PARTICLES_ACTIVE = false;
 var FB_ACTIVE = true;
 var AXIS_HELPER = false;
 
-var FB_URL = "https://testloader.firebaseio.com/";
+var FB_URL = "https://sf-noise.firebaseio.com";
 
 
 // starts the BART animation on 'play' click
@@ -42,6 +42,7 @@ var MESSAGES = [
     "Sounds of the San Francisco Underground",
     "a sound level map of BART",
     " ",
+    "Time for headphones",
     "100,000 sound samples",
     "AVG 89 dB      MAX ~129 dB",
     "125 dB === PAIN",
@@ -58,8 +59,8 @@ function go() {
     document.getElementById('BART').play();
     document.getElementById('phones').style.visibility = "hidden";
     document.getElementById('go').style.visibility = "hidden";
-    document.getElementById('numRiders').style.visibility = "hidden";
-    document.getElementById('dbs').style.visibility = "hidden";
+//    document.getElementById('numRiders').style.visibility = "hidden";
+//    document.getElementById('dbs').style.visibility = "hidden";
 
     sound.play();
 
@@ -246,10 +247,10 @@ function initParticles() {
 
 function init() {
 
-    fb_freq = new Firebase(FB_URL);
-    fb_start = new Firebase(FB_URL);
-    fb_db = new Firebase(FB_URL);
-    fb_riders = new Firebase(FB_URL);
+    fb_freq = new Firebase(FB_URL + "/freq");
+    fb_start = new Firebase(FB_URL + "/start");
+    fb_db = new Firebase(FB_URL + "/db");
+    fb_riders = new Firebase(FB_URL +  + "/riders");
     numRiders = $('#numRiders');
 
     fb_start.transaction(function () {
