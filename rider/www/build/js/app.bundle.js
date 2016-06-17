@@ -1531,9 +1531,6 @@ var specialFX = exports.specialFX = function () {
             this._babylonMod.nonVRCamera.attachPostProcess(_porcess);
             this._babylonMod.vrCamera.attachPostProcess(_porcess);
         }
-    }, {
-        key: "soundFX",
-        value: function soundFX() {}
     }]);
 
     return specialFX;

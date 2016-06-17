@@ -194,7 +194,5 @@ export class specialFX {
     }
 
 
-    soundFX(){
 
-    }
 }
