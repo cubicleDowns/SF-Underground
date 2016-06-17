@@ -381,6 +381,7 @@ var babylonMod = exports.babylonMod = function () {
         this.inertiaSpeed = null;
         this.rotationSpeed = null;
         this.initZombie = false;
+        this.barTripping = false;
         setTimeout(this.init.bind(this), 500);
     }
 
@@ -417,7 +418,7 @@ var babylonMod = exports.babylonMod = function () {
                 this.vrCamera.rotation = new BABYLON.Vector3(newScene.cameras[0].rotation.x, newScene.cameras[0].rotation.y, newScene.cameras[0].rotation.z);
                 this.vrCamera.attachControl(this.canvas, true);
                 this.vrCamera.checkCollisions = true;
-                //this.vrCamera.applyGravity = true;
+                this.vrCamera.applyGravity = true;
                 this.activeCamera = this.vrCamera;
                 this.nonVRCamera = new BABYLON.VirtualJoysticksCamera("VJC", BABYLON.Vector3.Zero(), this.scene);
                 this.nonVRCamera.checkCollisions = this.scene.activeCamera.checkCollisions;
@@ -434,6 +435,8 @@ var babylonMod = exports.babylonMod = function () {
 
                 this.scene.activeCamera = this.nonVRCamera;
                 this.vrCamera.position.x = 7;
+                this.vrCamera.applyGravity = true;
+                this.vrCamera.checkCollisions = true;
                 this.Data.setUser(null, this.vrCamera.position);
                 this.nonVRCamera.position = this.vrCamera.position;
 
@@ -523,13 +526,22 @@ var babylonMod = exports.babylonMod = function () {
                     this.playerSprite.position = this.scene.activeCamera.position;
                     this.Data.updateUser(this.scene.activeCamera.position, this.scene.activeCamera.rotation);
 
-                    if (!this.initZombie && this.Data.zombieMode) {
-                        this.initZombie = true;
+                    if (this.glitchEnabled && !this.barTripping) {
+                        this.barTripping = true;
                         var toast = this.app._toast.create({
-                            message: 'Zombie Mode Unlocked',
+                            message: 'Bart Tripping Unlocked',
                             duration: 1500
                         });
                         this.app._nav.present(toast);
+                    }
+
+                    if (!this.initZombie && this.Data.zombieMode) {
+                        this.initZombie = true;
+                        var _toast = this.app._toast.create({
+                            message: 'Zombie Mode Unlocked',
+                            duration: 1500
+                        });
+                        this.app._nav.present(_toast);
                     }
 
                     for (var _i = 0; _i < this.Data.currentRiders.length; _i++) {
@@ -669,7 +681,9 @@ var babylonMod = exports.babylonMod = function () {
                 if (this.scene != null) {
                     if (this.hud != null) {
                         this.scene.activeCameras[0] = this.vrCamera;
-                        this.specialFXBart.enableVR();
+                        if (this.glitchEnabled) {
+                            this.specialFXBart.enableVR();
+                        }
                     } else {
                         this.scene.activeCamera = this.vrCamera;
                     }
@@ -1382,6 +1396,7 @@ var specialFX = exports.specialFX = function () {
                 this.PixelatePostProcessFX = new BABYLON.PixelatePostProcess("PixelatePostProcessFX", null, this.copyPass, this._babylonMod.hud != null ? this._babylonMod.scene.activeCameras[0] : this._babylonMod.scene.activeCamera);
                 this.PixelatePostProcessFX._isRunning = true;
                 this.PixelatePostProcessFX.dimensions = new BABYLON.Vector4(this._babylonMod.scene.getEngine().getRenderWidth(), this._babylonMod.scene.getEngine().getRenderHeight(), 0.0, 0.0);
+                this.PixelatePostProcessFX.pixelSize = new BABYLON.Vector2(60.0, 60.0);
                 this.fxArray.push(this.PixelatePostProcessFX);
                 window.onresize = function () {
                     try {
@@ -1395,7 +1410,7 @@ var specialFX = exports.specialFX = function () {
             this.specialFXPipeline.addEffect(this.FilmPostProcess);
             this.specialFXPipeline.addEffect(this.BadTVPostProcess);
             this.specialFXPipeline.addEffect(this.RGBShift);
-            //this.specialFXPipeline.addEffect(this.pixelatePostProcessScreen);
+            this.specialFXPipeline.addEffect(this.pixelatePostProcessScreen);
 
             this._babylonMod.scene.postProcessRenderPipelineManager.addPipeline(this.specialFXPipeline);
 
@@ -1410,6 +1425,14 @@ var specialFX = exports.specialFX = function () {
 
             this._babylonMod.scene.registerBeforeRender(function () {
                 try {
+
+                    window.time += 0.01;
+                    if (window.time < 2.5) {
+                        var meh = window.time * 0.1 * 1;
+                        this.PixelatePostProcessFX.pixelSize = new BABYLON.Vector2(60.0 - meh, 60.0 - meh);
+                    } else {
+                        this.disableEffectInPipeline(this.pixelatePostProcessScreen);
+                    }
 
                     this.RGBShiftFX.amount = this._babylonMod.Data.frequencyLevel * 0.1;
                     this.FilmPostProcessFX.nIntensity = this._babylonMod.Data.frequencyLevel * 0.1;
@@ -1438,7 +1461,6 @@ var specialFX = exports.specialFX = function () {
                         this.BadTVPostProcessFX.rollSpeed = this._babylonMod.Data.frequencyLevel;
                     }
 
-                    window.time += 0.01;
                     this.BadTVPostProcessFX.time = this.FilmPostProcessFX.time = window.time;
                 } catch (e) {
                     console.log(e);
@@ -1509,9 +1531,6 @@ var specialFX = exports.specialFX = function () {
             this._babylonMod.nonVRCamera.attachPostProcess(_porcess);
             this._babylonMod.vrCamera.attachPostProcess(_porcess);
         }
-    }, {
-        key: "soundFX",
-        value: function soundFX() {}
     }]);
 
     return specialFX;

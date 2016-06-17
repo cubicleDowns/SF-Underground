@@ -28,6 +28,7 @@ export class babylonMod {
         this.inertiaSpeed = null;
         this.rotationSpeed = null;
         this.initZombie = false;
+        this.barTripping = false;
         setTimeout(this.init.bind(this), 500);
     }
 
@@ -48,7 +49,6 @@ export class babylonMod {
             this.scene = newScene;
             var light = new BABYLON.PointLight("Omni", new BABYLON.Vector3(100, 100, 0), this.scene );
 
-
             /*
             if(!this.app._isDesktop && this.app._platform.is('android')){
                 BABYLON.SceneOptimizer.OptimizeAsync(this.scene, BABYLON.SceneOptimizerOptions.ModerateDegradationAllowed(),
@@ -63,7 +63,7 @@ export class babylonMod {
             this.vrCamera.rotation = new BABYLON.Vector3(newScene.cameras[0].rotation.x, newScene.cameras[0].rotation.y, newScene.cameras[0].rotation.z)
             this.vrCamera.attachControl(this.canvas, true);
             this.vrCamera.checkCollisions = true;
-            //this.vrCamera.applyGravity = true;
+            this.vrCamera.applyGravity = true;
             this.activeCamera = this.vrCamera;
             this.nonVRCamera = new BABYLON.VirtualJoysticksCamera("VJC", BABYLON.Vector3.Zero(), this.scene);
             this.nonVRCamera.checkCollisions = this.scene.activeCamera.checkCollisions;
@@ -81,6 +81,8 @@ export class babylonMod {
           
             this.scene.activeCamera = this.nonVRCamera;
             this.vrCamera.position.x = 7;
+            this.vrCamera.applyGravity = true;
+            this.vrCamera.checkCollisions = true;
             this.Data.setUser(null, this.vrCamera.position);
             this.nonVRCamera.position =  this.vrCamera.position;
 
@@ -174,6 +176,17 @@ export class babylonMod {
                 this.nonVRCamera.position = this.scene.activeCamera.position;
                 this.playerSprite.position =  this.scene.activeCamera.position;
                 this.Data.updateUser(this.scene.activeCamera.position, this.scene.activeCamera.rotation);
+
+                if(this.glitchEnabled && !this.barTripping){
+                    this.barTripping = true;
+                    let toast = this.app._toast.create({
+                        message: 'Bart Tripping Unlocked',
+                        duration: 1500
+                    });
+                    this.app._nav.present(toast);
+
+                }
+
 
                 if(!this.initZombie && this.Data.zombieMode){
                     this.initZombie = true;
@@ -316,7 +329,10 @@ export class babylonMod {
             if (this.scene != null) {
                 if(this.hud != null){
                    this.scene.activeCameras[0] = this.vrCamera;
-                    this.specialFXBart.enableVR();  
+                    if(this.glitchEnabled){
+                        this.specialFXBart.enableVR();  
+                    }
+                    
                 }else{
                     this.scene.activeCamera = this.vrCamera;
                 }
