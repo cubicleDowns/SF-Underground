@@ -23,7 +23,7 @@ var PARTICLES_ACTIVE = false;
 var FB_ACTIVE = true;
 var AXIS_HELPER = false;
 
-var FB_URL = "https://sf-noise.firebaseio.com";
+var FB_URL = "YOUR_URL_HERE";
 
 
 // starts the BART animation on 'play' click
@@ -39,18 +39,18 @@ var SHOW_SUBWAY = false;
 
 
 var MESSAGES = [
-    "Sounds of the San Francisco Underground",
-    "a sound level map of BART",
+    "FIGURE OUT YOUR OWN MESSAGE",
+    "FIGURE OUT YOUR OWN MESSAGE",
     " ",
-    "Time for headphones",
-    "100,000 sound samples",
-    "AVG 89 dB      MAX ~129 dB",
-    "125 dB === PAIN",
-    " ",
-    " ",
-    "What a wonderful way to bookend a workday",
+    "",
+    "FIGURE OUT YOUR OWN MESSAGE",
+    "FIGURE OUT YOUR OWN MESSAGE",
+    "",
     " ",
     " ",
+    "FIGURE OUT YOUR OWN MESSAGE",
+    " ",
+    "THIS IS HOW YOU PAUSE",
     " "];
 
 
@@ -59,8 +59,7 @@ function go() {
     document.getElementById('BART').play();
     document.getElementById('phones').style.visibility = "hidden";
     document.getElementById('go').style.visibility = "hidden";
-//    document.getElementById('numRiders').style.visibility = "hidden";
-//    document.getElementById('dbs').style.visibility = "hidden";
+    // document.getElementById('numRiders').style.visibility = "hidden";
 
     sound.play();
 
@@ -68,12 +67,14 @@ function go() {
 
     setInterval(moveSubway, 25);
 
+    // limit visual changes.
     setTimeout(function () {
         setInterval(changeMessage, 7500);
     }, 40000);
 }
 
 
+// part of the presentation
 function changeMessage() {
     var msg = MESSAGES[currentMessage];
     if (msg) {
@@ -82,7 +83,8 @@ function changeMessage() {
     }
 }
 
-
+// define some db levels.  set the particle visuals based upon DB leve.  
+// - subtle so as not to distract from mobile experience.
 function dbLevels() {
     var db;
     var dbLevel = $('#dbs');
@@ -142,10 +144,6 @@ function dbLevels() {
             "#FF0000", // red        5
         ];
 
-        if(GLITCH_MODE_STARTED){
-
-        }
-
         for (var i = 0; i < emitters.length; i++) {
             console.log(emitters[i].activeMultiplier);
             emitters[i].activeMultiplier = db / 60;
@@ -162,7 +160,7 @@ function dbLevels() {
                 emitters[i].opacity.value[1] = fast.opacity;
                 emitters[i].size.value = 4;
             } else if (db < 105 && db >= 80) {
-                console.log(db, '80 - 100');
+                // console.log(db, '80 - 100');
                 emitters[i].color.value[0].setStyle(particleColors[2]);
                 emitters[i].color.value[1].setStyle(particleColors[1]);
                 emitters[i].acceleration.value = mid.accel;
@@ -173,7 +171,7 @@ function dbLevels() {
                 emitters[i].opacity.value[1] = mid.opacity;
                 emitters[i].size.value = 3;
             } else {
-                console.log(db, 'below 80');
+                // console.log(db, 'below 80');
                 emitters[i].color.value[0].setStyle(particleColors[2]);
                 emitters[i].color.value[1].setStyle(particleColors[2]);
                 emitters[i].acceleration.value = slow.accel;
@@ -202,6 +200,7 @@ function createParticleGroups() {
 }
 function initParticles() {
 
+    // TODO: blog reference for particles
     var pg = new SPE.Group({
         texture: {
             value: THREE.ImageUtils.loadTexture('./images/smoke_particle.png')
@@ -252,11 +251,6 @@ function init() {
     fb_db = new Firebase(FB_URL + "/db");
     fb_riders = new Firebase(FB_URL +  + "/riders");
     numRiders = $('#numRiders');
-
-    fb_start.transaction(function () {
-        return false;
-    });
-
 
     if (FB_ACTIVE) {
         fb_riders.on('value', function (data) {

@@ -24,7 +24,7 @@
 
     <script src="lib/OBJLoader.js"></script>
     <script src="js/ks.js"></script>
-    <script src="sound/db_levels.js"></script>
+    <script src="sound/web.js"></script>
     <script src="bart.js"></script>
     <script src="lib/tween.min.js"></script>
     <script>
@@ -91,7 +91,19 @@
 
         .messages {
             position: absolute;
-            bottom: 10px;
+            top: 10px;
+            width: 100%;
+            margin: 0 auto;
+            color: #DDDDDD;
+            font-size: 3em;
+            padding: 10px;
+            z-index: 1000;
+            text-align: center;
+        }
+
+        .messages {
+            position: absolute;
+            top: 10px;
             width: 100%;
             margin: 0 auto;
             color: #DDDDDD;
@@ -123,7 +135,7 @@
     </style>
 </head>
 <body>
-<audio id="BART" src="sound/sound.mp3"></audio>
+<audio id="BART" src="sound/web.mp3"></audio>
 <div id="go" style="z-index: 10002; position: absolute; left: 20px; bottom: 20px;">
     <button onclick="go()">Play &#9658;</button>
 </div>
@@ -135,12 +147,14 @@
 
 <div class="riders">
     <div id="numRiders">
+    10
     </div>
 </div>
 <div class="dbLevel">
     <div id="dbs">
     </div>
 </div>
+
 <div class="messages">
     m.morlocksf.com
 </div>
