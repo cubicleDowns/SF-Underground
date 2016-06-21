@@ -60,14 +60,12 @@ Our app was composed of two major communcation requirements.   Control to Client
 ##### Control to Client
  - recorded dB levels every second
  - avg-freq @ 60 (fps)
- - manual interrupts (e.g. BART arrives at a start or visualation activates)
+ - manual interrupts (e.g. BART arrives at a start or visualization activates)
 
 ##### Client to Client
- - avg-freq @ 60 (fps)
- - manual interrupts (e.g. BART arrives at a start or a visualation activates)
  - position  at 60 (fps)
  - rotation  @ 60 (fps)
- - control is a client
+ - NOTE: control is a client as well
 
 ### Deployment
 [Surge is great!](http://surge.sh/) && FREE!  It deployes to the AWS CDN.
