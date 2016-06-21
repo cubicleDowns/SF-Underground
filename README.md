@@ -88,5 +88,5 @@ To use the code.  You'll need to:
     * [BART Control endpoint](https://github.com/cubicleDowns/SF-Underground/blob/master/app/js/ks.js).
     * [BART Mobile location](https://github.com/cubicleDowns/SF-Underground/blob/master/rider/app/app.js).
 4. Somehow launch `app` && `rider/www` locally or on a server.
-5. Connect to the `app` location and click the play button in the bottom right.  This initiates communcation to the `rider/www` client.
+5. Connect to the `app` location and click the play button in the bottom left.  This initiates communcation to the `rider/www` client.
 
