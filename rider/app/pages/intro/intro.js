@@ -5,6 +5,14 @@ import {BoilerVR} from '../../app';
 import {SettingsModal} from '../settings/settings';
 import {CardboardGl} from '../cardboard/cardboard';
 
+
+/**
+ * ...
+ * @author Brendon Smith
+ * http://seacloud9.org
+ */
+
+
 @Page({
   templateUrl: 'build/pages/intro/intro.html',
   directives: [CardboardGl]

@@ -2,6 +2,14 @@ import {BartVR_HeadsUpDisplay} from './hud/BartVR_HeadsUpDisplay';
 import {GazeEvent} from './events/gazeevent';
 import {specialFX} from './specialFX';
 
+
+
+/**
+ * ...
+ * @author Brendon Smith
+ * http://seacloud9.org
+ */
+
 export class babylonMod {
 
     constructor(_element, _data, _app) {

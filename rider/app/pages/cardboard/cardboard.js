@@ -5,6 +5,13 @@ import {babylonMod} from '../../modules/babylonmod';
 import {BoilerVR} from '../../app';
 
 
+/**
+ * ...
+ * @author Brendon Smith
+ * http://seacloud9.org
+ */
+
+
 @Component({
   selector: 'cardboardgl',
   templateUrl: "build/pages/cardboard/cardboard.html"

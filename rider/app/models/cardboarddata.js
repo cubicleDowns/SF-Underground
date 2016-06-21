@@ -1,3 +1,10 @@
+
+/**
+ * ...
+ * @author Brendon Smith
+ * http://seacloud9.org
+ */
+
 export class CardBoardData{
   
   constructor(fbURL =  null, _boilerVR){

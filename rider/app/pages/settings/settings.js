@@ -1,6 +1,14 @@
 import {Page, Modal, ViewController} from 'ionic-angular';
 import {BoilerVR} from '../../app';
 
+
+/**
+ * ...
+ * @author Brendon Smith
+ * http://seacloud9.org
+ */
+
+
 @Page({
   templateUrl: 'build/pages/settings/settings.html'
 })

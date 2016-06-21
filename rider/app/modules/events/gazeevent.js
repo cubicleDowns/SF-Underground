@@ -1,3 +1,10 @@
+
+/**
+ * ...
+ * @author Brendon Smith
+ * http://seacloud9.org
+ */
+
 export class GazeEvent {
 
     constructor(_target, _callback = null, _gazeTime = 2000) {
