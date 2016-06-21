@@ -3,6 +3,15 @@ import {HUDPanel} from './hudpanel';
 import {HUDText} from './hudtext';
 import {HUDGroup} from './hudgroup';
 
+
+/**
+ * ...
+ * @author Brendon Smith
+ * http://seacloud9.org
+ */
+
+
+ 
 export class BartVR_HeadsUpDisplay {
 
     constructor(scene, babylonMod) {

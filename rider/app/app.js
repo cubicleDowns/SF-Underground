@@ -4,6 +4,13 @@ import {CardBoardData} from './models/cardboarddata';
 import {IntroPage} from './pages/intro/intro';
 import {SettingsModal} from './pages/settings/settings';
 
+/**
+ * ...
+ * @author Brendon Smith
+ * http://seacloud9.org
+ * http://github.com/seacloud9
+ */
+
 enableProdMode();
 
 @App({
@@ -19,7 +26,7 @@ export class BoilerVR {
 
   constructor(app, platform, NgZone) {
     this._ngZone = NgZone;
-    this.firebaseio = "https://sf-noise.firebaseio.com/";
+    this.firebaseio = "place your firebase url here";
     this.Data = new CardBoardData( this.firebaseio  , this);
     this.app = app;
     this.babylonMod = null;
