@@ -72,7 +72,7 @@ Our app was composed of two major communcation requirements.   Control to Client
 [Surge is great!](http://surge.sh/) && FREE!  It deployes to the AWS CDN.
  - `npm install -g surge`
  - `surge app` .... [deployed domain]
- - `surge rider\www` ... [mobile deployed domain]
+ - `surge rider/www` ... [mobile deployed domain]
  - `surge help` to learn more
 
  If you want to deploy via CircleCI, you can follow their [instructions to add a Surge Token and Login](https://surge.sh/help/integrating-with-circleci).  I've included a [circle.yml](https://github.com/cubicleDowns/SF-Underground/blob/master/circle.yml) file for you already.
