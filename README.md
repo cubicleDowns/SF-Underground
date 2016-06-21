@@ -10,6 +10,8 @@ I divided this project up into a few main areas:
  - Wifi & Delivery
  - tl;dr DEPLOY
 
+![Performace screen shot - dB map on the right, BART VR on the left](https://raw.githubusercontent.com/cubicleDowns/SF-Underground/5255f2e353d92f5073540601273aab19456c4a8b/rider/bartVR.jpg)
+
 ## dB Level Recordings
 I recorded hours of sound.  You can read more about the "why" at my Medium article  [here](https://medium.com/@cubicleDowns/do-you-ride-bart-i-do-daily-8778a2e6649c).  In short, I ended up with an array of sound levels measurements exactly 1 second apart.  Here is  10 seconds from an 8 min [Embarcadero to West Oakland ](https://docs.google.com/spreadsheets/d/1NoyLPjs2jCeE22xbY6eKO-jmQ7t6LeWsLKtUiRHjlVQ/edit?usp=sharing) recording.
 
