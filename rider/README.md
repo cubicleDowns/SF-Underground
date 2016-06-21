@@ -16,7 +16,7 @@ ds.bartVR
 </div>
 <div style="float:left; width:100%; margin-top:20px;">
 <img src="bartVR.jpg" style="float:left; width:100%"/>
+</div>
 **TODO:**
 * refactor all firebase code to be more reuseable
 * refactor all camera code
-</div>
