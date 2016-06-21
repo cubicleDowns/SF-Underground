@@ -23,6 +23,9 @@ var PARTICLES_ACTIVE = false;
 var FB_ACTIVE = true;
 var AXIS_HELPER = false;
 
+var FB_URL = "YOUR_URL_HERE";
+
+
 // starts the BART animation on 'play' click
 var BARTVR_ANIMATE = false;
 var currentMessage = 0;
@@ -36,41 +39,41 @@ var SHOW_SUBWAY = false;
 
 
 var MESSAGES = [
-    "SOUNDS OF THE SAN FRANCISCO UNDERGROUND",
-    "A dB LEVEL  MAP OF BART",
+    "FIGURE OUT YOUR OWN MESSAGE",
+    "FIGURE OUT YOUR OWN MESSAGE",
     " ",
-    "150,000 SAMPLES. ~35 HOURS",
-    "AVG 89 dB. MAX 129.8 dB",
-    "125 dB === PAIN",
-    " ",
-    "Trains in Japan are so quiet,",
-    "they request you turn off your phones",
-    "so you won't disturb anyone",
-    " ",
-    "on BART, headphones are your only hope",
-    "What a wonderful way to start and end a workday",
+    "",
+    "FIGURE OUT YOUR OWN MESSAGE",
+    "FIGURE OUT YOUR OWN MESSAGE",
+    "",
     " ",
     " ",
-    "Don't worry, we'll all be deaf soon",
-    "¯\_(ツ)_/¯"];
+    "FIGURE OUT YOUR OWN MESSAGE",
+    " ",
+    "THIS IS HOW YOU PAUSE",
+    " "];
 
 
 function go() {
     BARTVR_ANIMATE = true;
     document.getElementById('BART').play();
     document.getElementById('go').style.visibility = "hidden";
+    // document.getElementById('numRiders').style.visibility = "hidden";
+
     sound.play();
 
     dbLevels();
 
     setInterval(moveSubway, 25);
 
+    // limit visual changes.
     setTimeout(function () {
         setInterval(changeMessage, 7500);
     }, 40000);
 }
 
 
+// part of the presentation
 function changeMessage() {
     var msg = MESSAGES[currentMessage];
     if (msg) {
@@ -79,7 +82,8 @@ function changeMessage() {
     }
 }
 
-
+// define some db levels.  set the particle visuals based upon DB leve.  
+// - subtle so as not to distract from mobile experience.
 function dbLevels() {
     var db;
     var dbLevel = $('#dbs');
@@ -139,13 +143,9 @@ function dbLevels() {
             "#FF0000", // red        5
         ];
 
-        if(GLITCH_MODE_STARTED){
-
-        }
-
         for (var i = 0; i < emitters.length; i++) {
             console.log(emitters[i].activeMultiplier);
-            emitters[i].activeMultiplier = db / 20;
+            emitters[i].activeMultiplier = db / 60;
             dbLevel.html(parseInt(db, 10));
             if (db >= 105) {
 //                console.log(db, '> 105');
@@ -159,7 +159,7 @@ function dbLevels() {
                 emitters[i].opacity.value[1] = fast.opacity;
                 emitters[i].size.value = 4;
             } else if (db < 105 && db >= 80) {
-                console.log(db, '80 - 100');
+                // console.log(db, '80 - 100');
                 emitters[i].color.value[0].setStyle(particleColors[2]);
                 emitters[i].color.value[1].setStyle(particleColors[1]);
                 emitters[i].acceleration.value = mid.accel;
@@ -170,7 +170,7 @@ function dbLevels() {
                 emitters[i].opacity.value[1] = mid.opacity;
                 emitters[i].size.value = 3;
             } else {
-                console.log(db, 'below 80');
+                // console.log(db, 'below 80');
                 emitters[i].color.value[0].setStyle(particleColors[2]);
                 emitters[i].color.value[1].setStyle(particleColors[2]);
                 emitters[i].acceleration.value = slow.accel;
@@ -199,6 +199,7 @@ function createParticleGroups() {
 }
 function initParticles() {
 
+    // TODO: blog reference for particles
     var pg = new SPE.Group({
         texture: {
             value: THREE.ImageUtils.loadTexture('./images/smoke_particle.png')
@@ -244,16 +245,11 @@ function initParticles() {
 
 function init() {
 
-    fb_freq = new Firebase("https://sf-noise.firebaseio.com/freq");
-    fb_start = new Firebase("https://sf-noise.firebaseio.com/start");
-    fb_db = new Firebase("https://sf-noise.firebaseio.com/db");
-    fb_riders = new Firebase("https://sf-noise.firebaseio.com/riders");
+    fb_freq = new Firebase(FB_URL + "/freq");
+    fb_start = new Firebase(FB_URL + "/start");
+    fb_db = new Firebase(FB_URL + "/db");
+    fb_riders = new Firebase(FB_URL +  + "/riders");
     numRiders = $('#numRiders');
-
-    fb_start.transaction(function () {
-        return false;
-    });
-
 
     if (FB_ACTIVE) {
         fb_riders.on('value', function (data) {
@@ -308,7 +304,7 @@ function init() {
         obj.position.set(-50, 0, -50);
 
         sound = new THREE.PositionalAudio(listener);
-        audioLoader.load('sound/sound.mp3', function (buffer) {
+        audioLoader.load('sound/web.mp3', function (buffer) {
             sound.setBuffer(buffer);
             sound.setRefDistance(20);
             sound.setVolume(0);

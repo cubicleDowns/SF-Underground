@@ -18,8 +18,8 @@ test:
 # Deploying to Surge
 deployment:
   production:
-    branch: present
+    branch: master
     commands:
       - npm install -g surge
-      - surge ./rider/www m.morlocksf.com
-      - surge ./app control.morlocksf.com
+      - surge ./rider/www [YOUR MOBILE SURGE ENDPOINT HERE]
+      - surge ./app [YOUR CONTROL SURGE ENDPOINT HERE]
