@@ -31,6 +31,7 @@ I recorded hours of sound.  You can read more about the "why" at my Medium artic
 [Here are a dozen or so](https://docs.google.com/spreadsheets/d/1kgTDsA4py-qznc-3fA_fCE9ToBYigWeEwpd9l7lzNFw/edit?usp=sharing) recording runs providing sound data.  I've included a garage door test as well.
 
 You can take this data and map the magitudes to a 2D map using this [Cartesian data]().  This XY was used for the mapping as well as the dynamically generated BART line splines and may be found in the [bart.js](https://github.com/cubicleDowns/SF-Underground/blob/master/app/bart.js) file.  These splines were the path for the particle emitters as well.
+
 | Stop                              | X   | Y   | X (Normalized) | Y (Normalized) | 
 |-----------------------------------|-----|-----|----------------|----------------| 
 | Pittsburg/Bay Point               | 852 | 962 | 0.852          | 0.962          | 
