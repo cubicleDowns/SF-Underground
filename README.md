@@ -13,7 +13,7 @@ I divided this project up into a few main areas:
 ![Performace screen shot - dB map on the right, BART VR on the left](https://raw.githubusercontent.com/cubicleDowns/SF-Underground/5255f2e353d92f5073540601273aab19456c4a8b/rider/bartVR.jpg)
 
 ## dB Level Recordings
-I recorded hours of sound.  You can read more about the "why" at my Medium article  [here](https://medium.com/@cubicleDowns/do-you-ride-bart-i-do-daily-8778a2e6649c).  In short, I ended up with an array of sound levels measurements exactly 1 second apart.  Here is  10 seconds from an 8 min [Embarcadero to West Oakland ](https://docs.google.com/spreadsheets/d/1NoyLPjs2jCeE22xbY6eKO-jmQ7t6LeWsLKtUiRHjlVQ/edit?usp=sharing) recording.
+I recorded hours of sound.  You can read more about the "why" at my Medium article  [here](https://medium.com/@cubicleDowns/do-you-ride-bart-i-do-daily-8778a2e6649c).  In short, I ended up with an array of sound levels measurements exactly 1 second apart.  Below is a 10 second data sample from an 8 min trip between [Embarcadero and West Oakland ](https://docs.google.com/spreadsheets/d/1NoyLPjs2jCeE22xbY6eKO-jmQ7t6LeWsLKtUiRHjlVQ/edit?usp=sharing) recording.
 
 #### Sound Level Sample
 | Place | Date     | Time     | Value | Unit | 
@@ -30,7 +30,7 @@ I recorded hours of sound.  You can read more about the "why" at my Medium artic
 | 149   | 6/1/2016 | 22:22:29 | 96.7  | dB   | 
 
 ## Sound Map Design
-[Here are a dozen or so](https://docs.google.com/spreadsheets/d/1kgTDsA4py-qznc-3fA_fCE9ToBYigWeEwpd9l7lzNFw/edit?usp=sharing) recording runs providing sound data.  I've included a garage door test as well.
+[Here are a dozen or so](https://docs.google.com/spreadsheets/d/1kgTDsA4py-qznc-3fA_fCE9ToBYigWeEwpd9l7lzNFw/edit?usp=sharing) recording runs in Google Sheets providing sound data.  I've included a garage door test as well.
 
 You can take this data and map the magitudes to a 2D map using this [Cartesian data]().  This XY was used for the mapping as well as the dynamically generated BART line splines and may be found in the [bart.js](https://github.com/cubicleDowns/SF-Underground/blob/master/app/bart.js) file.  These splines were the path for the particle emitters as well.
 
@@ -51,22 +51,20 @@ You can take this data and map the magitudes to a 2D map using this [Cartesian d
 
 Plot the sound and locations to create a depth map.  There are many ways to do this, I'd suggest using [Python](http://stackoverflow.com/questions/2369492/generate-a-heatmap-in-matplotlib-using-a-scatter-data-set) or [JavaScript](https://www.patrick-wied.at/static/heatmapjs/).  Extrude the [depth map using Maya](https://knowledge.autodesk.com/support/maya/learn-explore/caas/CloudHelp/cloudhelp/2016/ENU/Maya/files/GUID-9E4B4E8F-F4B7-4005-B3F0-5441E65170CF-htm.html) to create this very depressing aural mesh: ![This view is from the sounth.  The large hump in the middle is the route under the San Francisco bay](https://cdn-images-1.medium.com/max/2000/1*zFv2hk7tDMsYvXiGYkmWbw.png)  Export the mesh as an OBJ for future import.  NOTE, I only have Maya 2013 and had to export/import repeatedly to clean up the OBJ file. glTF exporter didn't work for some reason.
 
-[TODO:  ADD REDUCED MESH SCREEN CAPTURE HERE]
-
 ## Mobile Experience by SeaCloud9
 Check out his writeup [here](https://github.com/cubicleDowns/SF-Underground/blob/master/rider/README.md).
 
 ## App Communication
-Our app was composed of two major communcation requirements.   Control to Clients and Clients to Clients.   That second realtion ship is the scariest to consider
+Our app was composed of two major communcation requirements.   Control to Clients and Clients to Clients.   That second realtionship is the scariest to consider.
 
 ##### Control to Client
  - recorded dB levels every second
- - avg-freq @ 60 (fps)
+ - avg-freq @ 60 fps
  - manual interrupts (e.g. BART arrives at a start or visualization activates)
 
 ##### Client to Client
- - position  at 60 (fps)
- - rotation  @ 60 (fps)
+ - position  at 60 fps
+ - rotation  @ 60 fps
  - NOTE: control is a client as well
 
 ### Deployment
